@@ -55,10 +55,13 @@ export default {
       boxShadow: {
         soft: "var(--shadow-soft)",
         medium: "var(--shadow-medium)",
+        strong: "var(--shadow-strong)",
       },
       backgroundImage: {
         "gradient-primary": "var(--gradient-primary)",
         "gradient-secondary": "var(--gradient-secondary)",
+        "gradient-accent": "var(--gradient-accent)",
+        "gradient-hero": "var(--gradient-hero)",
       },
       transitionProperty: {
         smooth: "var(--transition-smooth)",

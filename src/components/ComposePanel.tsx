@@ -71,15 +71,15 @@ export function ComposePanel({
   const hasRedactedText = redactedText && redactedText.trim().length > 0;
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 shadow-medium border-border/50">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-secondary" />
+            <Sparkles className="h-5 w-5 text-secondary" />
             <h2 className="text-xl font-semibold">AI Compose</h2>
           </div>
           {!hasApiKey && (
-            <Badge variant="outline" className="bg-muted">
+            <Badge variant="outline" className="bg-muted border-muted-foreground/20 font-semibold shadow-soft">
               Mock Mode
             </Badge>
           )}
@@ -112,7 +112,7 @@ export function ComposePanel({
           size="lg"
           onClick={handleCompose}
           disabled={!hasRedactedText || isProcessing}
-          className="w-full h-14 text-lg bg-gradient-primary hover:opacity-90"
+          className="w-full h-14 text-lg bg-gradient-secondary hover:opacity-90 shadow-medium font-semibold"
         >
           {isProcessing ? (
             <>

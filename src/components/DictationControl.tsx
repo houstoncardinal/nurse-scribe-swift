@@ -129,14 +129,17 @@ export function DictationControl({ onTranscriptUpdate, isProcessing }: Dictation
   }
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 shadow-medium border-border/50">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Voice Dictation</h2>
+          <div className="flex items-center gap-2">
+            <Mic className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-semibold">Voice Dictation</h2>
+          </div>
           {isRecording && (
             <div className="flex items-center gap-2 text-destructive">
-              <div className="h-3 w-3 rounded-full bg-destructive animate-pulse" />
-              <span className="text-sm font-medium">Recording...</span>
+              <div className="h-3 w-3 rounded-full bg-destructive animate-pulse shadow-soft" />
+              <span className="text-sm font-semibold">Recording...</span>
             </div>
           )}
         </div>
@@ -166,9 +169,9 @@ export function DictationControl({ onTranscriptUpdate, isProcessing }: Dictation
         </div>
 
         {(transcript || interimTranscript) && (
-          <div className="p-4 bg-muted rounded-lg min-h-[120px] max-h-[300px] overflow-y-auto">
-            <p className="text-sm whitespace-pre-wrap">
-              <span className="text-foreground">{transcript}</span>
+          <div className="p-4 bg-muted/80 rounded-lg min-h-[120px] max-h-[300px] overflow-y-auto border border-border/30 shadow-soft">
+            <p className="text-sm leading-relaxed whitespace-pre-wrap">
+              <span className="text-foreground font-medium">{transcript}</span>
               <span className="text-muted-foreground italic">{interimTranscript}</span>
             </p>
           </div>

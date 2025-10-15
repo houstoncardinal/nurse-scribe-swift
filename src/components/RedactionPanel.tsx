@@ -46,24 +46,24 @@ export function RedactionPanel({
   const hasTranscript = transcript && transcript.trim().length > 0;
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 shadow-medium border-border/50">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
             <h2 className="text-xl font-semibold">PHI Protection</h2>
           </div>
-          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+          <Badge variant="outline" className="bg-primary/15 text-primary border-primary/30 font-semibold shadow-soft">
             No-PHI Mode
           </Badge>
         </div>
 
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           All redaction happens locally in your browser. No data is sent to servers until after
-          redaction.
+          redaction. Your privacy is our priority.
         </p>
 
-        <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+        <div className="flex items-center justify-between p-3 bg-muted/80 rounded-lg border border-border/30 shadow-soft">
           <Label htmlFor="redact-names" className="text-sm cursor-pointer">
             Redact potential patient names
           </Label>
@@ -147,8 +147,8 @@ export function RedactionPanel({
               </div>
             </div>
 
-            <div className="p-4 bg-muted rounded-lg max-h-[200px] overflow-y-auto">
-              <p className="text-xs font-mono whitespace-pre-wrap">
+            <div className="p-4 bg-muted/80 rounded-lg max-h-[200px] overflow-y-auto border border-border/30 shadow-soft">
+              <p className="text-xs font-mono whitespace-pre-wrap leading-relaxed">
                 {redactionResult.redactedText}
               </p>
             </div>

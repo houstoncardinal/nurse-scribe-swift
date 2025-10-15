@@ -60,15 +60,15 @@ export function ExportPanel({ composeResult, redactionResult }: ExportPanelProps
   };
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 shadow-medium border-border/50">
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Download className="h-5 w-5 text-accent" />
           <h2 className="text-xl font-semibold">Export</h2>
         </div>
 
-        <p className="text-sm text-muted-foreground">
-          Export your composed note to clipboard or download as a file
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Export your composed note to clipboard or download as a file for EHR integration
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -77,7 +77,7 @@ export function ExportPanel({ composeResult, redactionResult }: ExportPanelProps
             variant="outline"
             onClick={handleCopyToClipboard}
             disabled={!hasNote}
-            className="h-14"
+            className="h-14 font-semibold shadow-soft hover:shadow-medium transition-all"
           >
             <Copy className="mr-2 h-5 w-5" />
             Clipboard
@@ -88,7 +88,7 @@ export function ExportPanel({ composeResult, redactionResult }: ExportPanelProps
             variant="outline"
             onClick={handleDownloadText}
             disabled={!hasNote}
-            className="h-14"
+            className="h-14 font-semibold shadow-soft hover:shadow-medium transition-all"
           >
             <FileText className="mr-2 h-5 w-5" />
             TXT
@@ -99,7 +99,7 @@ export function ExportPanel({ composeResult, redactionResult }: ExportPanelProps
             variant="outline"
             onClick={handleDownloadPDF}
             disabled={!hasNote}
-            className="h-14"
+            className="h-14 font-semibold shadow-soft hover:shadow-medium transition-all"
           >
             <Download className="mr-2 h-5 w-5" />
             PDF
