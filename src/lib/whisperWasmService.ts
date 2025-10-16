@@ -5,11 +5,13 @@
 
 import { pipeline, env } from '@xenova/transformers';
 
-// Configure transformers to use remote models (they're cached locally)
+// Configure transformers to use CDN for better reliability
 env.allowRemoteModels = true;
-env.allowLocalModels = true;
+env.allowLocalModels = false; // Disable local models for now
 env.remoteModelURL = 'https://huggingface.co';
-env.remotePathTemplate = 'https://huggingface.co/{model}/resolve/{revision}/{filename}';
+env.remotePathTemplate = 'https://huggingface.co/{model}/resolve/main/{filename}';
+env.backends.onnx.wasm.proxy = true;
+env.backends.onnx.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/@xenova/transformers@latest/dist/';
 
 interface WhisperResult {
   text: string;
@@ -49,40 +51,64 @@ class WhisperWasmService {
         this.isInitialized = false;
         return;
       }
+
+      // Try to initialize with a simpler approach first
+      console.log('📦 Loading Whisper model from CDN...');
       
-      // Use the smaller, faster model for better performance
       this.pipeline = await pipeline(
         'automatic-speech-recognition',
-        'Xenova/whisper-tiny.en', // English-only model for better performance
+        'Xenova/whisper-tiny.en',
         {
-          quantized: true, // Use quantized model for smaller size
+          quantized: true,
           progress_callback: (progress: any) => {
             if (this.onProgress) {
+              console.log(`📈 Whisper loading progress: ${Math.round((progress.loaded / progress.total) * 100)}%`);
               this.onProgress(progress.loaded / progress.total);
             }
-          },
-          // Add proper configuration for model loading
-          model_file_name: 'model.onnx',
-          config_file_name: 'config.json',
-          tokenizer_file_name: 'tokenizer.json'
+          }
         }
       );
       
       this.isInitialized = true;
       console.log('✅ Whisper WebAssembly initialized successfully');
+      
     } catch (error: any) {
       console.error('❌ Failed to initialize Whisper WebAssembly:', error);
       
-      // Log specific error details for debugging
-      if (error.message?.includes('JSON')) {
-        console.warn('⚠️ Whisper model files not found - falling back to browser speech recognition');
-      } else if (error.message?.includes('network')) {
-        console.warn('⚠️ Network error loading Whisper - falling back to browser speech recognition');
-      } else {
-        console.warn('⚠️ Whisper initialization failed - falling back to browser speech recognition');
+      // Try alternative approach with different model
+      try {
+        console.log('🔄 Trying alternative Whisper model...');
+        
+        this.pipeline = await pipeline(
+          'automatic-speech-recognition',
+          'openai/whisper-tiny',
+          {
+            quantized: true,
+            progress_callback: (progress: any) => {
+              if (this.onProgress) {
+                this.onProgress(progress.loaded / progress.total);
+              }
+            }
+          }
+        );
+        
+        this.isInitialized = true;
+        console.log('✅ Whisper WebAssembly initialized successfully with alternative model');
+        
+      } catch (altError: any) {
+        console.error('❌ Alternative Whisper model also failed:', altError);
+        
+        // Log specific error details for debugging
+        if (error.message?.includes('JSON') || altError.message?.includes('JSON')) {
+          console.warn('⚠️ Whisper model files not found - falling back to browser speech recognition');
+        } else if (error.message?.includes('network') || altError.message?.includes('network')) {
+          console.warn('⚠️ Network error loading Whisper - falling back to browser speech recognition');
+        } else {
+          console.warn('⚠️ Whisper initialization failed - falling back to browser speech recognition');
+        }
+        
+        this.isInitialized = false;
       }
-      
-      this.isInitialized = false;
     }
   }
 

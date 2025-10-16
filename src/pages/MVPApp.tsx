@@ -163,9 +163,9 @@ export function MVPApp() {
         setVoiceSupported(isSupported);
 
         if (isSupported) {
-          // Configure voice service options - use browser speech recognition as primary
+          // Configure voice service options - use Whisper as primary for better accuracy
           voiceRecognitionService.setOptions({
-            useWhisper: false, // Use browser speech recognition as primary
+            useWhisper: true, // Use Whisper as primary for better accuracy
             fallbackToBrowser: true,
             language: 'en-US',
             maxRecordingTime: 60

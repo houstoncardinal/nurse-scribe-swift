@@ -4,7 +4,7 @@
  */
 
 // Generate cache names with version for cache busting
-const VERSION = '1.4.5';
+const VERSION = '1.4.6';
 const TIMESTAMP = Date.now();
 
 // Environment detection
