@@ -269,24 +269,9 @@ async function syncOfflineNotes() {
 
 async function syncAnalytics() {
   try {
-    // Get offline analytics from localStorage
-    const offlineAnalytics = localStorage.getItem('nursescribe_offline_analytics');
-    
-    if (offlineAnalytics) {
-      const analytics = JSON.parse(offlineAnalytics);
-      
-      await fetch('/api/analytics', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(analytics)
-      });
-      
-      // Clear offline analytics after successful sync
-      localStorage.removeItem('nursescribe_offline_analytics');
-      console.log('Synced offline analytics');
-    }
+    // Service workers don't have access to localStorage
+    // In a real implementation, this would use IndexedDB or communicate with the main thread
+    console.log('Analytics sync would happen here in a real implementation');
   } catch (error) {
     console.error('Background sync for analytics failed:', error);
   }
@@ -294,24 +279,9 @@ async function syncAnalytics() {
 
 async function syncEducationProgress() {
   try {
-    // Get offline education progress
-    const offlineProgress = localStorage.getItem('nursescribe_offline_education');
-    
-    if (offlineProgress) {
-      const progress = JSON.parse(offlineProgress);
-      
-      await fetch('/api/education/progress', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(progress)
-      });
-      
-      // Clear offline progress after successful sync
-      localStorage.removeItem('nursescribe_offline_education');
-      console.log('Synced offline education progress');
-    }
+    // Service workers don't have access to localStorage
+    // In a real implementation, this would use IndexedDB or communicate with the main thread
+    console.log('Education progress sync would happen here in a real implementation');
   } catch (error) {
     console.error('Background sync for education progress failed:', error);
   }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mic, MicOff, Play, Pause, Square, Clock, Zap, Shield, Keyboard, Upload } from 'lucide-react';
+import { Mic, MicOff, Play, Pause, Square, Clock, Zap, Shield, Keyboard, Upload, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -52,34 +52,34 @@ export function MVPHomeScreen({
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
-      {/* Compact Header Section */}
-      <div className="flex-shrink-0 p-4 pb-2">
-        <div className="text-center space-y-2">
-          {/* Compact Hero */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-teal-500/25">
-                <Mic className="h-4 w-4 text-white" />
+      {/* Responsive Header Section */}
+      <div className="flex-shrink-0 p-4 pb-2 md:p-6 md:pb-4">
+        <div className="text-center space-y-2 md:space-y-4">
+          {/* Responsive Hero */}
+          <div className="space-y-1 md:space-y-3">
+            <div className="flex items-center justify-center gap-2 md:gap-3">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg md:rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/25">
+                <Mic className="h-4 w-4 md:h-5 md:w-5 text-white" />
               </div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+              <h1 className="text-xl md:text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                 Start New Note
               </h1>
             </div>
-            <p className="text-xs text-slate-600 font-medium">Professional AI-powered documentation</p>
+            <p className="text-xs md:text-base text-slate-600 font-medium">Professional AI-powered documentation</p>
           </div>
 
-          {/* Compact Template Selector */}
-          <div className="max-w-sm mx-auto">
+          {/* Responsive Template Selector */}
+          <div className="max-w-sm md:max-w-lg mx-auto">
             <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-              <SelectTrigger className="w-full h-9 text-sm bg-white border border-slate-200 hover:border-teal-300 focus:border-teal-500 transition-colors">
+              <SelectTrigger className="w-full h-9 md:h-12 text-sm md:text-base bg-white border border-slate-200 hover:border-teal-300 focus:border-teal-500 transition-colors shadow-sm md:shadow-md">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-white border border-slate-200 shadow-xl">
                 {templates.map((template) => (
                   <SelectItem key={template.value} value={template.value} className="hover:bg-teal-50">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full" />
-                      <span className="font-medium text-sm">{template.label}</span>
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="w-2 h-2 md:w-3 md:h-3 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full" />
+                      <span className="font-medium text-sm md:text-base">{template.label}</span>
                     </div>
                   </SelectItem>
                 ))}
@@ -89,8 +89,8 @@ export function MVPHomeScreen({
         </div>
       </div>
 
-      {/* Main Content Area - Optimized for no scrolling */}
-      <div className="flex-1 flex flex-col items-center justify-center p-3 space-y-4">
+      {/* Responsive Main Content Area */}
+      <div className="flex-1 flex flex-col items-center justify-center p-3 md:p-6 space-y-4 md:space-y-6">
         {showInputSelector ? (
           <div className="w-full max-w-2xl">
             <InputMethodSelector
@@ -113,8 +113,8 @@ export function MVPHomeScreen({
           </div>
         ) : (
                   <>
-                    {/* Optimized Recording Button */}
-                    <div className="relative flex flex-col items-center space-y-2">
+                    {/* Responsive Recording Button */}
+                    <div className="relative flex flex-col items-center space-y-2 md:space-y-4">
                       {/* Recording Button with Enhanced Animations */}
                       <div className="relative">
                         {/* Multiple Pulse Rings */}
@@ -122,13 +122,14 @@ export function MVPHomeScreen({
                           <>
                             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-500 to-pink-600 animate-ping opacity-60 scale-110" />
                             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 to-pink-500 animate-ping opacity-40 scale-125 animation-delay-300" />
+                            <div className="hidden md:block absolute inset-0 rounded-full bg-gradient-to-r from-red-300 to-pink-400 animate-ping opacity-20 scale-140 animation-delay-700" />
                           </>
                         )}
                         
-                        {/* Main Button - Smaller for better fit */}
+                        {/* Responsive Main Button */}
                         <Button
                           size="lg"
-                          className={`w-28 h-28 rounded-full shadow-2xl transition-all duration-500 transform hover:scale-105 active:scale-95 ${
+                          className={`w-28 h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full shadow-2xl transition-all duration-500 transform hover:scale-105 active:scale-95 ${
                             isRecording 
                               ? 'bg-gradient-to-br from-red-500 via-pink-600 to-red-600 hover:from-red-600 hover:via-pink-700 hover:to-red-700 shadow-red-500/30' 
                               : 'bg-gradient-to-br from-teal-500 via-blue-600 to-teal-600 hover:from-teal-600 hover:via-blue-700 hover:to-teal-700 shadow-teal-500/30'
@@ -137,14 +138,14 @@ export function MVPHomeScreen({
                           disabled={isProcessing}
                         >
                           {isRecording ? (
-                            <MicOff className="h-12 w-12 text-white drop-shadow-lg" />
+                            <MicOff className="h-12 w-12 md:h-16 md:w-16 lg:h-20 lg:w-20 text-white drop-shadow-lg" />
                           ) : (
-                            <Mic className="h-12 w-12 text-white drop-shadow-lg" />
+                            <Mic className="h-12 w-12 md:h-16 md:w-16 lg:h-20 lg:w-20 text-white drop-shadow-lg" />
                           )}
                         </Button>
                         
-                        {/* Status Indicator */}
-                        <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full border-3 border-white ${
+                        {/* Responsive Status Indicator */}
+                        <div className={`absolute -top-1 -right-1 md:-top-2 md:-right-2 w-5 h-5 md:w-6 md:h-6 rounded-full border-3 md:border-4 border-white ${
                           isRecording ? 'bg-red-500 animate-pulse' : 
                           isProcessing ? 'bg-yellow-500 animate-spin' : 
                           'bg-green-500'
