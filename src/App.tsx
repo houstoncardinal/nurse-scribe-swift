@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
 import { EducationMode } from "@/components/EducationMode";
 import { AdminDashboard } from "@/components/AdminDashboard";
+import { AdminDashboard as AdminDashboardPage } from "@/pages/AdminDashboard";
 import { pwaService } from "@/lib/pwa";
 import { supabaseService } from "@/lib/supabase";
 
@@ -72,6 +73,7 @@ const App = () => {
             <Route path="/" element={<MVPApp />} />
             <Route path="/full" element={<Index />} />
             <Route path="/landing" element={<LandingPage />} />
+            <Route path="/admin" element={<AdminDashboardPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -125,10 +125,10 @@ export function MobileHeader({
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-80 bg-white/98 dark:bg-slate-900/98 backdrop-blur-2xl">
-                  <div className="flex flex-col h-full">
+                <SheetContent side="right" className="w-80 bg-white border-l border-slate-200 shadow-xl">
+                  <div className="flex flex-col h-full bg-white">
                     {/* Header */}
-                    <div className="flex items-center gap-3 mb-6">
+                    <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-200">
                       <Avatar className="w-12 h-12">
                         <AvatarImage src="/placeholder.svg" />
                         <AvatarFallback className="bg-gradient-to-br from-teal-500 to-blue-600 text-white font-semibold">
@@ -136,35 +136,33 @@ export function MobileHeader({
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <h2 className="font-semibold text-slate-900 dark:text-white">{userProfile.name}</h2>
-                        <p className="text-sm text-slate-600 dark:text-slate-400">{userProfile.role}</p>
+                        <h2 className="font-semibold text-slate-900">{userProfile.name}</h2>
+                        <p className="text-sm text-slate-600">{userProfile.role}</p>
                       </div>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="p-1">
+                          <Button variant="ghost" size="sm" className="p-1 hover:bg-slate-100">
                             <ChevronDown className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem>Profile Settings</DropdownMenuItem>
-                          <DropdownMenuItem>Preferences</DropdownMenuItem>
+                        <DropdownMenuContent align="end" className="w-48 bg-white border border-slate-200 shadow-lg">
+                          <DropdownMenuItem className="hover:bg-slate-50">Profile Settings</DropdownMenuItem>
+                          <DropdownMenuItem className="hover:bg-slate-50">Preferences</DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600">Sign Out</DropdownMenuItem>
+                          <DropdownMenuItem className="text-red-600 hover:bg-red-50">Sign Out</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
 
-                    <Separator className="mb-6" />
-
                     {/* Quick Actions */}
-                    <div className="space-y-2 mb-6">
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white px-1">Quick Actions</h3>
+                    <div className="space-y-3 mb-6">
+                      <h3 className="text-sm font-semibold text-slate-900 px-1">Quick Actions</h3>
                       <Button
                         onClick={() => {
                           onNewNote?.();
                           setIsMenuOpen(false);
                         }}
-                        className="w-full justify-start h-11 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white"
+                        className="w-full justify-start h-12 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-sm"
                       >
                         <Mic className="h-4 w-4 mr-3" />
                         New Note
@@ -175,7 +173,7 @@ export function MobileHeader({
                           onNavigate('settings');
                           setIsMenuOpen(false);
                         }}
-                        className="w-full justify-start h-11"
+                        className="w-full justify-start h-12 border-slate-200 hover:bg-slate-50"
                       >
                         <Settings className="h-4 w-4 mr-3" />
                         Settings
@@ -184,59 +182,62 @@ export function MobileHeader({
 
                     {/* Navigation */}
                     <div className="space-y-2 mb-6">
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white px-1">Navigation</h3>
+                      <h3 className="text-sm font-semibold text-slate-900 px-1">Navigation</h3>
                       {navigationItems.map((item) => {
                         const Icon = item.icon;
                         return (
                           <Button
                             key={item.id}
                             variant={item.active ? "default" : "ghost"}
-                            className={`w-full justify-start h-11 ${item.active ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white' : ''}`}
+                            className={`w-full justify-start h-12 ${
+                              item.active 
+                                ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-sm' 
+                                : 'hover:bg-slate-50 text-slate-700'
+                            }`}
                             onClick={() => {
                               onNavigate(item.id);
                               setIsMenuOpen(false);
                             }}
                           >
-                            <Icon className={`h-4 w-4 mr-3 ${item.active ? 'text-white' : ''}`} />
+                            <Icon className={`h-4 w-4 mr-3 ${item.active ? 'text-white' : 'text-slate-600'}`} />
                             {item.label}
                           </Button>
                         );
                       })}
                     </div>
 
-                    <Separator className="mb-6" />
-
-                    {/* Additional Menu Items */}
-                    <div className="space-y-2 mb-6">
-                      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                        More
-                      </h3>
-                      {menuItems.map((item) => {
-                        const Icon = item.icon;
-                        return (
-                          <Button
-                            key={item.id}
-                            variant="ghost"
-                            className="w-full justify-start h-11"
-                            onClick={() => {
-                              onNavigate(item.id);
-                              setIsMenuOpen(false);
-                            }}
-                          >
-                            <Icon className="h-4 w-4 mr-3" />
-                            {item.label}
-                          </Button>
-                        );
-                      })}
+                    <div className="border-t border-slate-200 pt-4 mb-6">
+                      {/* Additional Menu Items */}
+                      <div className="space-y-2">
+                        <h3 className="text-sm font-semibold text-slate-900 px-1">More</h3>
+                        {menuItems.map((item) => {
+                          const Icon = item.icon;
+                          return (
+                            <Button
+                              key={item.id}
+                              variant="ghost"
+                              className="w-full justify-start h-12 hover:bg-slate-50 text-slate-700"
+                              onClick={() => {
+                                onNavigate(item.id);
+                                setIsMenuOpen(false);
+                              }}
+                            >
+                              <Icon className="h-4 w-4 mr-3 text-slate-600" />
+                              {item.label}
+                            </Button>
+                          );
+                        })}
+                      </div>
                     </div>
 
-                    <div className="mt-auto pt-6">
-                      <div className="p-4 bg-muted/50 rounded-lg">
+                    {/* HIPAA Status */}
+                    <div className="mt-auto pt-4 border-t border-slate-200">
+                      <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                         <div className="flex items-center gap-2 mb-2">
-                          <Shield className="h-4 w-4 text-success" />
-                          <span className="text-sm font-medium">HIPAA Compliant</span>
+                          <Shield className="h-4 w-4 text-green-600" />
+                          <span className="text-sm font-semibold text-green-800">HIPAA Compliant</span>
                         </div>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-green-700">
                           All data is processed locally. No PHI is stored on servers.
                         </p>
                       </div>
