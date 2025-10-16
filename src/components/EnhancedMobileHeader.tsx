@@ -3,7 +3,7 @@ import {
   Menu, Mic, Stethoscope, Shield, User, LogIn, LogOut, Settings, 
   FileText, Download, BarChart3, Users, BookOpen, History, 
   Bell, ChevronDown, X, Home, Calendar, Target, Award, 
-  Activity, Zap, AlertTriangle, Clock, TrendingUp
+  Activity, Zap, AlertTriangle, Clock, TrendingUp, HelpCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
