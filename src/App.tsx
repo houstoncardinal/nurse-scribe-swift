@@ -31,12 +31,23 @@ const App = () => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
     
+    console.log('🔍 Checking Supabase environment variables...');
+    console.log('VITE_SUPABASE_URL:', supabaseUrl ? '✅ Present' : '❌ Missing');
+    console.log('VITE_SUPABASE_ANON_KEY:', supabaseKey ? '✅ Present' : '❌ Missing');
+    
     if (supabaseUrl && supabaseKey) {
+      console.log('🚀 Initializing Supabase with provided credentials...');
       supabaseService.initialize({
         url: supabaseUrl,
         anonKey: supabaseKey,
         encrypted: true
-      }).catch(console.error);
+      }).then(() => {
+        console.log('✅ Supabase initialization completed');
+      }).catch((error) => {
+        console.error('❌ Supabase initialization failed:', error);
+      });
+    } else {
+      console.warn('⚠️ Supabase environment variables not found - continuing without Supabase integration');
     }
 
     // Handle PWA events

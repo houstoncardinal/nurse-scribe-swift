@@ -4,14 +4,14 @@
  */
 
 // Generate cache names with version for cache busting
-const VERSION = '1.3.0';
+const VERSION = '1.4.0';
 const TIMESTAMP = Date.now();
 const CACHE_NAME = `nursescribe-v${VERSION}-${TIMESTAMP}`;
 const STATIC_CACHE = `nursescribe-static-v${VERSION}-${TIMESTAMP}`;
 const DYNAMIC_CACHE = `nursescribe-dynamic-v${VERSION}-${TIMESTAMP}`;
 
 // Force cache invalidation on every update
-const FORCE_CACHE_CLEAR = false;
+const FORCE_CACHE_CLEAR = true;
 
 // Files to cache for offline functionality
 const STATIC_FILES = [

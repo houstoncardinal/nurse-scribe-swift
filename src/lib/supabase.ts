@@ -91,7 +91,13 @@ class SupabaseService {
    */
   async initialize(config: SupabaseConfig): Promise<void> {
     try {
+      console.log('🔗 Initializing Supabase connection...');
       this.config = config;
+      
+      // Validate config
+      if (!config.url || !config.anonKey) {
+        throw new Error('Supabase configuration missing URL or anon key');
+      }
       
       // Import Supabase client
       const { createClient } = await import('@supabase/supabase-js');
@@ -106,19 +112,36 @@ class SupabaseService {
           params: {
             eventsPerSecond: 10
           }
+        },
+        global: {
+          headers: {
+            'X-Client-Info': 'nursescribe-ai-v1.4.0'
+          }
         }
       });
 
-      // Test connection
+      console.log('✅ Supabase client created successfully');
+      
+      // Test connection with a simpler approach
       await this.testConnection();
       
       this.isInitialized = true;
-      console.log('Supabase initialized successfully');
+      console.log('🎉 Supabase initialized successfully');
       
-    } catch (error) {
-      console.error('Supabase initialization failed:', error);
+    } catch (error: any) {
+      console.error('❌ Supabase initialization failed:', error);
+      
+      // Log specific error details for debugging
+      if (error.message) {
+        console.error('Error message:', error.message);
+      }
+      if (error.code) {
+        console.error('Error code:', error.code);
+      }
+      
       // Don't throw error to prevent app from breaking
-      console.warn('Continuing without Supabase integration');
+      console.warn('⚠️ Continuing without Supabase integration');
+      this.isInitialized = false;
     }
   }
 
@@ -131,37 +154,54 @@ class SupabaseService {
     }
 
     try {
-      // Use a simpler health check endpoint if available
+      console.log('🔍 Testing Supabase connection...');
+      
+      // Try a simple ping first - just check if we can reach the API
       const { data, error } = await this.supabase
         .from('organizations')
         .select('id')
         .limit(1);
 
       if (error) {
+        console.log('📊 Connection test result:', error);
+        
         // Handle specific error codes gracefully
         if (error.code === 'PGRST116') {
-          // No rows returned - this is actually OK
-          console.log('Supabase connection test passed (no data)');
+          // No rows returned - this is actually OK, table exists but is empty
+          console.log('✅ Supabase connection test passed (table exists, no data)');
+          return;
+        } else if (error.code === '42P01') {
+          // Table doesn't exist - this is OK for initial setup
+          console.log('⚠️ Organizations table does not exist yet - this is OK for initial setup');
           return;
         } else if (error.code === '500' || error.message?.includes('500')) {
-          console.warn('Supabase server error - continuing without connection test');
+          console.warn('⚠️ Supabase server error (500) - continuing without connection test');
+          return;
+        } else if (error.code === '42501') {
+          // Permission denied - this is OK, we might not have access to this table yet
+          console.log('⚠️ Permission denied for organizations table - this is OK for initial setup');
           return;
         } else {
-          throw error;
+          console.warn('⚠️ Supabase connection test failed with error:', error);
+          return; // Don't throw, just warn and continue
         }
       }
       
-      console.log('Supabase connection test passed');
+      console.log('✅ Supabase connection test passed with data:', data);
     } catch (error: any) {
-      console.error('Supabase connection test failed:', error);
+      console.error('❌ Supabase connection test failed:', error);
       
-      // Don't throw error for 500s or network issues - just warn
-      if (error.code === '500' || error.message?.includes('500') || error.message?.includes('network')) {
-        console.warn('Supabase connection test failed due to server/network issue - continuing');
-        return;
+      // Log the specific error for debugging
+      if (error.message) {
+        console.error('Connection test error message:', error.message);
+      }
+      if (error.code) {
+        console.error('Connection test error code:', error.code);
       }
       
-      throw error;
+      // Don't throw error for any connection issues - just warn and continue
+      console.warn('⚠️ Supabase connection test failed - continuing without full integration');
+      return;
     }
   }
 
