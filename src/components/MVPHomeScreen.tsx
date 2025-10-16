@@ -207,20 +207,28 @@ export function MVPHomeScreen({
                   <Button
                     variant="outline"
                     onClick={() => setShowInputSelector(true)}
-                    className="h-16 flex-col gap-3 bg-white/90 backdrop-blur-sm border-2 border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 shadow-sm hover:shadow-md"
+                    className="h-20 flex flex-col items-center justify-center gap-2 bg-white/90 backdrop-blur-sm border-2 border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 shadow-sm hover:shadow-md rounded-xl"
                   >
-                    <Keyboard className="h-6 w-6 text-blue-600" />
-                    <span className="text-sm font-semibold text-slate-700">Type/Paste</span>
-                    <span className="text-xs text-slate-500">Manual input</span>
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Keyboard className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-sm font-semibold text-slate-700">Type/Paste</span>
+                      <span className="text-xs text-slate-500">Manual input</span>
+                    </div>
                   </Button>
                   <Button
                     variant="outline"
                     onClick={onStartRecording}
-                    className="h-16 flex-col gap-3 bg-white/90 backdrop-blur-sm border-2 border-slate-200 hover:border-teal-400 hover:bg-teal-50 transition-all duration-300 shadow-sm hover:shadow-md"
+                    className="h-20 flex flex-col items-center justify-center gap-2 bg-white/90 backdrop-blur-sm border-2 border-slate-200 hover:border-teal-400 hover:bg-teal-50 transition-all duration-300 shadow-sm hover:shadow-md rounded-xl"
                   >
-                    <Mic className="h-6 w-6 text-teal-600" />
-                    <span className="text-sm font-semibold text-slate-700">Voice</span>
-                    <span className="text-xs text-slate-500">Speech input</span>
+                    <div className="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
+                      <Mic className="h-5 w-5 text-teal-600" />
+                    </div>
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-sm font-semibold text-slate-700">Voice</span>
+                      <span className="text-xs text-slate-500">AI Speech</span>
+                    </div>
                   </Button>
                 </div>
               </div>
