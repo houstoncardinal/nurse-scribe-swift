@@ -151,9 +151,12 @@ class PWAService {
   private async registerBackgroundSync(): Promise<void> {
     try {
       const registration = await navigator.serviceWorker.ready;
-      await registration.sync.register('offline-notes');
-      await registration.sync.register('analytics');
-      await registration.sync.register('education-progress');
+      // Background sync is optional - check if supported
+      if ('sync' in registration) {
+        await (registration as any).sync.register('offline-notes');
+        await (registration as any).sync.register('analytics');
+        await (registration as any).sync.register('education-progress');
+      }
     } catch (error) {
       console.error('Background sync registration failed:', error);
     }

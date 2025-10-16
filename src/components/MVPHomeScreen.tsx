@@ -72,7 +72,7 @@ export function MVPHomeScreen({
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-teal-600" />
-                <SectionHeadline size="lg" color="primary">
+                <SectionHeadline color="primary">
                   Choose Note Template
                 </SectionHeadline>
               </div>
