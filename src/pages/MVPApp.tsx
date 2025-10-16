@@ -748,7 +748,7 @@ export function MVPApp() {
         return (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-slate-900 mb-4">Note History</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Note History</h2>
               <p className="text-slate-600 mb-6">View and manage your past notes</p>
               <div className="bg-white rounded-lg p-8 shadow-lg">
                 <p className="text-slate-500">Feature coming soon!</p>
@@ -764,7 +764,7 @@ export function MVPApp() {
         return (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-slate-900 mb-4">Analytics Dashboard</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Analytics Dashboard</h2>
               <p className="text-slate-600 mb-6">Track your performance and productivity</p>
               <div className="bg-white rounded-lg p-8 shadow-lg">
                 <p className="text-slate-500">Feature coming soon!</p>
@@ -780,7 +780,7 @@ export function MVPApp() {
         return (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-slate-900 mb-4">Education Mode</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Education Mode</h2>
               <p className="text-slate-600 mb-6">Practice with synthetic cases and improve your skills</p>
               <div className="bg-white rounded-lg p-8 shadow-lg">
                 <p className="text-slate-500">Feature coming soon!</p>
@@ -796,7 +796,7 @@ export function MVPApp() {
         return (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-slate-900 mb-4">Team Collaboration</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Team Collaboration</h2>
               <p className="text-slate-600 mb-6">Share notes and collaborate with your team</p>
               <div className="bg-white rounded-lg p-8 shadow-lg">
                 <p className="text-slate-500">Feature coming soon!</p>
@@ -824,169 +824,169 @@ export function MVPApp() {
       {/* Desktop Layout */}
       <div className="hidden lg:block">
         <div className="flex h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
-          {/* Desktop Sidebar */}
-          <aside className="w-72 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
+          {/* Desktop Sidebar - Compact */}
+          <aside className="w-64 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
             <div className="flex flex-col h-full">
-              {/* Logo Section */}
-              <div className="p-6 border-b border-slate-200">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/25">
-                    <Stethoscope className="h-6 w-6 text-white" />
+              {/* Logo Section - Compact */}
+              <div className="p-4 border-b border-slate-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-teal-500/25">
+                    <Stethoscope className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-xl font-bold text-slate-900">NurseScribe AI</h1>
-                    <p className="text-sm text-slate-600">Professional Documentation</p>
+                    <h1 className="text-lg font-bold text-slate-900">NurseScribe AI</h1>
+                    <p className="text-xs text-slate-600">Professional Documentation</p>
                   </div>
                 </div>
               </div>
 
-              {/* User Profile Section */}
-              <div className="p-4 border-b border-slate-200">
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                  <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-semibold text-sm">
+              {/* User Profile Section - Compact */}
+              <div className="p-3 border-b border-slate-200">
+                <div className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
+                  <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-semibold text-xs">
                       {userProfile.name.split(' ').map(n => n[0]).join('')}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-900 truncate">{userProfile.name}</p>
+                    <p className="text-xs font-medium text-slate-900 truncate">{userProfile.name}</p>
                     <p className="text-xs text-slate-600 truncate">{userProfile.role}</p>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleNavigate('profile')}
-                    className="h-8 w-8 p-0"
+                    className="h-6 w-6 p-0"
                   >
-                    <Settings className="h-4 w-4" />
+                    <Settings className="h-3 w-3" />
                   </Button>
                 </div>
               </div>
 
-              {/* Main Navigation */}
-              <div className="flex-1 p-4">
-                <nav className="space-y-2">
-                  <div className="mb-4">
-                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Core Features</h3>
+              {/* Main Navigation - Compact */}
+              <div className="flex-1 p-3 overflow-y-auto">
+                <nav className="space-y-1">
+                  <div className="mb-2">
+                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Core</h3>
                     <div className="space-y-1">
                       <Button
                         variant={currentScreen === 'home' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-11 ${
+                        className={`w-full justify-start h-9 text-sm ${
                           currentScreen === 'home' 
                             ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
                             : 'hover:bg-slate-100 text-slate-700'
                         }`}
                         onClick={() => handleNavigate('home')}
                       >
-                        <Mic className="h-4 w-4 mr-3" />
+                        <Mic className="h-4 w-4 mr-2" />
                         New Note
                       </Button>
                       <Button
                         variant={currentScreen === 'draft' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-11 ${
+                        className={`w-full justify-start h-9 text-sm ${
                           currentScreen === 'draft' 
                             ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
                             : 'hover:bg-slate-100 text-slate-700'
                         }`}
                         onClick={() => handleNavigate('draft')}
                       >
-                        <FileText className="h-4 w-4 mr-3" />
+                        <FileText className="h-4 w-4 mr-2" />
                         Draft Preview
                       </Button>
                       <Button
                         variant={currentScreen === 'export' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-11 ${
+                        className={`w-full justify-start h-9 text-sm ${
                           currentScreen === 'export' 
                             ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
                             : 'hover:bg-slate-100 text-slate-700'
                         }`}
                         onClick={() => handleNavigate('export')}
                       >
-                        <Download className="h-4 w-4 mr-3" />
+                        <Download className="h-4 w-4 mr-2" />
                         Export
                       </Button>
                     </div>
                   </div>
 
-                  <div className="mb-4">
-                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Tools & Analytics</h3>
+                  <div className="mb-2">
+                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Tools & Analytics</h3>
                     <div className="space-y-1">
                       <Button
                         variant={currentScreen === 'history' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-11 ${
+                        className={`w-full justify-start h-9 text-sm ${
                           currentScreen === 'history' 
                             ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
                             : 'hover:bg-slate-100 text-slate-700'
                         }`}
                         onClick={() => handleNavigate('history')}
                       >
-                        <FileText className="h-4 w-4 mr-3" />
+                        <FileText className="h-4 w-4 mr-2" />
                         Note History
                       </Button>
                       <Button
                         variant={currentScreen === 'analytics' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-11 ${
+                        className={`w-full justify-start h-9 text-sm ${
                           currentScreen === 'analytics' 
                             ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
                             : 'hover:bg-slate-100 text-slate-700'
                         }`}
                         onClick={() => handleNavigate('analytics')}
                       >
-                        <BarChart3 className="h-4 w-4 mr-3" />
+                        <BarChart3 className="h-4 w-4 mr-2" />
                         Analytics
                       </Button>
                       <Button
                         variant={currentScreen === 'education' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-11 ${
+                        className={`w-full justify-start h-9 text-sm ${
                           currentScreen === 'education' 
                             ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
                             : 'hover:bg-slate-100 text-slate-700'
                         }`}
                         onClick={() => handleNavigate('education')}
                       >
-                        <BookOpen className="h-4 w-4 mr-3" />
+                        <BookOpen className="h-4 w-4 mr-2" />
                         Education
                       </Button>
                       <Button
                         variant={currentScreen === 'team' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-11 ${
+                        className={`w-full justify-start h-9 text-sm ${
                           currentScreen === 'team' 
                             ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
                             : 'hover:bg-slate-100 text-slate-700'
                         }`}
                         onClick={() => handleNavigate('team')}
                       >
-                        <Users className="h-4 w-4 mr-3" />
+                        <Users className="h-4 w-4 mr-2" />
                         Team
                       </Button>
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Account</h3>
+                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Account</h3>
                     <div className="space-y-1">
                       <Button
                         variant={currentScreen === 'profile' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-11 ${
+                        className={`w-full justify-start h-9 text-sm ${
                           currentScreen === 'profile' 
                             ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
                             : 'hover:bg-slate-100 text-slate-700'
                         }`}
                         onClick={() => handleNavigate('profile')}
                       >
-                        <User className="h-4 w-4 mr-3" />
+                        <User className="h-4 w-4 mr-2" />
                         Profile
                       </Button>
                       <Button
                         variant={currentScreen === 'settings' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-11 ${
+                        className={`w-full justify-start h-9 text-sm ${
                           currentScreen === 'settings' 
                             ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
                             : 'hover:bg-slate-100 text-slate-700'
                         }`}
                         onClick={() => handleNavigate('settings')}
                       >
-                        <Settings className="h-4 w-4 mr-3" />
+                        <Settings className="h-4 w-4 mr-2" />
                         Settings
                       </Button>
                     </div>
@@ -995,10 +995,10 @@ export function MVPApp() {
               </div>
 
               {/* Bottom Actions */}
-              <div className="p-4 border-t border-slate-200">
+              <div className="p-3 border-t border-slate-200">
                 <Button
                   onClick={handleNewNote}
-                  className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-lg h-11"
+                  className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-lg h-9 text-sm"
                 >
                   <Mic className="h-4 w-4 mr-2" />
                   Start New Note
@@ -1007,7 +1007,7 @@ export function MVPApp() {
                   <Button
                     onClick={() => setIsSignInModalOpen(true)}
                     variant="outline"
-                    className="w-full mt-2 h-10"
+                    className="w-full mt-2 h-8 text-sm"
                   >
                     Sign In
                   </Button>

@@ -64,22 +64,97 @@ class EnhancedAIService {
       // Get template guidance from knowledge base
       const templateGuidance = knowledgeBaseService.getTemplateGuidance(prompt.template);
       
-      // Analyze input for medical terms
+      // Analyze input for medical terms and clinical context
       const analysis = this.analyzeInput(prompt.input);
       
-      // Build enhanced prompt with knowledge base context
-      const enhancedPrompt = this.buildEnhancedPrompt(prompt, templateGuidance, analysis);
+      // Extract clinical context and reasoning from input
+      const clinicalContext = this.extractClinicalContext(prompt.input);
       
-      // Generate note with OpenAI
+      // Build enhanced prompt with knowledge base context and clinical reasoning
+      const enhancedPrompt = this.buildEnhancedPrompt(prompt, templateGuidance, analysis, clinicalContext);
+      
+      // Generate note with OpenAI using clinical reasoning
       const response = await this.callOpenAI(enhancedPrompt);
       
-      // Process and enhance response
-      return this.processAIGeneratedNote(response, prompt.template, analysis);
+      // Process and enhance response with clinical validation
+      return this.processAIGeneratedNote(response, prompt.template, analysis, clinicalContext);
       
     } catch (error) {
       console.error('Error generating note:', error);
       return this.generateFallbackNote(prompt);
     }
+  }
+
+  /**
+   * Extract clinical context and reasoning from input
+   */
+  private extractClinicalContext(input: string): any {
+    const context = {
+      urgency: 'routine',
+      complexity: 'simple',
+      chiefComplaint: '',
+      vitalSigns: [],
+      symptoms: [],
+      assessment: [],
+      interventions: [],
+      medications: [],
+      allergies: [],
+      medicalHistory: [],
+      socialFactors: []
+    };
+
+    const lowerInput = input.toLowerCase();
+
+    // Determine urgency level
+    if (lowerInput.includes('emergency') || lowerInput.includes('urgent') || lowerInput.includes('acute')) {
+      context.urgency = 'urgent';
+    } else if (lowerInput.includes('critical') || lowerInput.includes('life-threatening')) {
+      context.urgency = 'critical';
+    }
+
+    // Determine complexity
+    if (lowerInput.includes('multiple') || lowerInput.includes('complex') || lowerInput.includes('comorbid')) {
+      context.complexity = 'complex';
+    }
+
+    // Extract chief complaint
+    const chiefComplaintMatch = input.match(/(?:chief complaint|presents with|complains of)[:\s]*([^.]+)/i);
+    if (chiefComplaintMatch) {
+      context.chiefComplaint = chiefComplaintMatch[1].trim();
+    }
+
+    // Extract vital signs
+    const vitalSignsPatterns = [
+      /blood pressure[:\s]*(\d+\/\d+)/gi,
+      /heart rate[:\s]*(\d+)/gi,
+      /temperature[:\s]*(\d+\.?\d*)/gi,
+      /respiratory rate[:\s]*(\d+)/gi,
+      /oxygen saturation[:\s]*(\d+)/gi
+    ];
+
+    vitalSignsPatterns.forEach(pattern => {
+      const matches = input.match(pattern);
+      if (matches) {
+        context.vitalSigns.push(...matches);
+      }
+    });
+
+    // Extract symptoms
+    const symptoms = ['pain', 'fever', 'nausea', 'vomiting', 'diarrhea', 'constipation', 'shortness of breath', 'cough', 'fatigue', 'weakness'];
+    symptoms.forEach(symptom => {
+      if (lowerInput.includes(symptom)) {
+        context.symptoms.push(symptom);
+      }
+    });
+
+    // Extract medications
+    const medicationPattern = /(?:medications?|drugs?)[:\s]*([^.]+)/i;
+    const medicationMatch = input.match(medicationPattern);
+    if (medicationMatch) {
+      context.medications = medicationMatch[1].split(',').map(m => m.trim());
+    }
+
+    return context;
   }
 
   /**
@@ -131,19 +206,130 @@ class EnhancedAIService {
   }
 
   /**
-   * Get ICD-10 suggestions based on content
+   * Get ICD-10 suggestions based on content with AI enhancement
    */
-  public getICD10Suggestions(content: string): string[] {
-    const analysis = this.analyzeInput(content);
-    const suggestions: string[] = [];
+  public async getICD10Suggestions(content: string, template: string = 'SOAP', clinicalContext?: any): Promise<{
+    suggestions: Array<{
+      code: string;
+      description: string;
+      confidence: number;
+      reasoning?: string;
+      urgency?: string;
+    }>;
+    totalFound: number;
+  }> {
+    try {
+      // Import the enhanced ICD-10 service
+      const { icd10SuggestionService } = await import('./icd10Suggestions');
+      
+      // Extract key terms from content for suggestion generation
+      const keyTerms = this.extractKeyTermsForICD10(content);
+      const allSuggestions: any[] = [];
+      
+      // Get suggestions for each key term
+      for (const term of keyTerms) {
+        const termSuggestions = icd10SuggestionService.generateIntelligentSuggestions(
+          term,
+          template,
+          clinicalContext,
+          3 // Get top 3 suggestions per term
+        );
+        allSuggestions.push(...termSuggestions);
+      }
+      
+      // Remove duplicates and sort by confidence
+      const uniqueSuggestions = allSuggestions
+        .filter((suggestion, index, self) => 
+          index === self.findIndex(s => s.code === suggestion.code)
+        )
+        .sort((a, b) => b.confidence - a.confidence)
+        .slice(0, 8); // Return top 8 suggestions
+      
+      return {
+        suggestions: uniqueSuggestions.map(s => ({
+          code: s.code,
+          description: s.description,
+          confidence: s.confidence,
+          reasoning: s.reasoning,
+          urgency: s.urgency
+        })),
+        totalFound: uniqueSuggestions.length
+      };
+      
+    } catch (error) {
+      console.error('Error generating ICD-10 suggestions:', error);
+      
+      // Fallback to basic suggestions
+      const analysis = this.analyzeInput(content);
+      const suggestions: string[] = [];
 
-    analysis.medicalTerms.forEach(term => {
-      if (term.icd10) {
-        suggestions.push(`${term.icd10} - ${term.term}`);
+      analysis.medicalTerms.forEach(term => {
+        if (term.icd10) {
+          suggestions.push(`${term.icd10} - ${term.term}`);
+        }
+      });
+
+      return {
+        suggestions: suggestions.map(s => ({
+          code: s.split(' - ')[0] || '',
+          description: s.split(' - ')[1] || s,
+          confidence: 0.7,
+          reasoning: 'Basic medical term match'
+        })),
+        totalFound: suggestions.length
+      };
+    }
+  }
+
+  /**
+   * Extract key terms from content for ICD-10 suggestion generation
+   */
+  private extractKeyTermsForICD10(content: string): string[] {
+    const terms: string[] = [];
+    const lowerContent = content.toLowerCase();
+    
+    // Common medical terms and symptoms
+    const medicalTerms = [
+      'chest pain', 'abdominal pain', 'headache', 'fever', 'nausea', 'vomiting',
+      'diarrhea', 'constipation', 'shortness of breath', 'cough', 'fatigue',
+      'weakness', 'dizziness', 'confusion', 'seizure', 'stroke', 'heart attack',
+      'pneumonia', 'infection', 'diabetes', 'hypertension', 'depression', 'anxiety',
+      'pain', 'bleeding', 'swelling', 'rash', 'dyspnea', 'syncope', 'syncopal',
+      'myocardial infarction', 'copd', 'asthma', 'uti', 'sepsis', 'shock',
+      'cardiac arrest', 'respiratory failure', 'kidney failure', 'liver failure',
+      'gallstones', 'appendicitis', 'pneumothorax', 'pulmonary embolism'
+    ];
+    
+    // Find matching terms in content
+    medicalTerms.forEach(term => {
+      if (lowerContent.includes(term.toLowerCase())) {
+        terms.push(term);
       }
     });
-
-    return suggestions;
+    
+    // Extract individual words that might be symptoms
+    const words = content.toLowerCase().split(/\s+/);
+    const symptomWords = ['pain', 'ache', 'burning', 'stinging', 'throbbing', 'cramping'];
+    symptomWords.forEach(word => {
+      if (words.includes(word)) {
+        // Find the word in context (e.g., "chest pain")
+        const wordIndex = words.indexOf(word);
+        if (wordIndex > 0) {
+          const contextTerm = `${words[wordIndex - 1]} ${word}`;
+          if (!terms.includes(contextTerm)) {
+            terms.push(contextTerm);
+          }
+        }
+        if (wordIndex < words.length - 1) {
+          const contextTerm = `${word} ${words[wordIndex + 1]}`;
+          if (!terms.includes(contextTerm)) {
+            terms.push(contextTerm);
+          }
+        }
+      }
+    });
+    
+    return [...new Set(terms)]; // Remove duplicates
   }
 
   /**
@@ -190,10 +376,31 @@ class EnhancedAIService {
   private buildEnhancedPrompt(
     prompt: AIPrompt, 
     templateGuidance: TemplateGuidance | null, 
-    analysis: AIAnalysis
+    analysis: AIAnalysis,
+    clinicalContext: any
   ): string {
     let enhancedPrompt = `Generate a professional ${prompt.template} nursing note based on the following input:\n\n`;
     enhancedPrompt += `Input: ${prompt.input}\n\n`;
+
+    // Add clinical context and reasoning
+    if (clinicalContext) {
+      enhancedPrompt += `Clinical Context Analysis:\n`;
+      enhancedPrompt += `- Urgency Level: ${clinicalContext.urgency}\n`;
+      enhancedPrompt += `- Complexity: ${clinicalContext.complexity}\n`;
+      if (clinicalContext.chiefComplaint) {
+        enhancedPrompt += `- Chief Complaint: ${clinicalContext.chiefComplaint}\n`;
+      }
+      if (clinicalContext.vitalSigns.length > 0) {
+        enhancedPrompt += `- Vital Signs: ${clinicalContext.vitalSigns.join(', ')}\n`;
+      }
+      if (clinicalContext.symptoms.length > 0) {
+        enhancedPrompt += `- Identified Symptoms: ${clinicalContext.symptoms.join(', ')}\n`;
+      }
+      if (clinicalContext.medications.length > 0) {
+        enhancedPrompt += `- Medications: ${clinicalContext.medications.join(', ')}\n`;
+      }
+      enhancedPrompt += `\n`;
+    }
 
     // Add template guidance
     if (templateGuidance) {
@@ -330,7 +537,8 @@ Generate comprehensive, professional nursing documentation that demonstrates cli
   private processAIGeneratedNote(
     response: string, 
     template: string, 
-    analysis: AIAnalysis
+    analysis: AIAnalysis,
+    clinicalContext: any
   ): AIGeneratedNote {
     // Parse response into sections
     const sections = this.parseNoteSections(response, template);
@@ -342,7 +550,7 @@ Generate comprehensive, professional nursing documentation that demonstrates cli
 
     Object.entries(sections).forEach(([sectionName, content]) => {
       const medicalTerms = this.extractMedicalTerms(content);
-      const confidence = this.calculateSectionConfidence(content, medicalTerms, analysis);
+      const confidence = this.calculateSectionConfidence(content, medicalTerms, analysis, clinicalContext);
       
       processedSections[sectionName] = {
         content,
@@ -412,7 +620,8 @@ Generate comprehensive, professional nursing documentation that demonstrates cli
   private calculateSectionConfidence(
     content: string, 
     medicalTerms: string[], 
-    analysis: AIAnalysis
+    analysis: AIAnalysis,
+    clinicalContext: any
   ): number {
     let confidence = 0.5; // Base confidence
     
@@ -425,6 +634,24 @@ Generate comprehensive, professional nursing documentation that demonstrates cli
     
     // Increase confidence for professional language
     if (content.includes('patient') || content.includes('assessment')) confidence += 0.1;
+    
+    // Adjust confidence based on clinical context
+    if (clinicalContext) {
+      // Higher confidence for urgent cases (more detailed input)
+      if (clinicalContext.urgency === 'urgent' || clinicalContext.urgency === 'critical') {
+        confidence += 0.05;
+      }
+      
+      // Higher confidence when vital signs are present
+      if (clinicalContext.vitalSigns && clinicalContext.vitalSigns.length > 0) {
+        confidence += 0.05;
+      }
+      
+      // Higher confidence when symptoms are identified
+      if (clinicalContext.symptoms && clinicalContext.symptoms.length > 0) {
+        confidence += 0.05;
+      }
+    }
     
     return Math.min(confidence, 1.0);
   }

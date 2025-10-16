@@ -5,6 +5,10 @@ interface ICD10Code {
   commonTerms: string[];
   synonyms: string[];
   relatedCodes?: string[];
+  severity?: 'low' | 'medium' | 'high' | 'critical';
+  ageGroups?: string[];
+  gender?: 'male' | 'female' | 'both';
+  commonComorbidities?: string[];
 }
 
 interface SuggestionResult {
@@ -12,7 +16,22 @@ interface SuggestionResult {
   description: string;
   confidence: number;
   category: string;
-  matchType: 'exact' | 'partial' | 'synonym' | 'related';
+  matchType: 'exact' | 'partial' | 'synonym' | 'related' | 'ai-enhanced';
+  reasoning?: string;
+  clinicalRelevance?: number;
+  urgency?: 'low' | 'medium' | 'high' | 'critical';
+}
+
+interface ClinicalContext {
+  chiefComplaint?: string;
+  symptoms?: string[];
+  vitalSigns?: { [key: string]: string | number }[];
+  medications?: string[];
+  medicalHistory?: string[];
+  age?: number;
+  gender?: 'male' | 'female';
+  template?: string;
+  urgency?: 'routine' | 'urgent' | 'critical';
 }
 
 class ICD10SuggestionService {
@@ -330,7 +349,7 @@ class ICD10SuggestionService {
     ]
   };
 
-  getSuggestions(input: string, category?: string, limit: number = 5): SuggestionResult[] {
+  getSuggestions(input: string, category?: string, limit: number = 5, clinicalContext?: ClinicalContext): SuggestionResult[] {
     if (!input || input.length < 2) return [];
 
     const searchTerm = input.toLowerCase().trim();
@@ -344,38 +363,52 @@ class ICD10SuggestionService {
 
     codesToSearch.forEach(code => {
       let confidence = 0;
-      let matchType: 'exact' | 'partial' | 'synonym' | 'related' | 'fuzzy' = 'related';
+      let matchType: 'exact' | 'partial' | 'synonym' | 'related' | 'ai-enhanced' = 'related';
+      let reasoning = '';
+      let clinicalRelevance = 0;
 
       // Strategy 1: Exact match in common terms (highest priority)
       const exactMatch = code.commonTerms.find(term => term.toLowerCase() === searchTerm);
       if (exactMatch) {
         confidence = 1.0;
         matchType = 'exact';
+        reasoning = `Exact match for "${exactMatch}"`;
+        clinicalRelevance = 1.0;
       }
       // Strategy 2: Partial match in common terms
       else if (code.commonTerms.some(term => term.toLowerCase().includes(searchTerm))) {
         confidence = 0.9;
         matchType = 'partial';
+        reasoning = `Partial match in common terms`;
+        clinicalRelevance = 0.9;
       }
       // Strategy 3: Fuzzy matching for common medical abbreviations
       else if (this.fuzzyMatch(searchTerm, code.commonTerms)) {
         confidence = 0.85;
-        matchType = 'fuzzy';
+        matchType = 'ai-enhanced';
+        reasoning = `AI-enhanced fuzzy match for medical abbreviation`;
+        clinicalRelevance = 0.85;
       }
       // Strategy 4: Multi-word search (e.g., "chest pain" matches both words)
       else if (this.multiWordMatch(searchTerm, code)) {
         confidence = 0.8;
         matchType = 'partial';
+        reasoning = `Multi-word semantic match`;
+        clinicalRelevance = 0.8;
       }
       // Strategy 5: Match in description
       else if (code.description.toLowerCase().includes(searchTerm)) {
         confidence = 0.75;
         matchType = 'partial';
+        reasoning = `Match found in description`;
+        clinicalRelevance = 0.75;
       }
       // Strategy 6: Match in synonyms
       else if (code.synonyms.some(synonym => synonym.toLowerCase().includes(searchTerm))) {
         confidence = 0.7;
         matchType = 'synonym';
+        reasoning = `Match found in synonyms`;
+        clinicalRelevance = 0.7;
       }
       // Strategy 7: Related codes search
       else if (code.relatedCodes?.some(relatedCode => {
@@ -384,22 +417,49 @@ class ICD10SuggestionService {
       })) {
         confidence = 0.6;
         matchType = 'related';
+        reasoning = `Related to matching condition`;
+        clinicalRelevance = 0.6;
+      }
+
+      // AI-Enhanced Clinical Context Analysis
+      if (clinicalContext && confidence > 0) {
+        const contextBoost = this.analyzeClinicalContext(code, clinicalContext);
+        confidence += contextBoost.boost;
+        clinicalRelevance += contextBoost.relevance;
+        if (contextBoost.reasoning) {
+          reasoning += ` | ${contextBoost.reasoning}`;
+        }
+        
+        // Set urgency based on code severity and clinical context
+        if (code.severity === 'critical' || clinicalContext.urgency === 'critical') {
+          matchType = 'ai-enhanced';
+        }
       }
 
       if (confidence > 0) {
         suggestions.push({
           code: code.code,
           description: code.description,
-          confidence,
+          confidence: Math.min(confidence, 1.0),
           category: code.category,
-          matchType
+          matchType,
+          reasoning,
+          clinicalRelevance: Math.min(clinicalRelevance, 1.0),
+          urgency: this.determineUrgency(code, clinicalContext)
         });
       }
     });
 
-    // Sort by confidence and return top results
+    // Sort by clinical relevance and confidence
     return suggestions
-      .sort((a, b) => b.confidence - a.confidence)
+      .sort((a, b) => {
+        // Primary sort by clinical relevance
+        if (Math.abs(a.clinicalRelevance! - b.clinicalRelevance!) > 0.1) {
+          return b.clinicalRelevance! - a.clinicalRelevance!;
+        }
+        // Secondary sort by confidence
+        return b.confidence - a.confidence;
+      })
       .slice(0, limit);
   }
 
@@ -500,6 +560,180 @@ class ICD10SuggestionService {
     return mainCode.relatedCodes
       .map(relatedCode => this.getCodeByCode(relatedCode))
       .filter((code): code is ICD10Code => code !== null);
+  }
+
+  // AI-Enhanced Clinical Context Analysis
+  private analyzeClinicalContext(code: ICD10Code, context: ClinicalContext): {
+    boost: number;
+    relevance: number;
+    reasoning: string;
+  } {
+    let boost = 0;
+    let relevance = 0;
+    let reasoning = '';
+
+    // Template-specific relevance
+    if (context.template && this.smartTemplates[context.template]) {
+      const templateCodes = this.smartTemplates[context.template];
+      if (templateCodes.some(tc => tc.code === code.code)) {
+        boost += 0.1;
+        relevance += 0.15;
+        reasoning += `Template-specific code for ${context.template}`;
+      }
+    }
+
+    // Chief complaint relevance
+    if (context.chiefComplaint) {
+      const complaintLower = context.chiefComplaint.toLowerCase();
+      if (code.commonTerms.some(term => complaintLower.includes(term.toLowerCase()))) {
+        boost += 0.15;
+        relevance += 0.2;
+        reasoning += ` | Matches chief complaint`;
+      }
+    }
+
+    // Symptom relevance
+    if (context.symptoms && context.symptoms.length > 0) {
+      const symptomMatches = context.symptoms.filter(symptom =>
+        code.commonTerms.some(term => term.toLowerCase().includes(symptom.toLowerCase()))
+      ).length;
+      
+      if (symptomMatches > 0) {
+        boost += symptomMatches * 0.05;
+        relevance += symptomMatches * 0.1;
+        reasoning += ` | Matches ${symptomMatches} symptom(s)`;
+      }
+    }
+
+    // Age and gender relevance
+    if (context.age && code.ageGroups) {
+      const ageGroup = this.getAgeGroup(context.age);
+      if (code.ageGroups.includes(ageGroup)) {
+        boost += 0.05;
+        relevance += 0.05;
+        reasoning += ` | Age-appropriate`;
+      }
+    }
+
+    if (context.gender && code.gender && code.gender !== 'both') {
+      if (context.gender === code.gender) {
+        boost += 0.05;
+        relevance += 0.05;
+        reasoning += ` | Gender-specific`;
+      }
+    }
+
+    // Urgency-based relevance
+    if (context.urgency === 'critical' && code.severity === 'critical') {
+      boost += 0.2;
+      relevance += 0.25;
+      reasoning += ` | Critical condition match`;
+    } else if (context.urgency === 'urgent' && (code.severity === 'high' || code.severity === 'critical')) {
+      boost += 0.1;
+      relevance += 0.15;
+      reasoning += ` | Urgent condition match`;
+    }
+
+    // Medical history relevance
+    if (context.medicalHistory && context.medicalHistory.length > 0) {
+      const historyMatches = context.medicalHistory.filter(history =>
+        code.commonComorbidities?.some(comorbidity => 
+          comorbidity.toLowerCase().includes(history.toLowerCase())
+        )
+      ).length;
+      
+      if (historyMatches > 0) {
+        boost += historyMatches * 0.03;
+        relevance += historyMatches * 0.05;
+        reasoning += ` | Related to medical history`;
+      }
+    }
+
+    return {
+      boost: Math.min(boost, 0.3), // Cap boost at 30%
+      relevance: Math.min(relevance, 0.4), // Cap relevance boost at 40%
+      reasoning
+    };
+  }
+
+  private determineUrgency(code: ICD10Code, context?: ClinicalContext): 'low' | 'medium' | 'high' | 'critical' {
+    // Base urgency from code severity
+    let urgency: 'low' | 'medium' | 'high' | 'critical' = 'medium';
+    
+    if (code.severity) {
+      urgency = code.severity;
+    }
+
+    // Adjust based on clinical context
+    if (context) {
+      if (context.urgency === 'critical') {
+        urgency = 'critical';
+      } else if (context.urgency === 'urgent' && urgency !== 'critical') {
+        urgency = 'high';
+      }
+
+      // Critical conditions
+      if (code.code.startsWith('I46') || // Cardiac arrest
+          code.code.startsWith('R65') || // Severe sepsis
+          code.code.startsWith('J96') || // Respiratory failure
+          code.code.startsWith('G93.1')) { // Anoxic brain damage
+        urgency = 'critical';
+      }
+    }
+
+    return urgency;
+  }
+
+  private getAgeGroup(age: number): string {
+    if (age < 1) return 'infant';
+    if (age < 18) return 'pediatric';
+    if (age < 65) return 'adult';
+    return 'elderly';
+  }
+
+  // Generate intelligent suggestions based on full clinical context
+  public generateIntelligentSuggestions(
+    input: string,
+    template: string,
+    clinicalContext?: ClinicalContext,
+    limit: number = 5
+  ): SuggestionResult[] {
+    // Get base suggestions
+    const baseSuggestions = this.getSuggestions(input, template, limit * 2, clinicalContext);
+    
+    // Apply AI-enhanced ranking
+    const enhancedSuggestions = baseSuggestions.map(suggestion => {
+      let aiScore = suggestion.confidence;
+      
+      // Boost for critical conditions in urgent contexts
+      if (suggestion.urgency === 'critical' && clinicalContext?.urgency === 'critical') {
+        aiScore += 0.2;
+      }
+      
+      // Boost for template-specific codes
+      if (template && this.smartTemplates[template]) {
+        const templateCodes = this.smartTemplates[template];
+        if (templateCodes.some(tc => tc.code === suggestion.code)) {
+          aiScore += 0.15;
+        }
+      }
+      
+      // Boost for high clinical relevance
+      if (suggestion.clinicalRelevance && suggestion.clinicalRelevance > 0.8) {
+        aiScore += 0.1;
+      }
+
+      return {
+        ...suggestion,
+        confidence: Math.min(aiScore, 1.0),
+        matchType: aiScore > suggestion.confidence ? 'ai-enhanced' : suggestion.matchType
+      };
+    });
+
+    // Sort by enhanced AI score
+    return enhancedSuggestions
+      .sort((a, b) => b.confidence - a.confidence)
+      .slice(0, limit);
   }
 }
 

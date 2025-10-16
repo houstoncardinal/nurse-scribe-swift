@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Users, 
   FileText, 
@@ -89,7 +90,6 @@ import {
   FileImage,
   FileVideo,
   FileAudio,
-  FilePdf,
   FileSpreadsheet,
   FileText as FileTextIcon,
   FileCode,
@@ -125,8 +125,6 @@ import {
   Split,
   Layers,
   Layers3,
-  Stack,
-  Stack2,
   Grid3X3,
   Square as SquareIcon,
   Circle,
@@ -167,7 +165,6 @@ import {
   Smartphone,
   Tablet,
   Laptop,
-  Desktop,
   Server as ServerIcon,
   Router,
   Wifi as WifiIcon,
@@ -175,13 +172,11 @@ import {
   Bluetooth,
   BluetoothOff,
   Radio,
-  RadioOff,
   Signal,
   SignalZero,
   SignalLow,
   SignalMedium,
   SignalHigh,
-  SignalFull,
   Navigation,
   NavigationOff,
   Compass,
@@ -199,13 +194,11 @@ import {
   Building,
   Building2,
   Store,
-  Storefront,
   Factory,
   Warehouse,
   Hospital,
   School,
   Church,
-  Bank,
   Hotel,
   Car,
   Truck,
@@ -214,10 +207,6 @@ import {
   Plane,
   Ship,
   Bike,
-  Motorbike,
-  Scooter,
-  Skateboard,
-  RollerSkate,
   Footprints,
   Route as RouteIcon,
   Navigation as NavigationIcon,
@@ -226,7 +215,6 @@ import {
   Globe as GlobeIcon,
   Earth,
   Satellite,
-  SatelliteOff,
   Telescope,
   Microscope,
   Camera as CameraIcon,
@@ -256,7 +244,6 @@ import {
   FileImage as FileImageIcon,
   FileVideo as FileVideoIcon,
   FileAudio as FileAudioIcon,
-  FilePdf as FilePdfIcon,
   FileSpreadsheet as FileSpreadsheetIcon,
   FileText as FileTextIcon2,
   FileCode as FileCodeIcon,
@@ -291,8 +278,6 @@ import {
   Split as SplitIcon,
   Layers as LayersIcon,
   Layers3 as Layers3Icon,
-  Stack as StackIcon,
-  Stack2 as Stack2Icon,
   Grid3X3 as Grid3X3Icon
 } from 'lucide-react';
 
@@ -312,7 +297,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { phiProtectionService, PHIDetectionResult, AuditLogEntry, ComplianceReport } from '@/lib/phiProtectionService';
-import { organizationService, Organization, User, Team, OrganizationInvite } from '@/lib/organizationService';
+import { organizationService, Organization, User as OrganizationUser, Team, OrganizationInvite } from '@/lib/organizationService';
 
 interface DashboardStats {
   totalUsers: number;
@@ -356,9 +341,10 @@ interface AnalyticsData {
 }
 
 export function PowerfulAdminDashboard() {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<OrganizationUser | null>(null);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   
   // PHI Protection state
@@ -368,9 +354,46 @@ export function PowerfulAdminDashboard() {
   
   // Organization Management state
   const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [organizationUsers, setOrganizationUsers] = useState<User[]>([]);
+  const [organizationUsers, setOrganizationUsers] = useState<OrganizationUser[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [invites, setInvites] = useState<OrganizationInvite[]>([]);
+  
+  // Organization management modals
+  const [showCreateOrgModal, setShowCreateOrgModal] = useState(false);
+  const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);
+  const [showInviteUserModal, setShowInviteUserModal] = useState(false);
+  const [showEditOrgModal, setShowEditOrgModal] = useState(false);
+  const [showEditTeamModal, setShowEditTeamModal] = useState(false);
+  
+  // Search and filter state
+  const [orgSearchQuery, setOrgSearchQuery] = useState('');
+  const [teamSearchQuery, setTeamSearchQuery] = useState('');
+  
+  // Selected items for editing
+  const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  
+  // PHI Protection modals and state
+  const [showCreatePatternModal, setShowCreatePatternModal] = useState(false);
+  const [showTestPHIModal, setShowTestPHIModal] = useState(false);
+  const [showCreateReportModal, setShowCreateReportModal] = useState(false);
+  const [phiSearchQuery, setPhiSearchQuery] = useState('');
+  const [auditLogFilter, setAuditLogFilter] = useState('all');
+  
+  // User Management modals and state
+  const [showCreateUserModal, setShowCreateUserModal] = useState(false);
+  const [showBulkActionsModal, setShowBulkActionsModal] = useState(false);
+  const [showImportUsersModal, setShowImportUsersModal] = useState(false);
+  const [userRoleFilter, setUserRoleFilter] = useState('all');
+  const [userStatusFilter, setUserStatusFilter] = useState('all');
+  
+  // Notes Management modals and state
+  const [showCreateNoteModal, setShowCreateNoteModal] = useState(false);
+  const [showBulkNoteActionsModal, setShowBulkNoteActionsModal] = useState(false);
+  const [showNoteAnalyticsModal, setShowNoteAnalyticsModal] = useState(false);
+  const [noteSearchQuery, setNoteSearchQuery] = useState('');
+  const [noteTemplateFilter, setNoteTemplateFilter] = useState('all');
+  const [noteStatusFilter, setNoteStatusFilter] = useState('all');
 
   // Mock data - replace with real data from your service
   const [stats, setStats] = useState<DashboardStats>({
@@ -385,12 +408,66 @@ export function PowerfulAdminDashboard() {
     storageLimit: 10
   });
 
-  const [users] = useState<User[]>([
+  // Mock notes data
+  const [mockNotes] = useState([
+    {
+      id: 'note-001-2024-01-15',
+      patient: 'John Smith',
+      mrn: 'MRN123456',
+      template: 'SOAP',
+      author: 'Dr. Sarah Johnson',
+      status: 'completed',
+      createdAt: new Date('2024-01-15T10:30:00'),
+      content: 'Subjective: Patient reports chest pain...'
+    },
+    {
+      id: 'note-002-2024-01-15',
+      patient: 'Jane Doe',
+      mrn: 'MRN789012',
+      template: 'SBAR',
+      author: 'Nurse Mike Wilson',
+      status: 'draft',
+      createdAt: new Date('2024-01-15T11:15:00'),
+      content: 'Situation: Patient experiencing shortness of breath...'
+    },
+    {
+      id: 'note-003-2024-01-15',
+      patient: 'Robert Brown',
+      mrn: 'MRN345678',
+      template: 'PIE',
+      author: 'Dr. Emily Davis',
+      status: 'reviewed',
+      createdAt: new Date('2024-01-15T09:45:00'),
+      content: 'Problem: Acute abdominal pain...'
+    },
+    {
+      id: 'note-004-2024-01-14',
+      patient: 'Maria Garcia',
+      mrn: 'MRN901234',
+      template: 'DAR',
+      author: 'Nurse Lisa Chen',
+      status: 'completed',
+      createdAt: new Date('2024-01-14T16:20:00'),
+      content: 'Data: Patient presents with fever and cough...'
+    },
+    {
+      id: 'note-005-2024-01-14',
+      patient: 'David Wilson',
+      mrn: 'MRN567890',
+      template: 'SOAP',
+      author: 'Dr. James Miller',
+      status: 'archived',
+      createdAt: new Date('2024-01-14T14:10:00'),
+      content: 'Subjective: Patient reports headache...'
+    }
+  ]);
+
+  const [users, setUsers] = useState<OrganizationUser[]>([
     {
       id: '1',
       name: 'Dr. Sarah Johnson',
       email: 'sarah.johnson@hospital.com',
-      role: 'Administrator',
+      role: 'admin',
       status: 'active',
       lastLogin: '2024-01-15T10:30:00Z',
       notesCreated: 156,
@@ -400,7 +477,7 @@ export function PowerfulAdminDashboard() {
       id: '2',
       name: 'Nurse Mike Chen',
       email: 'mike.chen@hospital.com',
-      role: 'Nurse',
+      role: 'nurse',
       status: 'active',
       lastLogin: '2024-01-15T09:15:00Z',
       notesCreated: 89,
@@ -492,6 +569,293 @@ export function PowerfulAdminDashboard() {
     }
   };
 
+  // Organization Management Handlers
+  const handleEditOrganization = (org: Organization) => {
+    setSelectedOrganization(org);
+    setShowEditOrgModal(true);
+  };
+
+  const handleViewOrgUsers = (org: Organization) => {
+    // Switch to users tab and filter by organization
+    setActiveTab('users');
+    // You could add filtering logic here
+  };
+
+  const handleOrgSettings = (org: Organization) => {
+    setSelectedOrganization(org);
+    // Open organization settings modal
+  };
+
+  const handleSuspendOrganization = async (org: Organization) => {
+    const newStatus = org.subscription.status === 'active' ? 'suspended' : 'active';
+    await organizationService.updateOrganization(org.id, {
+      subscription: {
+        ...org.subscription,
+        status: newStatus
+      }
+    });
+    
+    // Refresh organizations list
+    setOrganizations(organizationService.getOrganizations());
+    
+    toast({
+      title: "Organization Updated",
+      description: `Organization ${newStatus === 'suspended' ? 'suspended' : 'activated'} successfully`,
+    });
+  };
+
+  const handleDeleteOrganization = async (org: Organization) => {
+    if (confirm(`Are you sure you want to delete ${org.name}? This action cannot be undone.`)) {
+      // In a real app, you would call a delete API
+      toast.success(`Organization ${org.name} deleted successfully`);
+    }
+  };
+
+  // Team Management Handlers
+  const handleEditTeam = (team: Team) => {
+    setSelectedTeam(team);
+    setShowEditTeamModal(true);
+  };
+
+  const handleManageTeamMembers = (team: Team) => {
+    setSelectedTeam(team);
+    // Open team member management modal
+  };
+
+  const handleTeamSettings = (team: Team) => {
+    setSelectedTeam(team);
+    // Open team settings modal
+  };
+
+  const handleDeleteTeam = async (team: Team) => {
+    if (confirm(`Are you sure you want to delete team ${team.name}?`)) {
+      // In a real app, you would call a delete API
+      toast.success(`Team ${team.name} deleted successfully`);
+    }
+  };
+
+  // Invitation Management Handlers
+  const handleResendInvite = async (invite: OrganizationInvite) => {
+    // In a real app, you would resend the invitation email
+    toast.success(`Invitation resent to ${invite.email}`);
+  };
+
+  const handleCancelInvite = async (invite: OrganizationInvite) => {
+    if (confirm(`Are you sure you want to cancel the invitation to ${invite.email}?`)) {
+      // In a real app, you would cancel the invitation
+      toast.success(`Invitation to ${invite.email} cancelled`);
+    }
+  };
+
+  // PHI Protection Handlers
+  const handleEditPHIPattern = (pattern: any) => {
+    // Open edit pattern modal
+    toast.info('Edit pattern functionality coming soon');
+  };
+
+  const handleTestPattern = async (pattern: any) => {
+    // Test the pattern with sample text
+    const testText = "Patient John Smith, DOB 01/15/1980, SSN 123-45-6789, Phone (555) 123-4567";
+    try {
+      const result = await phiProtectionService.detectAndRedactPHI(testText);
+      toast.success(`Pattern test completed: ${result.detectedPHI.length} items detected`);
+    } catch (error) {
+      toast.error('Pattern test failed');
+    }
+  };
+
+  const handleTogglePattern = (pattern: any) => {
+    // Toggle pattern enabled/disabled status
+    toast.success(`Pattern ${pattern.name} ${pattern.severity === 'disabled' ? 'enabled' : 'disabled'}`);
+  };
+
+  const handleDeletePHIPattern = (pattern: any) => {
+    if (confirm(`Are you sure you want to delete the pattern "${pattern.name}"?`)) {
+      // In a real app, you would delete the pattern
+      toast.success(`Pattern "${pattern.name}" deleted`);
+    }
+  };
+
+  const handleGenerateComplianceReport = async () => {
+    try {
+      const report = await phiProtectionService.generateComplianceReport('org-1', {
+        start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+        end: new Date()
+      });
+      setComplianceReports(prev => [report, ...prev]);
+      toast.success('Compliance report generated successfully');
+    } catch (error) {
+      toast.error('Failed to generate compliance report');
+    }
+  };
+
+  const handleExportAuditData = () => {
+    const auditData = phiProtectionService.exportAuditData('csv');
+    const blob = new Blob([auditData], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `audit-data-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Audit data exported successfully');
+  };
+
+  const handleViewReport = (report: ComplianceReport) => {
+    toast.info(`Viewing report ${report.id.slice(-8)}`);
+  };
+
+  const handleExportReport = (report: ComplianceReport) => {
+    toast.success(`Exporting report ${report.id.slice(-8)} to PDF`);
+  };
+
+  const handleEmailReport = (report: ComplianceReport) => {
+    toast.success(`Emailing report ${report.id.slice(-8)}`);
+  };
+
+  const handleDeleteReport = (report: ComplianceReport) => {
+    if (confirm(`Are you sure you want to delete report ${report.id.slice(-8)}?`)) {
+      setComplianceReports(prev => prev.filter(r => r.id !== report.id));
+      toast.success('Report deleted successfully');
+    }
+  };
+
+  // User Management Handlers
+  const handleViewUserDetails = (user: OrganizationUser) => {
+    setSelectedUser(user);
+    setIsUserModalOpen(true);
+  };
+
+  const handleEditUser = (user: OrganizationUser) => {
+    setSelectedUser(user);
+    // Open edit user modal
+    toast.info('Edit user functionality coming soon');
+  };
+
+  const handleManageUserPermissions = (user: OrganizationUser) => {
+    setSelectedUser(user);
+    // Open permissions management modal
+    toast.info('Permission management coming soon');
+  };
+
+  const handleViewUserActivity = (user: OrganizationUser) => {
+    setSelectedUser(user);
+    // Open user activity modal
+    toast.info('User activity view coming soon');
+  };
+
+  const handleResetUserPassword = async (user: OrganizationUser) => {
+    if (confirm(`Are you sure you want to reset the password for ${user.name}?`)) {
+      // In a real app, you would reset the password
+      toast.success(`Password reset email sent to ${user.email}`);
+    }
+  };
+
+  const handleToggleUserStatus = async (user: OrganizationUser) => {
+    const newStatus = user.status === 'active' ? 'suspended' : 'active';
+    await organizationService.updateUser(user.id, { status: newStatus });
+    
+    // Refresh users list
+    setUsers(organizationService.getUsersByOrganization('org-1'));
+    
+    toast.success(`User ${user.name} ${newStatus === 'suspended' ? 'suspended' : 'activated'}`);
+  };
+
+  const handleDeleteUser = async (user: OrganizationUser) => {
+    if (confirm(`Are you sure you want to delete user ${user.name}? This action cannot be undone.`)) {
+      // In a real app, you would delete the user
+      toast.success(`User ${user.name} deleted successfully`);
+    }
+  };
+
+  const handleExportUsers = () => {
+    const userData = users.map(user => ({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+      organization: organizationService.getOrganization(user.organizationId)?.name || 'Unknown',
+      lastLogin: user.stats?.lastLogin || new Date(),
+      notesCreated: user.stats?.notesCreated || 0
+    }));
+    
+    const csvContent = [
+      'Name,Email,Role,Status,Organization,Last Login,Notes Created',
+      ...userData.map(user => 
+        `"${user.name}","${user.email}","${user.role}","${user.status}","${user.organization}","${user.lastLogin}","${user.notesCreated}"`
+      )
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Users exported successfully');
+  };
+
+  // Notes Management Handlers
+  const handleViewNote = (note: any) => {
+    toast.info(`Viewing note ${note.id.slice(-8)}`);
+  };
+
+  const handleEditNote = (note: any) => {
+    toast.info(`Editing note ${note.id.slice(-8)}`);
+  };
+
+  const handleReviewNote = (note: any) => {
+    toast.success(`Note ${note.id.slice(-8)} marked for review`);
+  };
+
+  const handleExportNote = (note: any) => {
+    toast.success(`Note ${note.id.slice(-8)} exported successfully`);
+  };
+
+  const handleShareNote = (note: any) => {
+    toast.success(`Note ${note.id.slice(-8)} shared successfully`);
+  };
+
+  const handleArchiveNote = (note: any) => {
+    toast.success(`Note ${note.id.slice(-8)} archived successfully`);
+  };
+
+  const handleDeleteNote = (note: any) => {
+    if (confirm(`Are you sure you want to delete note ${note.id.slice(-8)}? This action cannot be undone.`)) {
+      toast.success(`Note ${note.id.slice(-8)} deleted successfully`);
+    }
+  };
+
+  const handleExportNotes = () => {
+    const noteData = mockNotes.map(note => ({
+      id: note.id,
+      patient: note.patient,
+      mrn: note.mrn,
+      template: note.template,
+      author: note.author,
+      status: note.status,
+      createdAt: note.createdAt.toISOString(),
+      content: note.content.substring(0, 100) + '...'
+    }));
+    
+    const csvContent = [
+      'ID,Patient,MRN,Template,Author,Status,Created At,Content Preview',
+      ...noteData.map(note => 
+        `"${note.id}","${note.patient}","${note.mrn}","${note.template}","${note.author}","${note.status}","${note.createdAt}","${note.content}"`
+      )
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `notes-export-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Notes exported successfully');
+  };
+
   const getLogLevelColor = (level: string) => {
     switch (level) {
       case 'info': return 'text-blue-600';
@@ -558,13 +922,13 @@ export function PowerfulAdminDashboard() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200 shadow-sm">
-          <div className="px-8 py-4">
+          <div className="px-6 py-3">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 capitalize">
+                <h2 className="text-lg font-bold text-slate-900 capitalize">
                   {navigationItems.find(item => item.id === activeTab)?.label}
                 </h2>
-                <p className="text-sm text-slate-600 mt-1">
+                <p className="text-xs text-slate-600 mt-0.5">
                   {activeTab === 'overview' && 'System overview and key metrics'}
                   {activeTab === 'users' && 'User management and permissions'}
                   {activeTab === 'notes' && 'Note analytics and content management'}
@@ -577,10 +941,10 @@ export function PowerfulAdminDashboard() {
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <Badge className="bg-green-100 text-green-800 border-green-200">
+                <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
                   HIPAA Compliant
                 </Badge>
-                <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700">
+                <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 h-8 text-sm">
                   <Plus className="h-4 w-4 mr-2" />
                   Add User
                 </Button>
@@ -751,38 +1115,147 @@ export function PowerfulAdminDashboard() {
           )}
 
           {activeTab === 'users' && (
-            <div className="space-y-6">
-              {/* User Management Header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <Input
-                    placeholder="Search users..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-64"
-                  />
-                  <Select>
-                    <SelectTrigger className="w-40">
-                      <SelectValue placeholder="Filter by role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Roles</SelectItem>
-                      <SelectItem value="admin">Administrator</SelectItem>
-                      <SelectItem value="nurse">Nurse</SelectItem>
-                      <SelectItem value="physician">Physician</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700">
+            <div className="space-y-8">
+              {/* User Statistics */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-blue-600">Total Users</p>
+                        <p className="text-2xl font-bold text-blue-900">{users.length}</p>
+                        <p className="text-xs text-blue-600 mt-1">Across all organizations</p>
+                      </div>
+                      <Users className="h-8 w-8 text-blue-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-green-600">Active Users</p>
+                        <p className="text-2xl font-bold text-green-900">{users.filter(u => u.status === 'active').length}</p>
+                        <p className="text-xs text-green-600 mt-1">Currently online</p>
+                      </div>
+                      <UserCheck className="h-8 w-8 text-green-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-purple-600">Nurses</p>
+                        <p className="text-2xl font-bold text-purple-900">{users.filter(u => u.role === 'nurse').length}</p>
+                        <p className="text-xs text-purple-600 mt-1">Clinical staff</p>
+                      </div>
+                      <Users className="h-8 w-8 text-purple-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-orange-600">Admins</p>
+                        <p className="text-2xl font-bold text-orange-900">{users.filter(u => u.role === 'admin').length}</p>
+                        <p className="text-xs text-orange-600 mt-1">System administrators</p>
+                      </div>
+                      <Settings className="h-8 w-8 text-orange-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* User Management Actions */}
+              <div className="flex flex-wrap gap-4">
+                <Button 
+                  onClick={() => setShowCreateUserModal(true)}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                >
                   <UserPlus className="h-4 w-4 mr-2" />
                   Add User
                 </Button>
+                <Button 
+                  onClick={() => setShowBulkActionsModal(true)}
+                  variant="outline"
+                  className="border-green-500 text-green-600 hover:bg-green-50"
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Bulk Actions
+                </Button>
+                <Button 
+                  onClick={() => handleExportUsers()}
+                  variant="outline"
+                  className="border-purple-500 text-purple-600 hover:bg-purple-50"
+                >
+                  <DownloadIcon className="h-4 w-4 mr-2" />
+                  Export Users
+                </Button>
+                <Button 
+                  onClick={() => setShowImportUsersModal(true)}
+                  variant="outline"
+                  className="border-orange-500 text-orange-600 hover:bg-orange-50"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import Users
+                </Button>
               </div>
 
-              {/* Users Table */}
+              {/* User Management Header */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Users ({filteredUsers.length})</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Users className="h-5 w-5 text-blue-600" />
+                        User Management
+                      </CardTitle>
+                      <CardDescription>Manage users, roles, and permissions across organizations</CardDescription>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Input
+                        placeholder="Search users..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-64"
+                      />
+                      <Select value={userRoleFilter} onValueChange={setUserRoleFilter}>
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Filter by role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Roles</SelectItem>
+                          <SelectItem value="owner">Owner</SelectItem>
+                          <SelectItem value="admin">Administrator</SelectItem>
+                          <SelectItem value="supervisor">Supervisor</SelectItem>
+                          <SelectItem value="nurse">Nurse</SelectItem>
+                          <SelectItem value="student">Student</SelectItem>
+                          <SelectItem value="instructor">Instructor</SelectItem>
+                          <SelectItem value="auditor">Auditor</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select value={userStatusFilter} onValueChange={setUserStatusFilter}>
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Filter by status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Status</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                          <SelectItem value="suspended">Suspended</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button variant="outline" size="sm" onClick={() => setUsers(organizationService.getUsersByOrganization('org-1'))}>
+                        <RefreshCw className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -790,6 +1263,7 @@ export function PowerfulAdminDashboard() {
                       <TableRow>
                         <TableHead>User</TableHead>
                         <TableHead>Role</TableHead>
+                        <TableHead>Organization</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Last Login</TableHead>
                         <TableHead>Notes Created</TableHead>
@@ -797,8 +1271,11 @@ export function PowerfulAdminDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredUsers.map((user) => (
-                        <TableRow key={user.id}>
+                      {filteredUsers
+                        .filter(user => userRoleFilter === 'all' || user.role === userRoleFilter)
+                        .filter(user => userStatusFilter === 'all' || user.status === userStatusFilter)
+                        .map((user) => (
+                        <TableRow key={user.id} className="hover:bg-slate-50">
                           <TableCell>
                             <div className="flex items-center gap-3">
                               <Avatar className="h-8 w-8">
@@ -809,11 +1286,19 @@ export function PowerfulAdminDashboard() {
                               <div>
                                 <p className="font-medium text-slate-900">{user.name}</p>
                                 <p className="text-sm text-slate-500">{user.email}</p>
+                                {user.role && (
+                                  <p className="text-xs text-slate-400">{user.role}</p>
+                                )}
                               </div>
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge variant="outline">{user.role}</Badge>
+                            <Badge variant="outline" className="capitalize">{user.role}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="text-xs">
+                              {organizationService.getOrganization(user.organizationId)?.name || 'Unknown'}
+                            </Badge>
                           </TableCell>
                           <TableCell>
                             <Badge className={getStatusColor(user.status)}>
@@ -821,10 +1306,10 @@ export function PowerfulAdminDashboard() {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-sm text-slate-600">
-                            {new Date(user.lastLogin).toLocaleDateString()}
+                            {new Date(user.stats?.lastLogin || new Date()).toLocaleDateString()}
                           </TableCell>
                           <TableCell className="text-sm font-medium">
-                            {user.notesCreated}
+                            {user.stats?.notesCreated || 0}
                           </TableCell>
                           <TableCell>
                             <DropdownMenu>
@@ -834,22 +1319,46 @@ export function PowerfulAdminDashboard() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => {
-                                  setSelectedUser(user);
-                                  setIsUserModalOpen(true);
-                                }}>
+                                <DropdownMenuItem onClick={() => handleViewUserDetails(user)}>
                                   <Eye className="h-4 w-4 mr-2" />
                                   View Details
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleEditUser(user)}>
                                   <Edit className="h-4 w-4 mr-2" />
                                   Edit User
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Lock className="h-4 w-4 mr-2" />
-                                  Suspend User
+                                <DropdownMenuItem onClick={() => handleManageUserPermissions(user)}>
+                                  <Key className="h-4 w-4 mr-2" />
+                                  Manage Permissions
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="text-red-600">
+                                <DropdownMenuItem onClick={() => handleViewUserActivity(user)}>
+                                  <Activity className="h-4 w-4 mr-2" />
+                                  View Activity
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleResetUserPassword(user)}>
+                                  <RotateCcw className="h-4 w-4 mr-2" />
+                                  Reset Password
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => handleToggleUserStatus(user)}
+                                  className={user.status === 'active' ? 'text-yellow-600' : 'text-green-600'}
+                                >
+                                  {user.status === 'active' ? (
+                                    <>
+                                      <Lock className="h-4 w-4 mr-2" />
+                                      Suspend User
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Unlock className="h-4 w-4 mr-2" />
+                                      Activate User
+                                    </>
+                                  )}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeleteUser(user)}
+                                  className="text-red-600"
+                                >
                                   <Trash2 className="h-4 w-4 mr-2" />
                                   Delete User
                                 </DropdownMenuItem>
@@ -862,6 +1371,371 @@ export function PowerfulAdminDashboard() {
                   </Table>
                 </CardContent>
               </Card>
+
+              {/* Recent User Activity */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-green-600" />
+                    Recent User Activity
+                  </CardTitle>
+                  <CardDescription>Latest user actions and system events</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {users.slice(0, 5).map((user, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-6 w-6">
+                            <AvatarFallback className="bg-gradient-to-br from-teal-500 to-blue-600 text-white text-xs">
+                              {user.name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium text-sm">{user.name}</p>
+                            <p className="text-xs text-slate-600">
+                              {user.role} • {user.stats?.sessionsThisMonth || 0} sessions this month
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-slate-500">
+                            {new Date(user.stats?.lastLogin || new Date()).toLocaleDateString()}
+                          </p>
+                          <Badge className="bg-green-100 text-green-800 text-xs">
+                            {user.stats?.notesCreated || 0} notes created
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Notes Tab */}
+          {activeTab === 'notes' && (
+            <div className="space-y-8">
+              {/* Notes Statistics */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-blue-600">Total Notes</p>
+                        <p className="text-2xl font-bold text-blue-900">2,847</p>
+                        <p className="text-xs text-blue-600 mt-1">+18% this month</p>
+                      </div>
+                      <FileText className="h-8 w-8 text-blue-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-green-600">Today's Notes</p>
+                        <p className="text-2xl font-bold text-green-900">127</p>
+                        <p className="text-xs text-green-600 mt-1">Active documentation</p>
+                      </div>
+                      <Clock className="h-8 w-8 text-green-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-purple-600">Avg. Time Saved</p>
+                        <p className="text-2xl font-bold text-purple-900">15 min</p>
+                        <p className="text-xs text-purple-600 mt-1">Per note</p>
+                      </div>
+                      <Zap className="h-8 w-8 text-purple-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-orange-600">Accuracy Rate</p>
+                        <p className="text-2xl font-bold text-orange-900">99.2%</p>
+                        <p className="text-xs text-orange-600 mt-1">AI-generated content</p>
+                      </div>
+                      <Target className="h-8 w-8 text-orange-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Notes Management Actions */}
+              <div className="flex flex-wrap gap-4">
+                <Button 
+                  onClick={() => setShowCreateNoteModal(true)}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Note
+                </Button>
+                <Button 
+                  onClick={() => setShowBulkNoteActionsModal(true)}
+                  variant="outline"
+                  className="border-green-500 text-green-600 hover:bg-green-50"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Bulk Actions
+                </Button>
+                <Button 
+                  onClick={() => handleExportNotes()}
+                  variant="outline"
+                  className="border-purple-500 text-purple-600 hover:bg-purple-50"
+                >
+                  <DownloadIcon className="h-4 w-4 mr-2" />
+                  Export Notes
+                </Button>
+                <Button 
+                  onClick={() => setShowNoteAnalyticsModal(true)}
+                  variant="outline"
+                  className="border-orange-500 text-orange-600 hover:bg-orange-50"
+                >
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Analytics
+                </Button>
+              </div>
+
+              {/* Notes Management */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-blue-600" />
+                        Clinical Notes
+                      </CardTitle>
+                      <CardDescription>Manage and monitor clinical documentation across organizations</CardDescription>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Input
+                        placeholder="Search notes..."
+                        value={noteSearchQuery}
+                        onChange={(e) => setNoteSearchQuery(e.target.value)}
+                        className="w-64"
+                      />
+                      <Select value={noteTemplateFilter} onValueChange={setNoteTemplateFilter}>
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Template" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Templates</SelectItem>
+                          <SelectItem value="SOAP">SOAP</SelectItem>
+                          <SelectItem value="SBAR">SBAR</SelectItem>
+                          <SelectItem value="PIE">PIE</SelectItem>
+                          <SelectItem value="DAR">DAR</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select value={noteStatusFilter} onValueChange={setNoteStatusFilter}>
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Status</SelectItem>
+                          <SelectItem value="draft">Draft</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="reviewed">Reviewed</SelectItem>
+                          <SelectItem value="archived">Archived</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button variant="outline" size="sm">
+                        <RefreshCw className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Note ID</TableHead>
+                        <TableHead>Patient</TableHead>
+                        <TableHead>Template</TableHead>
+                        <TableHead>Author</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Created</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {mockNotes
+                        .filter(note => noteSearchQuery === '' || note.id.toLowerCase().includes(noteSearchQuery.toLowerCase()))
+                        .filter(note => noteTemplateFilter === 'all' || note.template === noteTemplateFilter)
+                        .filter(note => noteStatusFilter === 'all' || note.status === noteStatusFilter)
+                        .map((note) => (
+                        <TableRow key={note.id} className="hover:bg-slate-50">
+                          <TableCell className="font-mono text-sm">
+                            {note.id.slice(-8)}
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium text-slate-900">{note.patient}</p>
+                              <p className="text-sm text-slate-500">{note.mrn}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="capitalize">{note.template}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-6 w-6">
+                                <AvatarFallback className="bg-gradient-to-br from-teal-500 to-blue-600 text-white text-xs">
+                                  {note.author.split(' ').map(n => n[0]).join('')}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="text-sm">{note.author}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={`${
+                              note.status === 'completed' ? 'bg-green-100 text-green-800' :
+                              note.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
+                              note.status === 'reviewed' ? 'bg-blue-100 text-blue-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {note.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm text-slate-600">
+                            {new Date(note.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleViewNote(note)}>
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  View Note
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleEditNote(note)}>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Edit Note
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleReviewNote(note)}>
+                                  <CheckCircle className="h-4 w-4 mr-2" />
+                                  Review
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleExportNote(note)}>
+                                  <DownloadIcon className="h-4 w-4 mr-2" />
+                                  Export
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleShareNote(note)}>
+                                  <Share2 className="h-4 w-4 mr-2" />
+                                  Share
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => handleArchiveNote(note)}
+                                  className="text-orange-600"
+                                >
+                                  <Archive className="h-4 w-4 mr-2" />
+                                  Archive
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeleteNote(note)}
+                                  className="text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              {/* Notes Analytics */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-green-600" />
+                      Notes by Template
+                    </CardTitle>
+                    <CardDescription>Distribution of notes by template type</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {['SOAP', 'SBAR', 'PIE', 'DAR'].map((template, index) => {
+                        const count = mockNotes.filter(note => note.template === template).length;
+                        const percentage = Math.round((count / mockNotes.length) * 100);
+                        return (
+                          <div key={index} className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500" />
+                              <span className="font-medium">{template}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="w-32 bg-slate-200 rounded-full h-2">
+                                <div 
+                                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" 
+                                  style={{ width: `${percentage}%` }}
+                                />
+                              </div>
+                              <span className="text-sm font-medium w-12 text-right">{count}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-purple-600" />
+                      Recent Activity
+                    </CardTitle>
+                    <CardDescription>Latest note creation and updates</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {mockNotes.slice(0, 5).map((note, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-2 h-2 rounded-full ${
+                              note.status === 'completed' ? 'bg-green-500' :
+                              note.status === 'draft' ? 'bg-yellow-500' :
+                              'bg-blue-500'
+                            }`} />
+                            <div>
+                              <p className="font-medium text-sm">{note.patient}</p>
+                              <p className="text-xs text-slate-600">{note.template} • {note.author}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs text-slate-500">
+                              {new Date(note.createdAt).toLocaleDateString()}
+                            </p>
+                            <Badge className="bg-blue-100 text-blue-800 text-xs">
+                              {note.status}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           )}
 
@@ -1062,93 +1936,258 @@ export function PowerfulAdminDashboard() {
                 </Card>
               </div>
 
-              {/* PHI Patterns and Detection */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Shield className="h-5 w-5 text-red-600" />
-                      PHI Detection Patterns
-                    </CardTitle>
-                    <CardDescription>Configure and monitor PHI detection rules</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {phiProtectionService.getPHIPatterns().slice(0, 5).map((pattern, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                          <div>
-                            <p className="font-medium text-sm">{pattern.name}</p>
-                            <p className="text-xs text-slate-600">{pattern.description}</p>
-                          </div>
-                          <Badge className={`${
-                            pattern.severity === 'critical' ? 'bg-red-100 text-red-800' :
-                            pattern.severity === 'high' ? 'bg-orange-100 text-orange-800' :
-                            pattern.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-green-100 text-green-800'
-                          }`}>
-                            {pattern.severity}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Activity className="h-5 w-5 text-blue-600" />
-                      Recent PHI Detections
-                    </CardTitle>
-                    <CardDescription>Latest PHI detection events</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {auditLogs.filter(log => log.action === 'phi_detection').slice(0, 5).map((log, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                          <div>
-                            <p className="font-medium text-sm">{log.resource}</p>
-                            <p className="text-xs text-slate-600">
-                              {log.details.phiCount} items • {log.timestamp.toLocaleString()}
-                            </p>
-                          </div>
-                          <Badge className={`${
-                            log.result === 'success' ? 'bg-green-100 text-green-800' :
-                            log.result === 'warning' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {log.result}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+              {/* PHI Management Actions */}
+              <div className="flex flex-wrap gap-4">
+                <Button 
+                  onClick={() => setShowCreatePatternModal(true)}
+                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add PHI Pattern
+                </Button>
+                <Button 
+                  onClick={() => setShowTestPHIModal(true)}
+                  variant="outline"
+                  className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                >
+                  <Shield className="h-4 w-4 mr-2" />
+                  Test PHI Detection
+                </Button>
+                <Button 
+                  onClick={() => handleGenerateComplianceReport()}
+                  variant="outline"
+                  className="border-green-500 text-green-600 hover:bg-green-50"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Generate Report
+                </Button>
+                <Button 
+                  onClick={() => handleExportAuditData()}
+                  variant="outline"
+                  className="border-purple-500 text-purple-600 hover:bg-purple-50"
+                >
+                  <DownloadIcon className="h-4 w-4 mr-2" />
+                  Export Audit Data
+                </Button>
               </div>
+
+              {/* PHI Patterns Management */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Shield className="h-5 w-5 text-red-600" />
+                        PHI Detection Patterns
+                      </CardTitle>
+                      <CardDescription>Configure and monitor PHI detection rules</CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        placeholder="Search patterns..."
+                        value={phiSearchQuery}
+                        onChange={(e) => setPhiSearchQuery(e.target.value)}
+                        className="w-64"
+                      />
+                      <Button variant="outline" size="sm">
+                        <Filter className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {phiProtectionService.getPHIPatterns()
+                      .filter(pattern => 
+                        pattern.name.toLowerCase().includes(phiSearchQuery.toLowerCase()) ||
+                        pattern.description.toLowerCase().includes(phiSearchQuery.toLowerCase())
+                      )
+                      .map((pattern, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:shadow-md transition-shadow">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <p className="font-medium text-sm">{pattern.name}</p>
+                              <p className="text-xs text-slate-600">{pattern.description}</p>
+                              <p className="text-xs text-slate-500">Category: {pattern.category}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge className={`${
+                              pattern.severity === 'critical' ? 'bg-red-100 text-red-800' :
+                              pattern.severity === 'high' ? 'bg-orange-100 text-orange-800' :
+                              pattern.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-green-100 text-green-800'
+                            }`}>
+                              {pattern.severity}
+                            </Badge>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEditPHIPattern(pattern)}>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Edit Pattern
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleTestPattern(pattern)}>
+                                  <Shield className="h-4 w-4 mr-2" />
+                                  Test Pattern
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleTogglePattern(pattern)}>
+                                  <ToggleLeft className="h-4 w-4 mr-2" />
+                                  {pattern.severity === 'low' ? 'Enable' : 'Disable'}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeletePHIPattern(pattern)}
+                                  className="text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Audit Logs */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Activity className="h-5 w-5 text-blue-600" />
+                        Audit Logs
+                      </CardTitle>
+                      <CardDescription>Complete audit trail of PHI-related activities</CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Select value={auditLogFilter} onValueChange={setAuditLogFilter}>
+                        <SelectTrigger className="w-40">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Actions</SelectItem>
+                          <SelectItem value="phi_detection">PHI Detection</SelectItem>
+                          <SelectItem value="phi_redaction">PHI Redaction</SelectItem>
+                          <SelectItem value="data_access">Data Access</SelectItem>
+                          <SelectItem value="data_export">Data Export</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button variant="outline" size="sm" onClick={() => setAuditLogs(phiProtectionService.getAuditLogs())}>
+                        <RefreshCw className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {auditLogs
+                      .filter(log => auditLogFilter === 'all' || log.action === auditLogFilter)
+                      .slice(0, 20)
+                      .map((log, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-2 h-2 rounded-full ${
+                              log.result === 'success' ? 'bg-green-500' :
+                              log.result === 'warning' ? 'bg-yellow-500' :
+                              'bg-red-500'
+                            }`} />
+                            <div>
+                              <p className="font-medium text-sm">{log.action.replace('_', ' ')}</p>
+                              <p className="text-xs text-slate-600">{log.resource}</p>
+                              <p className="text-xs text-slate-500">{log.timestamp.toLocaleString()}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge className={`${
+                              log.result === 'success' ? 'bg-green-100 text-green-800' :
+                              log.result === 'warning' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {log.result}
+                            </Badge>
+                            {log.details.phiCount && (
+                              <Badge variant="outline" className="text-xs">
+                                {log.details.phiCount} PHI items
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Compliance Reports */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-purple-600" />
-                    Compliance Reports
-                  </CardTitle>
-                  <CardDescription>HIPAA compliance monitoring and reporting</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-purple-600" />
+                        Compliance Reports
+                      </CardTitle>
+                      <CardDescription>HIPAA compliance monitoring and reporting</CardDescription>
+                    </div>
+                    <Button onClick={() => setShowCreateReportModal(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Generate Report
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {complianceReports.slice(0, 3).map((report, index) => (
-                      <div key={index} className="p-4 border border-slate-200 rounded-lg">
+                    {complianceReports.map((report, index) => (
+                      <div key={index} className="p-4 border border-slate-200 rounded-lg hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h4 className="font-medium">Report #{report.id.slice(-8)}</h4>
                             <p className="text-sm text-slate-600">
                               {report.period.start.toLocaleDateString()} - {report.period.end.toLocaleDateString()}
                             </p>
+                            <p className="text-xs text-slate-500">
+                              Organization: {report.organizationId}
+                            </p>
                           </div>
-                          <div className="text-right">
-                            <p className="text-lg font-bold text-green-600">{report.summary.complianceScore}%</p>
-                            <p className="text-xs text-slate-600">Compliance Score</p>
+                          <div className="flex items-center gap-2">
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-green-600">{report.summary.complianceScore}%</p>
+                              <p className="text-xs text-slate-600">Compliance Score</p>
+                            </div>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleViewReport(report)}>
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  View Report
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleExportReport(report)}>
+                                  <DownloadIcon className="h-4 w-4 mr-2" />
+                                  Export PDF
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleEmailReport(report)}>
+                                  <Mail className="h-4 w-4 mr-2" />
+                                  Email Report
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeleteReport(report)}
+                                  className="text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </div>
                         <div className="grid grid-cols-4 gap-4 text-sm">
@@ -1169,6 +2208,18 @@ export function PowerfulAdminDashboard() {
                             <p className="text-slate-600">Violations</p>
                           </div>
                         </div>
+                        {report.violations.length > 0 && (
+                          <div className="mt-3 p-2 bg-red-50 rounded border border-red-200">
+                            <p className="text-xs font-medium text-red-800">Recent Violations:</p>
+                            <div className="space-y-1 mt-1">
+                              {report.violations.slice(0, 2).map((violation, vIndex) => (
+                                <p key={vIndex} className="text-xs text-red-700">
+                                  • {violation.description}
+                                </p>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -1235,25 +2286,72 @@ export function PowerfulAdminDashboard() {
                 </Card>
               </div>
 
-              {/* Organizations List */}
+              {/* Organization Management Actions */}
+              <div className="flex flex-wrap gap-4">
+                <Button 
+                  onClick={() => setShowCreateOrgModal(true)}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Organization
+                </Button>
+                <Button 
+                  onClick={() => setShowCreateTeamModal(true)}
+                  variant="outline"
+                  className="border-green-500 text-green-600 hover:bg-green-50"
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Create Team
+                </Button>
+                <Button 
+                  onClick={() => setShowInviteUserModal(true)}
+                  variant="outline"
+                  className="border-purple-500 text-purple-600 hover:bg-purple-50"
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  Invite User
+                </Button>
+              </div>
+
+              {/* Organizations Management */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Globe className="h-5 w-5 text-blue-600" />
-                    Organizations
-                  </CardTitle>
-                  <CardDescription>Manage multi-tenant organizations and their settings</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Globe className="h-5 w-5 text-blue-600" />
+                        Organizations
+                      </CardTitle>
+                      <CardDescription>Manage multi-tenant organizations and their settings</CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        placeholder="Search organizations..."
+                        value={orgSearchQuery}
+                        onChange={(e) => setOrgSearchQuery(e.target.value)}
+                        className="w-64"
+                      />
+                      <Button variant="outline" size="sm">
+                        <Filter className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {organizations.map((org, index) => {
+                    {organizations.filter(org => 
+                      org.name.toLowerCase().includes(orgSearchQuery.toLowerCase()) ||
+                      org.domain.toLowerCase().includes(orgSearchQuery.toLowerCase())
+                    ).map((org, index) => {
                       const orgStats = organizationService.getOrganizationStats(org.id);
                       return (
-                        <div key={index} className="p-4 border border-slate-200 rounded-lg">
+                        <div key={index} className="p-4 border border-slate-200 rounded-lg hover:shadow-md transition-shadow">
                           <div className="flex items-center justify-between mb-3">
-                            <div>
-                              <h4 className="font-medium text-lg">{org.name}</h4>
-                              <p className="text-sm text-slate-600">{org.type.replace('_', ' ')} • {org.domain}</p>
+                            <div className="flex items-center gap-3">
+                              <div>
+                                <h4 className="font-medium text-lg">{org.name}</h4>
+                                <p className="text-sm text-slate-600">{org.type.replace('_', ' ')} • {org.domain}</p>
+                              </div>
                             </div>
                             <div className="flex items-center gap-2">
                               <Badge className={`${
@@ -1266,6 +2364,41 @@ export function PowerfulAdminDashboard() {
                               <Badge className="bg-blue-100 text-blue-800">
                                 {org.subscription.seatsUsed}/{org.subscription.seatsTotal} seats
                               </Badge>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => handleEditOrganization(org)}>
+                                    <Edit className="h-4 w-4 mr-2" />
+                                    Edit Organization
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleViewOrgUsers(org)}>
+                                    <Users className="h-4 w-4 mr-2" />
+                                    Manage Users
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleOrgSettings(org)}>
+                                    <Settings className="h-4 w-4 mr-2" />
+                                    Settings
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={() => handleSuspendOrganization(org)}
+                                    className="text-yellow-600"
+                                  >
+                                    <AlertTriangle className="h-4 w-4 mr-2" />
+                                    {org.subscription.status === 'active' ? 'Suspend' : 'Activate'}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={() => handleDeleteOrganization(org)}
+                                    className="text-red-600"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </div>
                           </div>
                           <div className="grid grid-cols-4 gap-4 text-sm">
@@ -1296,24 +2429,74 @@ export function PowerfulAdminDashboard() {
               {/* Teams Management */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-green-600" />
-                    Teams
-                  </CardTitle>
-                  <CardDescription>Collaborative teams and their members</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Users className="h-5 w-5 text-green-600" />
+                        Teams
+                      </CardTitle>
+                      <CardDescription>Collaborative teams and their members</CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        placeholder="Search teams..."
+                        value={teamSearchQuery}
+                        onChange={(e) => setTeamSearchQuery(e.target.value)}
+                        className="w-64"
+                      />
+                      <Button variant="outline" size="sm">
+                        <Filter className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {teams.map((team, index) => (
-                      <div key={index} className="p-4 border border-slate-200 rounded-lg">
+                    {teams.filter(team => 
+                      team.name.toLowerCase().includes(teamSearchQuery.toLowerCase()) ||
+                      team.description?.toLowerCase().includes(teamSearchQuery.toLowerCase())
+                    ).map((team, index) => (
+                      <div key={index} className="p-4 border border-slate-200 rounded-lg hover:shadow-md transition-shadow">
                         <div className="flex items-center justify-between mb-3">
-                          <div>
-                            <h4 className="font-medium text-lg">{team.name}</h4>
-                            <p className="text-sm text-slate-600">{team.description}</p>
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <h4 className="font-medium text-lg">{team.name}</h4>
+                              <p className="text-sm text-slate-600">{team.description}</p>
+                            </div>
                           </div>
-                          <Badge className="bg-green-100 text-green-800">
-                            {team.members.length} members
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge className="bg-green-100 text-green-800">
+                              {team.members.length} members
+                            </Badge>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEditTeam(team)}>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Edit Team
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleManageTeamMembers(team)}>
+                                  <Users className="h-4 w-4 mr-2" />
+                                  Manage Members
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleTeamSettings(team)}>
+                                  <Settings className="h-4 w-4 mr-2" />
+                                  Settings
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeleteTeam(team)}
+                                  className="text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete Team
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {team.members.slice(0, 5).map((member, memberIndex) => {
@@ -1329,6 +2512,55 @@ export function PowerfulAdminDashboard() {
                               +{team.members.length - 5} more
                             </Badge>
                           )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Pending Invitations */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Mail className="h-5 w-5 text-orange-600" />
+                    Pending Invitations
+                  </CardTitle>
+                  <CardDescription>Manage user invitations and access requests</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {invites.map((invite, index) => (
+                      <div key={index} className="p-4 border border-slate-200 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-medium">{invite.email}</h4>
+                            <p className="text-sm text-slate-600">
+                              Invited to {organizationService.getOrganization(invite.organizationId)?.name} as {invite.role}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              Expires: {invite.expiresAt.toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge className={`${
+                              invite.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              invite.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {invite.status}
+                            </Badge>
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="outline" onClick={() => handleResendInvite(invite)}>
+                                <RefreshCw className="h-3 w-3 mr-1" />
+                                Resend
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => handleCancelInvite(invite)} className="text-red-600">
+                                <XCircle className="h-3 w-3 mr-1" />
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))}

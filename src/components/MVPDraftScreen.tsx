@@ -148,11 +148,6 @@ export function MVPDraftScreen({
     }
   };
 
-  const extractChiefComplaint = (text: string): string => {
-    const complaints = ['chest pain', 'shortness of breath', 'headache', 'abdominal pain', 'fever', 'nausea', 'dizziness'];
-    const found = complaints.find(complaint => text.toLowerCase().includes(complaint));
-    return found || 'General complaint';
-  };
 
   const determineUrgency = (text: string): 'low' | 'medium' | 'high' => {
     const urgentKeywords = ['severe', 'acute', 'emergency', 'critical', 'unstable'];
@@ -166,46 +161,81 @@ export function MVPDraftScreen({
     return 'low';
   };
 
-  const generateICD10Suggestions = async (text: string, template: string): Promise<Array<{code: string, description: string}>> => {
+  const generateICD10Suggestions = async (text: string, template: string): Promise<Array<{code: string, description: string, confidence?: number, reasoning?: string, urgency?: string}>> => {
     try {
-      // Extract medical terms and symptoms from the text
-      const medicalTerms = enhancedAIService.analyzeInput(text).medicalTerms;
-      const symptoms = extractSymptoms(text);
-      
-      // Generate suggestions for each symptom/term
-      const suggestions: Array<{code: string, description: string}> = [];
-      
-      // Get suggestions for extracted symptoms
-      symptoms.forEach(symptom => {
-        const symptomSuggestions = icd10SuggestionService.getSuggestions(symptom, template, 3);
-        symptomSuggestions.forEach(suggestion => {
-          if (!suggestions.find(s => s.code === suggestion.code)) {
-            suggestions.push({
-              code: suggestion.code,
-              description: suggestion.description
-            });
-          }
-        });
+      // Use the enhanced AI service for intelligent ICD-10 suggestions
+      const result = await enhancedAIService.getICD10Suggestions(text, template, {
+        template,
+        chiefComplaint: extractChiefComplaint(text),
+        symptoms: extractSymptoms(text),
+        urgency: determineUrgencyFromText(text)
       });
       
-      // Get template-specific codes if available
-      if (template && template !== 'all') {
-        const templateCodes = icd10SuggestionService.getSmartTemplateCodes(template);
-        templateCodes.forEach(code => {
-          if (!suggestions.find(s => s.code === code.code)) {
-            suggestions.push({
-              code: code.code,
-              description: code.description
-            });
-          }
-        });
-      }
-      
-      return suggestions.slice(0, 8); // Limit to 8 suggestions
+      return result.suggestions.map(suggestion => ({
+        code: suggestion.code,
+        description: suggestion.description,
+        confidence: suggestion.confidence,
+        reasoning: suggestion.reasoning,
+        urgency: suggestion.urgency
+      }));
     } catch (error) {
-      console.error('ICD-10 suggestion generation failed:', error);
-      return [];
+      console.error('Error generating ICD-10 suggestions:', error);
+      
+      // Fallback to basic suggestions
+      try {
+        const symptoms = extractSymptoms(text);
+        const suggestions: Array<{code: string, description: string}> = [];
+        
+        symptoms.forEach(symptom => {
+          const symptomSuggestions = icd10SuggestionService.getSuggestions(symptom, template, 3);
+          symptomSuggestions.forEach(suggestion => {
+            if (!suggestions.find(s => s.code === suggestion.code)) {
+              suggestions.push({
+                code: suggestion.code,
+                description: suggestion.description
+              });
+            }
+          });
+        });
+        
+        return suggestions.slice(0, 8);
+      } catch (fallbackError) {
+        console.error('Fallback ICD-10 suggestions failed:', fallbackError);
+        return [];
+      }
     }
+  };
+
+  // Helper function to extract chief complaint from text
+  const extractChiefComplaint = (text: string): string => {
+    const patterns = [
+      /(?:chief complaint|presents with|complains of|reason for visit)[:\s]*([^.]+)/i,
+      /(?:patient reports|patient states)[:\s]*([^.]+)/i
+    ];
+    
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
+      if (match && match[1]) {
+        return match[1].trim();
+      }
+    }
+    
+    return '';
+  };
+
+  // Helper function to determine urgency from text
+  const determineUrgencyFromText = (text: string): 'routine' | 'urgent' | 'critical' => {
+    const lowerText = text.toLowerCase();
+    
+    if (lowerText.includes('emergency') || lowerText.includes('critical') || lowerText.includes('life-threatening') || lowerText.includes('code blue')) {
+      return 'critical';
+    }
+    
+    if (lowerText.includes('urgent') || lowerText.includes('acute') || lowerText.includes('severe') || lowerText.includes('pain level') && (lowerText.includes('8') || lowerText.includes('9') || lowerText.includes('10'))) {
+      return 'urgent';
+    }
+    
+    return 'routine';
   };
 
   const extractSymptoms = (text: string): string[] => {

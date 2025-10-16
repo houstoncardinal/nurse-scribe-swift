@@ -27,6 +27,7 @@ interface RecordingOptions {
   fallbackToBrowser: boolean;
   language: string;
   maxRecordingTime: number; // in seconds
+  silenceTimeout: number; // milliseconds of silence before auto-stop
 }
 
 class EnhancedVoiceService {
@@ -39,11 +40,14 @@ class EnhancedVoiceService {
   private audioChunks: Blob[] = [];
   private recordingStartTime: number = 0;
   private recordingTimer: NodeJS.Timeout | null = null;
+  private silenceTimer: NodeJS.Timeout | null = null;
+  private lastSpeechTime: number = 0;
   private options: RecordingOptions = {
     useWhisper: true,
     fallbackToBrowser: true,
     language: 'en-US',
-    maxRecordingTime: 60 // 1 minute max
+    maxRecordingTime: 60, // 1 minute max
+    silenceTimeout: 5000 // 5 seconds of silence before auto-stop
   };
 
   constructor() {
@@ -119,6 +123,9 @@ class EnhancedVoiceService {
       if (event.results[i].isFinal) {
         finalTranscript += transcript;
         
+        // Reset silence timer on speech detection
+        this.resetSilenceTimer();
+        
         const result: VoiceRecognitionResult = {
           transcript: finalTranscript.trim(),
           isFinal: true,
@@ -132,6 +139,11 @@ class EnhancedVoiceService {
         }
       } else {
         interimTranscript += transcript;
+        
+        // Reset silence timer on interim results (speech detected)
+        if (interimTranscript.trim().length > 0) {
+          this.resetSilenceTimer();
+        }
         
         if (this.callbacks?.onInterimResult) {
           this.callbacks.onInterimResult(interimTranscript.trim());
@@ -239,6 +251,9 @@ class EnhancedVoiceService {
         this.stopRecording();
       }, this.options.maxRecordingTime * 1000);
 
+      // Set initial silence timer
+      this.resetSilenceTimer();
+
       if (this.callbacks?.onStart) {
         this.callbacks.onStart();
       }
@@ -247,6 +262,23 @@ class EnhancedVoiceService {
       console.error('Failed to start recording:', error);
       this.handleError('Failed to access microphone');
     }
+  }
+
+  /**
+   * Reset silence timer
+   */
+  private resetSilenceTimer(): void {
+    if (this.silenceTimer) {
+      clearTimeout(this.silenceTimer);
+    }
+    
+    this.lastSpeechTime = Date.now();
+    this.silenceTimer = setTimeout(() => {
+      if (this.isListening) {
+        console.log('Auto-stopping due to silence');
+        this.stopRecording();
+      }
+    }, this.options.silenceTimeout);
   }
 
   /**
@@ -260,6 +292,11 @@ class EnhancedVoiceService {
     if (this.recordingTimer) {
       clearTimeout(this.recordingTimer);
       this.recordingTimer = null;
+    }
+
+    if (this.silenceTimer) {
+      clearTimeout(this.silenceTimer);
+      this.silenceTimer = null;
     }
 
     this.isListening = false;
