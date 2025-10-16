@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
+import { Mic, FileText, Download, Settings, Stethoscope } from 'lucide-react';
 import { MobileHeader } from '@/components/MobileHeader';
 import { PowerfulHeader } from '@/components/PowerfulHeader';
 import { MVPHomeScreen } from '@/components/MVPHomeScreen';
 import { MVPDraftScreen } from '@/components/MVPDraftScreen';
 import { MVPExportScreen } from '@/components/MVPExportScreen';
 import { MVPSettingsScreen } from '@/components/MVPSettingsScreen';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
 type Screen = 'home' | 'draft' | 'export' | 'settings';
@@ -251,29 +254,175 @@ export function MVPApp() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      {/* Mobile Navigation - Only show on mobile */}
-      <div className="md:hidden">
-        <MobileHeader
-          currentScreen={currentScreen}
-          onNavigate={handleNavigate}
-          onNewNote={handleNewNote}
-          isRecording={isRecording}
-          isProcessing={isProcessing}
-          userProfile={{
-            name: 'Dr. Sarah Johnson',
-            role: 'RN, BSN'
-          }}
-        />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+      {/* Desktop Layout */}
+      <div className="hidden lg:block">
+        <div className="flex h-screen">
+          {/* Desktop Sidebar */}
+          <aside className="w-64 bg-white/90 backdrop-blur-sm border-r border-slate-200 shadow-lg">
+            <div className="p-6">
+              {/* Logo */}
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/25">
+                  <Stethoscope className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-slate-900">NurseScribe AI</h1>
+                  <p className="text-xs text-slate-600">Professional Documentation</p>
+                </div>
+              </div>
+
+              {/* Navigation */}
+              <nav className="space-y-2">
+                <Button
+                  variant={currentScreen === 'home' ? 'default' : 'ghost'}
+                  className={`w-full justify-start h-12 ${
+                    currentScreen === 'home' 
+                      ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
+                      : 'hover:bg-slate-100'
+                  }`}
+                  onClick={() => handleNavigate('home')}
+                >
+                  <Mic className="h-4 w-4 mr-3" />
+                  New Note
+                </Button>
+                <Button
+                  variant={currentScreen === 'draft' ? 'default' : 'ghost'}
+                  className={`w-full justify-start h-12 ${
+                    currentScreen === 'draft' 
+                      ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
+                      : 'hover:bg-slate-100'
+                  }`}
+                  onClick={() => handleNavigate('draft')}
+                >
+                  <FileText className="h-4 w-4 mr-3" />
+                  Draft Preview
+                </Button>
+                <Button
+                  variant={currentScreen === 'export' ? 'default' : 'ghost'}
+                  className={`w-full justify-start h-12 ${
+                    currentScreen === 'export' 
+                      ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
+                      : 'hover:bg-slate-100'
+                  }`}
+                  onClick={() => handleNavigate('export')}
+                >
+                  <Download className="h-4 w-4 mr-3" />
+                  Export
+                </Button>
+                <Button
+                  variant={currentScreen === 'settings' ? 'default' : 'ghost'}
+                  className={`w-full justify-start h-12 ${
+                    currentScreen === 'settings' 
+                      ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
+                      : 'hover:bg-slate-100'
+                  }`}
+                  onClick={() => handleNavigate('settings')}
+                >
+                  <Settings className="h-4 w-4 mr-3" />
+                  Settings
+                </Button>
+              </nav>
+            </div>
+          </aside>
+
+          {/* Desktop Main Content */}
+          <div className="flex-1 flex flex-col">
+            {/* Desktop Header */}
+            <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+              <div className="px-8 py-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-900">
+                      {currentScreen === 'home' && 'Start New Note'}
+                      {currentScreen === 'draft' && 'Draft Preview'}
+                      {currentScreen === 'export' && 'Export Note'}
+                      {currentScreen === 'settings' && 'Settings'}
+                    </h2>
+                    <p className="text-sm text-slate-600">
+                      {currentScreen === 'home' && 'Create professional nursing documentation'}
+                      {currentScreen === 'draft' && 'Review and edit your note'}
+                      {currentScreen === 'export' && 'Save and share your note'}
+                      {currentScreen === 'settings' && 'Configure your preferences'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    {/* Status Indicators */}
+                    {isRecording && (
+                      <Badge className="bg-red-50 text-red-600 border-red-200">
+                        <div className="w-2 h-2 bg-red-500 rounded-full mr-1.5 animate-pulse" />
+                        Recording
+                      </Badge>
+                    )}
+                    {isProcessing && (
+                      <Badge className="bg-yellow-50 text-yellow-600 border-yellow-200">
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full mr-1.5 animate-pulse" />
+                        Processing
+                      </Badge>
+                    )}
+                    <Button
+                      onClick={handleNewNote}
+                      className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white"
+                    >
+                      <Mic className="h-4 w-4 mr-2" />
+                      New Note
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </header>
+
+            {/* Desktop Content */}
+            <main className="flex-1 overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+              <div className="h-full max-w-6xl mx-auto p-8">
+                {renderCurrentScreen()}
+              </div>
+            </main>
+          </div>
+        </div>
       </div>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-hidden">
-        {renderCurrentScreen()}
-      </main>
+      {/* Mobile/Tablet Layout */}
+      <div className="lg:hidden">
+        <div className="h-screen flex flex-col bg-background">
+          {/* Mobile Navigation - Only show on mobile */}
+          <div className="md:hidden">
+            <MobileHeader
+              currentScreen={currentScreen}
+              onNavigate={handleNavigate}
+              onNewNote={handleNewNote}
+              isRecording={isRecording}
+              isProcessing={isProcessing}
+              userProfile={{
+                name: 'Dr. Sarah Johnson',
+                role: 'RN, BSN'
+              }}
+            />
+          </div>
 
-      {/* Bottom Safe Area for Mobile */}
-      <div className="h-safe-area-inset-bottom bg-background" />
+          {/* Tablet Header */}
+          <div className="hidden md:block">
+            <PowerfulHeader
+              onNewNote={handleNewNote}
+              isRecording={isRecording}
+              isProcessing={isProcessing}
+              userProfile={{
+                name: 'Dr. Sarah Johnson',
+                role: 'RN, BSN',
+                efficiency: 94
+              }}
+            />
+          </div>
+
+          {/* Mobile/Tablet Content */}
+          <main className="flex-1 overflow-hidden">
+            {renderCurrentScreen()}
+          </main>
+
+          {/* Bottom Safe Area for Mobile */}
+          <div className="h-safe-area-inset-bottom bg-background" />
+        </div>
+      </div>
     </div>
   );
 }
