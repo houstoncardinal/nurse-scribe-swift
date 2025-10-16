@@ -4,7 +4,7 @@
  */
 
 // Generate cache names with version for cache busting
-const VERSION = '1.4.0';
+const VERSION = '1.4.1';
 const TIMESTAMP = Date.now();
 const CACHE_NAME = `nursescribe-v${VERSION}-${TIMESTAMP}`;
 const STATIC_CACHE = `nursescribe-static-v${VERSION}-${TIMESTAMP}`;
@@ -12,6 +12,18 @@ const DYNAMIC_CACHE = `nursescribe-dynamic-v${VERSION}-${TIMESTAMP}`;
 
 // Force cache invalidation on every update
 const FORCE_CACHE_CLEAR = true;
+
+// Aggressive cache clearing - clear ALL possible cache names
+const OLD_CACHE_PATTERNS = [
+  'nursescribe-v1.3.0',
+  'nursescribe-static-v1.3.0',
+  'nursescribe-dynamic-v1.3.0',
+  'nursescribe-v1.4.0',
+  'nursescribe-static-v1.4.0',
+  'nursescribe-dynamic-v1.4.0',
+  'transformers-cache',
+  'whisper-cache'
+];
 
 // Files to cache for offline functionality
 const STATIC_FILES = [
@@ -40,7 +52,22 @@ self.addEventListener('install', (event) => {
     (FORCE_CACHE_CLEAR ? 
       caches.keys().then((cacheNames) => {
         console.log('Force clearing all caches:', cacheNames);
-        return Promise.all(cacheNames.map(name => caches.delete(name)));
+        // Delete all existing caches
+        const deletePromises = cacheNames.map(name => {
+          console.log(`Deleting old cache: ${name}`);
+          return caches.delete(name);
+        });
+        
+        // Also delete any cache that matches our old patterns
+        const patternDeletePromises = OLD_CACHE_PATTERNS.map(pattern => {
+          return cacheNames.filter(name => name.includes(pattern))
+            .map(name => {
+              console.log(`Deleting pattern cache: ${name}`);
+              return caches.delete(name);
+            });
+        }).flat();
+        
+        return Promise.all([...deletePromises, ...patternDeletePromises]);
       }) : 
       Promise.resolve()
     ).then(() => {
@@ -51,9 +78,12 @@ self.addEventListener('install', (event) => {
       return cache.addAll(STATIC_FILES);
     }).then(() => {
       console.log('Static files cached successfully');
+      console.log('Skipping waiting and activating immediately...');
       return self.skipWaiting();
     }).catch((error) => {
       console.error('Failed to cache static files:', error);
+      // Still skip waiting even if caching fails
+      return self.skipWaiting();
     })
   );
 });
