@@ -59,6 +59,7 @@ import {
   ArrowDownRight,
   Minus,
   ExternalLink,
+  Menu,
   Copy,
   Upload,
   Download as DownloadIcon,
@@ -296,6 +297,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { phiProtectionService, PHIDetectionResult, AuditLogEntry, ComplianceReport } from '@/lib/phiProtectionService';
 import { organizationService, Organization, User as OrganizationUser, Team, OrganizationInvite } from '@/lib/organizationService';
 
@@ -343,6 +345,7 @@ interface AnalyticsData {
 export function PowerfulAdminDashboard() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<OrganizationUser | null>(null);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
@@ -867,9 +870,65 @@ export function PowerfulAdminDashboard() {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
-      {/* Left Navigation */}
-      <div className="w-64 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
-        <div className="p-6">
+      {/* Mobile Menu Overlay */}
+      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+        <SheetContent side="left" className="w-80 p-0 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Shield className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-slate-900">Admin Dashboard</h1>
+                <p className="text-sm text-slate-600">NurseScribe AI</p>
+              </div>
+            </div>
+
+            <nav className="space-y-2">
+              {navigationItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+                
+                return (
+                  <Button
+                    key={item.id}
+                    variant={isActive ? "default" : "ghost"}
+                    className={`w-full justify-start h-12 text-left ${
+                      isActive 
+                        ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
+                        : 'hover:bg-slate-100 text-slate-700'
+                    }`}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    <Icon className={`h-5 w-5 mr-3 ${isActive ? 'text-white' : item.color}`} />
+                    {item.label}
+                  </Button>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* System Status */}
+          <div className="p-6 border-t border-slate-200">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-sm font-medium text-slate-700">System Online</span>
+              </div>
+              <div className="text-xs text-slate-500">
+                Last updated: {new Date().toLocaleTimeString()}
+              </div>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Desktop Left Navigation - Hidden on Mobile */}
+      <div className="hidden lg:flex w-64 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
+        <div className="p-6 w-full">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
               <Shield className="h-6 w-6 text-white" />
@@ -920,45 +979,86 @@ export function PowerfulAdminDashboard() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
+        {/* Mobile-Friendly Header */}
         <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200 shadow-sm">
-          <div className="px-6 py-3">
+          <div className="px-4 py-3 lg:px-6">
             <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-bold text-slate-900 capitalize">
-                  {navigationItems.find(item => item.id === activeTab)?.label}
-                </h2>
-                <p className="text-xs text-slate-600 mt-0.5">
-                  {activeTab === 'overview' && 'System overview and key metrics'}
-                  {activeTab === 'users' && 'User management and permissions'}
-                  {activeTab === 'notes' && 'Note analytics and content management'}
-                  {activeTab === 'analytics' && 'Performance analytics and insights'}
-                  {activeTab === 'phi-protection' && 'PHI detection, redaction, and compliance monitoring'}
-                  {activeTab === 'organizations' && 'Multi-tenant organization and team management'}
-                  {activeTab === 'system' && 'System monitoring and logs'}
-                  {activeTab === 'security' && 'Security settings and audit logs'}
-                  {activeTab === 'settings' && 'System configuration and preferences'}
-                </p>
+              {/* Mobile Menu Button */}
+              <div className="flex items-center gap-3 lg:hidden">
+                <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="sm" className="p-2">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </SheetTrigger>
+                </Sheet>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900 capitalize">
+                    {navigationItems.find(item => item.id === activeTab)?.label}
+                  </h2>
+                  <p className="text-xs text-slate-600 hidden sm:block">
+                    {activeTab === 'overview' && 'System overview and key metrics'}
+                    {activeTab === 'users' && 'User management and permissions'}
+                    {activeTab === 'notes' && 'Note analytics and content management'}
+                    {activeTab === 'analytics' && 'Performance analytics and insights'}
+                    {activeTab === 'phi-protection' && 'PHI detection, redaction, and compliance monitoring'}
+                    {activeTab === 'organizations' && 'Multi-tenant organization and team management'}
+                    {activeTab === 'system' && 'System monitoring and logs'}
+                    {activeTab === 'security' && 'Security settings and audit logs'}
+                    {activeTab === 'settings' && 'System configuration and preferences'}
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
+
+              {/* Desktop Header */}
+              <div className="hidden lg:flex items-center justify-between w-full">
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900 capitalize">
+                    {navigationItems.find(item => item.id === activeTab)?.label}
+                  </h2>
+                  <p className="text-xs text-slate-600 mt-0.5">
+                    {activeTab === 'overview' && 'System overview and key metrics'}
+                    {activeTab === 'users' && 'User management and permissions'}
+                    {activeTab === 'notes' && 'Note analytics and content management'}
+                    {activeTab === 'analytics' && 'Performance analytics and insights'}
+                    {activeTab === 'phi-protection' && 'PHI detection, redaction, and compliance monitoring'}
+                    {activeTab === 'organizations' && 'Multi-tenant organization and team management'}
+                    {activeTab === 'system' && 'System monitoring and logs'}
+                    {activeTab === 'security' && 'Security settings and audit logs'}
+                    {activeTab === 'settings' && 'System configuration and preferences'}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
+                    HIPAA Compliant
+                  </Badge>
+                  <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 h-8 text-sm">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add User
+                  </Button>
+                </div>
+              </div>
+
+              {/* Mobile Actions */}
+              <div className="flex items-center gap-2 lg:hidden">
                 <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
-                  HIPAA Compliant
+                  HIPAA
                 </Badge>
-                <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 h-8 text-sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add User
+                <Button size="sm" className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 h-8 text-xs">
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add
                 </Button>
               </div>
             </div>
           </div>
         </header>
 
-        {/* Content Area */}
-        <main className="flex-1 overflow-y-auto p-8">
+        {/* Mobile-Optimized Content Area */}
+        <main className="flex-1 overflow-y-auto p-4 lg:p-8">
           {activeTab === 'overview' && (
             <div className="space-y-8">
-              {/* Key Metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Key Metrics - Mobile Optimized */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                 <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -1013,7 +1113,7 @@ export function PowerfulAdminDashboard() {
               </div>
 
               {/* System Health */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -1117,7 +1217,7 @@ export function PowerfulAdminDashboard() {
           {activeTab === 'users' && (
             <div className="space-y-8">
               {/* User Statistics */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                 <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -1418,7 +1518,7 @@ export function PowerfulAdminDashboard() {
           {activeTab === 'notes' && (
             <div className="space-y-8">
               {/* Notes Statistics */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                 <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -1663,7 +1763,7 @@ export function PowerfulAdminDashboard() {
               </Card>
 
               {/* Notes Analytics */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -1742,7 +1842,7 @@ export function PowerfulAdminDashboard() {
           {activeTab === 'analytics' && (
             <div className="space-y-6">
               {/* Analytics Overview */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
                 <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -1882,7 +1982,7 @@ export function PowerfulAdminDashboard() {
           {activeTab === 'phi-protection' && (
             <div className="space-y-8">
               {/* PHI Detection Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                 <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -2232,7 +2332,7 @@ export function PowerfulAdminDashboard() {
           {activeTab === 'organizations' && (
             <div className="space-y-8">
               {/* Organization Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                 <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
