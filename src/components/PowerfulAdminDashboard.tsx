@@ -311,6 +311,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { phiProtectionService, PHIDetectionResult, AuditLogEntry, ComplianceReport } from '@/lib/phiProtectionService';
+import { organizationService, Organization, User, Team, OrganizationInvite } from '@/lib/organizationService';
 
 interface DashboardStats {
   totalUsers: number;
@@ -358,6 +360,17 @@ export function PowerfulAdminDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  
+  // PHI Protection state
+  const [phiDetectionResults, setPhiDetectionResults] = useState<PHIDetectionResult[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
+  const [complianceReports, setComplianceReports] = useState<ComplianceReport[]>([]);
+  
+  // Organization Management state
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [organizationUsers, setOrganizationUsers] = useState<User[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [invites, setInvites] = useState<OrganizationInvite[]>([]);
 
   // Mock data - replace with real data from your service
   const [stats, setStats] = useState<DashboardStats>({
@@ -445,10 +458,24 @@ export function PowerfulAdminDashboard() {
     { id: 'users', label: 'Users', icon: Users, color: 'text-green-600' },
     { id: 'notes', label: 'Notes', icon: FileText, color: 'text-purple-600' },
     { id: 'analytics', label: 'Analytics', icon: TrendingUp, color: 'text-orange-600' },
-    { id: 'system', label: 'System', icon: Server, color: 'text-red-600' },
-    { id: 'security', label: 'Security', icon: Shield, color: 'text-indigo-600' },
-    { id: 'settings', label: 'Settings', icon: Settings, color: 'text-gray-600' }
+    { id: 'phi-protection', label: 'PHI Protection', icon: Shield, color: 'text-red-600' },
+    { id: 'organizations', label: 'Organizations', icon: Globe, color: 'text-indigo-600' },
+    { id: 'system', label: 'System', icon: Server, color: 'text-gray-600' },
+    { id: 'security', label: 'Security', icon: Lock, color: 'text-yellow-600' },
+    { id: 'settings', label: 'Settings', icon: Settings, color: 'text-slate-600' }
   ];
+
+  // Load data on component mount
+  useEffect(() => {
+    // Load PHI protection data
+    setAuditLogs(phiProtectionService.getAuditLogs());
+    setComplianceReports(phiProtectionService.getComplianceReports());
+    
+    // Load organization data
+    setOrganizations(organizationService.getOrganizations());
+    setOrganizationUsers(organizationService.getUsersByOrganization('org-1')); // Default org
+    setTeams(organizationService.getTeamsByOrganization('org-1'));
+  }, []);
 
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -542,6 +569,8 @@ export function PowerfulAdminDashboard() {
                   {activeTab === 'users' && 'User management and permissions'}
                   {activeTab === 'notes' && 'Note analytics and content management'}
                   {activeTab === 'analytics' && 'Performance analytics and insights'}
+                  {activeTab === 'phi-protection' && 'PHI detection, redaction, and compliance monitoring'}
+                  {activeTab === 'organizations' && 'Multi-tenant organization and team management'}
                   {activeTab === 'system' && 'System monitoring and logs'}
                   {activeTab === 'security' && 'Security settings and audit logs'}
                   {activeTab === 'settings' && 'System configuration and preferences'}
@@ -969,6 +998,340 @@ export function PowerfulAdminDashboard() {
                         <Badge className="bg-green-100 text-green-800">Current</Badge>
                       </div>
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* PHI Protection Tab */}
+          {activeTab === 'phi-protection' && (
+            <div className="space-y-8">
+              {/* PHI Detection Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-red-600">PHI Detections</p>
+                        <p className="text-2xl font-bold text-red-900">1,247</p>
+                        <p className="text-xs text-red-600 mt-1">+12% this week</p>
+                      </div>
+                      <Shield className="h-8 w-8 text-red-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-green-600">Compliance Score</p>
+                        <p className="text-2xl font-bold text-green-900">98.5%</p>
+                        <p className="text-xs text-green-600 mt-1">Excellent</p>
+                      </div>
+                      <CheckCircle className="h-8 w-8 text-green-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-blue-600">Redactions</p>
+                        <p className="text-2xl font-bold text-blue-900">892</p>
+                        <p className="text-xs text-blue-600 mt-1">Auto-redacted</p>
+                      </div>
+                      <Edit className="h-8 w-8 text-blue-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-yellow-600">Violations</p>
+                        <p className="text-2xl font-bold text-yellow-900">3</p>
+                        <p className="text-xs text-yellow-600 mt-1">This month</p>
+                      </div>
+                      <AlertTriangle className="h-8 w-8 text-yellow-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* PHI Patterns and Detection */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Shield className="h-5 w-5 text-red-600" />
+                      PHI Detection Patterns
+                    </CardTitle>
+                    <CardDescription>Configure and monitor PHI detection rules</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {phiProtectionService.getPHIPatterns().slice(0, 5).map((pattern, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                          <div>
+                            <p className="font-medium text-sm">{pattern.name}</p>
+                            <p className="text-xs text-slate-600">{pattern.description}</p>
+                          </div>
+                          <Badge className={`${
+                            pattern.severity === 'critical' ? 'bg-red-100 text-red-800' :
+                            pattern.severity === 'high' ? 'bg-orange-100 text-orange-800' :
+                            pattern.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-green-100 text-green-800'
+                          }`}>
+                            {pattern.severity}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Activity className="h-5 w-5 text-blue-600" />
+                      Recent PHI Detections
+                    </CardTitle>
+                    <CardDescription>Latest PHI detection events</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {auditLogs.filter(log => log.action === 'phi_detection').slice(0, 5).map((log, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                          <div>
+                            <p className="font-medium text-sm">{log.resource}</p>
+                            <p className="text-xs text-slate-600">
+                              {log.details.phiCount} items • {log.timestamp.toLocaleString()}
+                            </p>
+                          </div>
+                          <Badge className={`${
+                            log.result === 'success' ? 'bg-green-100 text-green-800' :
+                            log.result === 'warning' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {log.result}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Compliance Reports */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-purple-600" />
+                    Compliance Reports
+                  </CardTitle>
+                  <CardDescription>HIPAA compliance monitoring and reporting</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {complianceReports.slice(0, 3).map((report, index) => (
+                      <div key={index} className="p-4 border border-slate-200 rounded-lg">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <h4 className="font-medium">Report #{report.id.slice(-8)}</h4>
+                            <p className="text-sm text-slate-600">
+                              {report.period.start.toLocaleDateString()} - {report.period.end.toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-green-600">{report.summary.complianceScore}%</p>
+                            <p className="text-xs text-slate-600">Compliance Score</p>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <p className="font-medium">{report.summary.totalNotes}</p>
+                            <p className="text-slate-600">Total Notes</p>
+                          </div>
+                          <div>
+                            <p className="font-medium">{report.summary.phiDetections}</p>
+                            <p className="text-slate-600">PHI Detections</p>
+                          </div>
+                          <div>
+                            <p className="font-medium">{report.summary.redactions}</p>
+                            <p className="text-slate-600">Redactions</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-red-600">{report.summary.violations}</p>
+                            <p className="text-slate-600">Violations</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Organizations Tab */}
+          {activeTab === 'organizations' && (
+            <div className="space-y-8">
+              {/* Organization Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-blue-600">Organizations</p>
+                        <p className="text-2xl font-bold text-blue-900">{organizations.length}</p>
+                        <p className="text-xs text-blue-600 mt-1">Active</p>
+                      </div>
+                      <Globe className="h-8 w-8 text-blue-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-green-600">Total Users</p>
+                        <p className="text-2xl font-bold text-green-900">{organizationUsers.length}</p>
+                        <p className="text-xs text-green-600 mt-1">Across all orgs</p>
+                      </div>
+                      <Users className="h-8 w-8 text-green-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-purple-600">Teams</p>
+                        <p className="text-2xl font-bold text-purple-900">{teams.length}</p>
+                        <p className="text-xs text-purple-600 mt-1">Collaborative groups</p>
+                      </div>
+                      <Users className="h-8 w-8 text-purple-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-orange-600">Pending Invites</p>
+                        <p className="text-2xl font-bold text-orange-900">{invites.length}</p>
+                        <p className="text-xs text-orange-600 mt-1">Awaiting response</p>
+                      </div>
+                      <Mail className="h-8 w-8 text-orange-600" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Organizations List */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Globe className="h-5 w-5 text-blue-600" />
+                    Organizations
+                  </CardTitle>
+                  <CardDescription>Manage multi-tenant organizations and their settings</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {organizations.map((org, index) => {
+                      const orgStats = organizationService.getOrganizationStats(org.id);
+                      return (
+                        <div key={index} className="p-4 border border-slate-200 rounded-lg">
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <h4 className="font-medium text-lg">{org.name}</h4>
+                              <p className="text-sm text-slate-600">{org.type.replace('_', ' ')} • {org.domain}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge className={`${
+                                org.subscription.status === 'active' ? 'bg-green-100 text-green-800' :
+                                org.subscription.status === 'suspended' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {org.subscription.plan}
+                              </Badge>
+                              <Badge className="bg-blue-100 text-blue-800">
+                                {org.subscription.seatsUsed}/{org.subscription.seatsTotal} seats
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <p className="font-medium">{orgStats.totalUsers}</p>
+                              <p className="text-slate-600">Users</p>
+                            </div>
+                            <div>
+                              <p className="font-medium">{orgStats.totalNotes}</p>
+                              <p className="text-slate-600">Notes</p>
+                            </div>
+                            <div>
+                              <p className="font-medium">{orgStats.totalTeams}</p>
+                              <p className="text-slate-600">Teams</p>
+                            </div>
+                            <div>
+                              <p className="font-medium">{orgStats.complianceScore}%</p>
+                              <p className="text-slate-600">Compliance</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Teams Management */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5 text-green-600" />
+                    Teams
+                  </CardTitle>
+                  <CardDescription>Collaborative teams and their members</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {teams.map((team, index) => (
+                      <div key={index} className="p-4 border border-slate-200 rounded-lg">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <h4 className="font-medium text-lg">{team.name}</h4>
+                            <p className="text-sm text-slate-600">{team.description}</p>
+                          </div>
+                          <Badge className="bg-green-100 text-green-800">
+                            {team.members.length} members
+                          </Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {team.members.slice(0, 5).map((member, memberIndex) => {
+                            const user = organizationUsers.find(u => u.id === member.userId);
+                            return (
+                              <Badge key={memberIndex} variant="outline" className="text-xs">
+                                {user?.name || 'Unknown User'} ({member.role})
+                              </Badge>
+                            );
+                          })}
+                          {team.members.length > 5 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{team.members.length - 5} more
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>

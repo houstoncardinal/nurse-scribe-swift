@@ -495,8 +495,8 @@ export function MVPHomeScreen({
 
             {/* Mobile Template Selector - Compact */}
             <div className="max-w-xs mx-auto">
-              <Select value={selectedTemplate} onValueChange={(value) => {
-                setSelectedTemplate(value);
+              <Select value={localSelectedTemplate} onValueChange={(value) => {
+                setLocalSelectedTemplate(value);
                 onTemplateChange(value);
               }}>
                 <SelectTrigger className="w-full h-9 text-xs bg-white border border-slate-200 hover:border-teal-300 focus:border-teal-500 transition-colors shadow-sm">
