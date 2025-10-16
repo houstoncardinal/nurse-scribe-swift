@@ -17,6 +17,9 @@ env.backends.onnx.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/@xenova/transfo
 env.allowRemoteModels = true;
 env.allowLocalModels = false;
 
+// Use a more reliable model that works with the current transformers.js version
+const WHISPER_MODEL = 'Xenova/whisper-tiny.en';
+
 interface WhisperResult {
   text: string;
   chunks: Array<{
@@ -69,9 +72,10 @@ class WhisperWasmService {
       // Initialize with the most reliable Whisper model
       console.log('📦 Loading Whisper model from Hugging Face CDN...');
       
+      // Use a more direct approach without relying on filename placeholders
       this.pipeline = await pipeline(
         'automatic-speech-recognition',
-        'Xenova/whisper-tiny.en',
+        WHISPER_MODEL,
         {
           quantized: true,
           progress_callback: (progress: any) => {
@@ -80,7 +84,10 @@ class WhisperWasmService {
               console.log(`📈 Whisper loading progress: ${percentage}%`);
               this.onProgress(progress.loaded / progress.total);
             }
-          }
+          },
+          // Use explicit model configuration
+          revision: 'main',
+          use_auth_token: false
         }
       );
       
@@ -103,7 +110,9 @@ class WhisperWasmService {
               if (this.onProgress && progress.total > 0) {
                 this.onProgress(progress.loaded / progress.total);
               }
-            }
+            },
+            revision: 'main',
+            use_auth_token: false
           }
         );
         

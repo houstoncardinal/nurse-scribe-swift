@@ -43,7 +43,7 @@ class EnhancedVoiceService {
   private silenceTimer: NodeJS.Timeout | null = null;
   private lastSpeechTime: number = 0;
   private options: RecordingOptions = {
-    useWhisper: true, // Re-enable Whisper for production use
+    useWhisper: true, // Re-enable Whisper with improved configuration
     fallbackToBrowser: true,
     language: 'en-US',
     maxRecordingTime: 60, // 1 minute max
@@ -66,10 +66,20 @@ class EnhancedVoiceService {
     }
 
     if (this.recognition) {
+      // Enhanced configuration for maximum accuracy
       this.recognition.continuous = true;
       this.recognition.interimResults = true;
       this.recognition.lang = this.options.language;
-      this.recognition.maxAlternatives = 3;
+      this.recognition.maxAlternatives = 3; // Get multiple alternatives for better accuracy
+      
+      // Additional accuracy settings (where supported)
+      if ('grammars' in this.recognition) {
+        // Add medical terminology grammar for better healthcare transcription
+        const grammar = new (window as any).SpeechGrammarList();
+        const medicalTerms = '#JSGF V1.0; grammar medical; public <medical> = patient | diagnosis | treatment | medication | vital signs | blood pressure | heart rate | temperature | oxygen saturation | pain scale | assessment | intervention | plan | evaluation | SOAP | SBAR | PIE | DAR | acute | chronic | stable | critical | urgent | emergent;';
+        grammar.addFromString(medicalTerms, 1);
+        this.recognition.grammars = grammar;
+      }
 
       this.recognition.onresult = (event: any) => {
         this.handleBrowserResult(event);
@@ -110,35 +120,46 @@ class EnhancedVoiceService {
   }
 
   /**
-   * Handle browser speech recognition results
+   * Handle browser speech recognition results with enhanced accuracy
    */
   private handleBrowserResult(event: any): void {
     let interimTranscript = '';
     let finalTranscript = '';
 
     for (let i = event.resultIndex; i < event.results.length; i++) {
-      const transcript = event.results[i][0].transcript;
-      const confidence = event.results[i][0].confidence;
+      const result = event.results[i];
+      
+      // Use the best alternative for higher accuracy
+      let bestTranscript = result[0].transcript;
+      let bestConfidence = result[0].confidence;
+      
+      // Check all alternatives and pick the one with highest confidence
+      for (let j = 0; j < result.length && j < 3; j++) {
+        if (result[j].confidence > bestConfidence) {
+          bestTranscript = result[j].transcript;
+          bestConfidence = result[j].confidence;
+        }
+      }
 
-      if (event.results[i].isFinal) {
-        finalTranscript += transcript;
+      if (result.isFinal) {
+        finalTranscript += bestTranscript;
         
         // Reset silence timer on speech detection
         this.resetSilenceTimer();
         
-        const result: VoiceRecognitionResult = {
+        const voiceResult: VoiceRecognitionResult = {
           transcript: finalTranscript.trim(),
           isFinal: true,
-          confidence,
+          confidence: bestConfidence,
           timestamp: Date.now(),
           source: 'browser'
         };
 
         if (this.callbacks?.onResult) {
-          this.callbacks.onResult(result);
+          this.callbacks.onResult(voiceResult);
         }
       } else {
-        interimTranscript += transcript;
+        interimTranscript += bestTranscript;
         
         // Reset silence timer on interim results (speech detected)
         if (interimTranscript.trim().length > 0) {
@@ -482,6 +503,25 @@ class EnhancedVoiceService {
     if (this.isRecording) return 'recording';
     if (this.isProcessing) return 'processing';
     return 'idle';
+  }
+
+  /**
+   * Get detailed voice recognition status
+   */
+  public getVoiceRecognitionStatus(): {
+    method: 'whisper' | 'browser' | 'unknown';
+    whisperStatus: 'loading' | 'ready' | 'failed' | 'disabled';
+    browserSupported: boolean;
+    isRecording: boolean;
+    isProcessing: boolean;
+  } {
+    return {
+      method: this.getCurrentMethod(),
+      whisperStatus: this.getWhisperStatus(),
+      browserSupported: this.recognition !== null,
+      isRecording: this.isRecording,
+      isProcessing: this.isProcessing
+    };
   }
 
   /**
