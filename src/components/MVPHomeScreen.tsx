@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mic, MicOff, Clock, Zap, Shield, Keyboard, Upload, FileText } from 'lucide-react';
+import { Mic, MicOff, Clock, Zap, Shield, Keyboard, Upload, FileText, TrendingUp, Target, Award, Activity, BarChart3, CheckCircle, Star, Timer, Users, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -93,10 +93,10 @@ export function MVPHomeScreen({
                       </div>
                     </div>
 
-                    {/* Desktop Main Content - Full Height */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start h-full">
+                    {/* Desktop Main Content - Full Height with Dashboard */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start h-full">
                       {/* Left Side - Recording Area */}
-                      <div className="space-y-6 flex flex-col justify-center min-h-[400px]">
+                      <div className="lg:col-span-1 space-y-6 flex flex-col justify-center min-h-[500px]">
                 {showInputSelector ? (
                   <div className="w-full">
                     <InputMethodSelector
@@ -218,8 +218,8 @@ export function MVPHomeScreen({
                 )}
               </div>
 
-                      {/* Right Side - Input Options & Actions */}
-                      <div className="space-y-6 flex flex-col justify-center min-h-[400px]">
+                      {/* Middle - Input Options & Actions */}
+                      <div className="lg:col-span-1 space-y-6 flex flex-col justify-center min-h-[500px]">
                 {/* Input Method Options */}
                 {!isRecording && !isProcessing && !transcript && (
                   <div className="space-y-4">
@@ -288,10 +288,121 @@ export function MVPHomeScreen({
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+
+                      {/* Right Side - Powerful Dashboard */}
+                      <div className="lg:col-span-1 space-y-6 flex flex-col justify-start min-h-[500px]">
+                        {/* Quick Stats */}
+                        <Card className="p-4 bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-lg">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+                              <BarChart3 className="h-4 w-4 text-white" />
+                            </div>
+                            <h3 className="font-semibold text-slate-900">Today's Performance</h3>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-100">
+                              <div className="flex items-center gap-2">
+                                <FileText className="h-4 w-4 text-blue-600" />
+                                <span className="text-sm font-medium text-slate-700">Notes Created</span>
+                              </div>
+                              <span className="text-lg font-bold text-blue-600">12</span>
+                            </div>
+                            <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-100">
+                              <div className="flex items-center gap-2">
+                                <Timer className="h-4 w-4 text-emerald-600" />
+                                <span className="text-sm font-medium text-slate-700">Time Saved</span>
+                              </div>
+                              <span className="text-lg font-bold text-emerald-600">3.2h</span>
+                            </div>
+                            <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-100">
+                              <div className="flex items-center gap-2">
+                                <Target className="h-4 w-4 text-purple-600" />
+                                <span className="text-sm font-medium text-slate-700">Accuracy</span>
+                              </div>
+                              <span className="text-lg font-bold text-purple-600">99.2%</span>
+                            </div>
+                          </div>
+                        </Card>
+
+                        {/* Quick Tips */}
+                        <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-lg">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                              <BookOpen className="h-4 w-4 text-white" />
+                            </div>
+                            <h3 className="font-semibold text-slate-900">Quick Tips</h3>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="flex items-start gap-3 p-2 bg-white rounded-lg border border-blue-100">
+                              <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                              <span className="text-sm text-slate-700">Speak clearly and at normal pace for best accuracy</span>
+                            </div>
+                            <div className="flex items-start gap-3 p-2 bg-white rounded-lg border border-blue-100">
+                              <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                              <span className="text-sm text-slate-700">Use specific medical terminology for better AI understanding</span>
+                            </div>
+                            <div className="flex items-start gap-3 p-2 bg-white rounded-lg border border-blue-100">
+                              <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                              <span className="text-sm text-slate-700">Review and edit generated notes before exporting</span>
+                            </div>
+                          </div>
+                        </Card>
+
+                        {/* Recent Activity */}
+                        <Card className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 shadow-lg">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                              <Activity className="h-4 w-4 text-white" />
+                            </div>
+                            <h3 className="font-semibold text-slate-900">Recent Activity</h3>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-purple-100">
+                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                              <span className="text-sm text-slate-700">SOAP note completed</span>
+                              <span className="text-xs text-slate-500 ml-auto">2m ago</span>
+                            </div>
+                            <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-purple-100">
+                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                              <span className="text-sm text-slate-700">Voice recognition session</span>
+                              <span className="text-xs text-slate-500 ml-auto">15m ago</span>
+                            </div>
+                            <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-purple-100">
+                              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                              <span className="text-sm text-slate-700">SBAR template used</span>
+                              <span className="text-xs text-slate-500 ml-auto">1h ago</span>
+                            </div>
+                          </div>
+                        </Card>
+
+                        {/* Achievements */}
+                        <Card className="p-4 bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 shadow-lg">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-8 h-8 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center">
+                              <Award className="h-4 w-4 text-white" />
+                            </div>
+                            <h3 className="font-semibold text-slate-900">Achievements</h3>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-yellow-100">
+                              <Star className="h-4 w-4 text-yellow-500" />
+                              <span className="text-sm text-slate-700">Speed Master - 10 notes in 1 hour</span>
+                            </div>
+                            <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-yellow-100">
+                              <Target className="h-4 w-4 text-green-500" />
+                              <span className="text-sm text-slate-700">Accuracy Champion - 99%+ rate</span>
+                            </div>
+                            <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-yellow-100">
+                              <Users className="h-4 w-4 text-blue-500" />
+                              <span className="text-sm text-slate-700">Team Player - 50+ shared notes</span>
+                            </div>
+                          </div>
+                        </Card>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
       {/* Mobile/Tablet Layout */}
       <div className="lg:hidden">
@@ -519,6 +630,46 @@ export function MVPHomeScreen({
                     <FileText className="h-4 w-4 mr-2" />
                     Preview Draft Note
                   </Button>
+                </div>
+              )}
+
+              {/* Mobile Dashboard - Compact Stats */}
+              {!isRecording && !isProcessing && (
+                <div className="w-full max-w-md space-y-3 mt-6">
+                  <div className="grid grid-cols-3 gap-3">
+                    <Card className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
+                      <div className="text-center">
+                        <FileText className="h-5 w-5 text-blue-600 mx-auto mb-1" />
+                        <div className="text-lg font-bold text-blue-700">12</div>
+                        <div className="text-xs text-blue-600">Notes</div>
+                      </div>
+                    </Card>
+                    <Card className="p-3 bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200">
+                      <div className="text-center">
+                        <Timer className="h-5 w-5 text-emerald-600 mx-auto mb-1" />
+                        <div className="text-lg font-bold text-emerald-700">3.2h</div>
+                        <div className="text-xs text-emerald-600">Saved</div>
+                      </div>
+                    </Card>
+                    <Card className="p-3 bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200">
+                      <div className="text-center">
+                        <Target className="h-5 w-5 text-purple-600 mx-auto mb-1" />
+                        <div className="text-lg font-bold text-purple-700">99%</div>
+                        <div className="text-xs text-purple-600">Accuracy</div>
+                      </div>
+                    </Card>
+                  </div>
+
+                  {/* Mobile Tips */}
+                  <Card className="p-3 bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <BookOpen className="h-4 w-4 text-orange-600" />
+                      <span className="text-sm font-semibold text-slate-900">Quick Tip</span>
+                    </div>
+                    <p className="text-xs text-slate-700">
+                      Speak clearly and use medical terminology for best AI transcription accuracy.
+                    </p>
+                  </Card>
                 </div>
               )}
             </>
