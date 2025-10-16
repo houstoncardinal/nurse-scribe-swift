@@ -17,6 +17,7 @@ import { supabaseService } from "@/lib/supabase";
 const queryClient = new QueryClient();
 
 const App = () => {
+  console.log('App rendering...');
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showEducation, setShowEducation] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);

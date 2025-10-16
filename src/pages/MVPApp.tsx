@@ -14,6 +14,7 @@ interface NoteContent {
 }
 
 export function MVPApp() {
+  console.log('MVPApp rendering...');
   // Screen navigation
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
   
