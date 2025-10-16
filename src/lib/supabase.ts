@@ -157,31 +157,20 @@ class SupabaseService {
       console.log('🔍 Testing Supabase connection...');
       
       // Try a simple ping first - just check if we can reach the API
-      const { data, error } = await this.supabase
-        .from('organizations')
-        .select('id')
-        .limit(1);
+      // Use the auth service to test basic connectivity
+      const { data, error } = await this.supabase.auth.getSession();
 
       if (error) {
-        // Handle specific error codes gracefully with minimal logging
-        if (error.code === 'PGRST116') {
-          // No rows returned - this is actually OK, table exists but is empty
-          console.log('✅ Supabase connection test passed (table exists, no data)');
+        // Handle auth service errors gracefully
+        if (error.message?.includes('Invalid API key') || error.message?.includes('401')) {
+          console.log('⚠️ Supabase API key issue - continuing without full integration');
           return;
-        } else if (error.code === '42P01') {
-          // Table doesn't exist - this is OK for initial setup
-          console.log('⚠️ Organizations table does not exist yet - this is OK for initial setup');
-          return;
-        } else if (error.code === '500' || error.message?.includes('500')) {
+        } else if (error.message?.includes('500') || error.code === '500') {
           console.log('⚠️ Supabase server error (500) - continuing without connection test');
-          return;
-        } else if (error.code === '42501') {
-          // Permission denied - this is OK, we might not have access to this table yet
-          console.log('⚠️ Permission denied for organizations table - this is OK for initial setup');
           return;
         } else {
           console.log('⚠️ Supabase connection test failed - continuing without full integration');
-          return; // Don't throw, just warn and continue
+          return;
         }
       }
       

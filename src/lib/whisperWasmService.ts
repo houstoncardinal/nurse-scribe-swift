@@ -5,9 +5,11 @@
 
 import { pipeline, env } from '@xenova/transformers';
 
-// Configure transformers to use local files
-env.allowRemoteModels = false;
+// Configure transformers to use remote models (they're cached locally)
+env.allowRemoteModels = true;
 env.allowLocalModels = true;
+env.remoteModelURL = 'https://huggingface.co';
+env.remotePathTemplate = 'https://huggingface.co/{model}/resolve/{revision}/{filename}';
 
 interface WhisperResult {
   text: string;
@@ -58,7 +60,11 @@ class WhisperWasmService {
             if (this.onProgress) {
               this.onProgress(progress.loaded / progress.total);
             }
-          }
+          },
+          // Add proper configuration for model loading
+          model_file_name: 'model.onnx',
+          config_file_name: 'config.json',
+          tokenizer_file_name: 'tokenizer.json'
         }
       );
       
