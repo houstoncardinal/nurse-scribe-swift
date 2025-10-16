@@ -248,26 +248,44 @@ export function MVPHomeScreen({
                       <Button
                         variant="outline"
                         onClick={() => setShowInputSelector(true)}
-                        className="h-16 flex items-center justify-center gap-4 bg-white/90 backdrop-blur-sm border-2 border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl rounded-xl"
+                        className="h-16 flex items-center justify-center gap-4 bg-white/95 backdrop-blur-sm border-2 border-slate-200/60 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 rounded-xl group"
+                        style={{
+                          boxShadow: '0 6px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.15), 0 3px 10px rgba(59, 130, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
+                        }}
                       >
-                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <Keyboard className="h-5 w-5 text-blue-600" />
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center group-hover:from-blue-200 group-hover:to-blue-300 transition-all duration-300 shadow-sm">
+                          <Keyboard className="h-5 w-5 text-blue-600 drop-shadow-sm" />
                         </div>
                         <div className="text-left">
-                          <div className="font-semibold text-slate-700">Type or Paste Text</div>
+                          <div className="font-semibold text-slate-700 group-hover:text-blue-700 transition-colors duration-300">Type or Paste Text</div>
                           <div className="text-sm text-slate-500">Manual input method</div>
                         </div>
                       </Button>
                       <Button
                         variant="outline"
                         onClick={onStartRecording}
-                        className="h-16 flex items-center justify-center gap-4 bg-white/90 backdrop-blur-sm border-2 border-slate-200 hover:border-teal-400 hover:bg-teal-50 transition-all duration-300 shadow-lg hover:shadow-xl rounded-xl"
+                        className="h-16 flex items-center justify-center gap-4 bg-white/95 backdrop-blur-sm border-2 border-slate-200/60 hover:border-teal-400 hover:bg-teal-50 transition-all duration-300 rounded-xl group"
+                        style={{
+                          boxShadow: '0 6px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.boxShadow = '0 8px 25px rgba(20, 184, 166, 0.15), 0 3px 10px rgba(20, 184, 166, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
+                        }}
                       >
-                        <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
-                          <Mic className="h-5 w-5 text-teal-600" />
+                        <div className="w-10 h-10 bg-gradient-to-br from-teal-100 to-teal-200 rounded-lg flex items-center justify-center group-hover:from-teal-200 group-hover:to-teal-300 transition-all duration-300 shadow-sm">
+                          <Mic className="h-5 w-5 text-teal-600 drop-shadow-sm" />
                         </div>
                         <div className="text-left">
-                          <div className="font-semibold text-slate-700">Voice Dictation</div>
+                          <div className="font-semibold text-slate-700 group-hover:text-teal-700 transition-colors duration-300">Voice Dictation</div>
                           <div className="text-sm text-slate-500">AI speech recognition</div>
                         </div>
                       </Button>
@@ -299,10 +317,13 @@ export function MVPHomeScreen({
                     
                     <Button
                       size="lg"
-                      className="w-full h-14 text-lg font-bold bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 hover:from-emerald-600 hover:via-teal-700 hover:to-emerald-700 text-white shadow-xl shadow-emerald-500/25 transition-all duration-300 transform hover:scale-105"
+                      className="w-full h-14 text-lg font-bold bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 hover:from-emerald-600 hover:via-teal-700 hover:to-emerald-700 text-white transition-all duration-300 transform hover:scale-105"
+                      style={{
+                        boxShadow: '0 8px 25px rgba(16, 185, 129, 0.4), 0 3px 10px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                      }}
                       onClick={() => onNavigate('draft')}
                     >
-                      <FileText className="h-5 w-5 mr-3" />
+                      <FileText className="h-5 w-5 mr-3 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
                       Preview Draft Note
                     </Button>
                   </div>
@@ -533,21 +554,26 @@ export function MVPHomeScreen({
                     </>
                   )}
                   
-                  {/* Responsive Main Button - Larger */}
+                  {/* Responsive Main Button - Apple-level aesthetics */}
                   <Button
                     size="lg"
-                    className={`w-28 h-28 sm:w-32 sm:h-32 rounded-full shadow-2xl transition-all duration-500 transform hover:scale-105 active:scale-95 ${
+                    className={`w-28 h-28 sm:w-32 sm:h-32 rounded-full transition-all duration-500 transform hover:scale-105 active:scale-95 ${
                       isRecording 
-                        ? 'bg-gradient-to-br from-red-500 via-pink-600 to-red-600 hover:from-red-600 hover:via-pink-700 hover:to-red-700 shadow-red-500/30' 
-                        : 'bg-gradient-to-br from-teal-500 via-blue-600 to-teal-600 hover:from-teal-600 hover:via-blue-700 hover:to-teal-700 shadow-teal-500/30'
-                    } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        ? 'bg-gradient-to-br from-red-500 via-pink-600 to-red-600 hover:from-red-600 hover:via-pink-700 hover:to-red-700 shadow-[0_8px_30px_rgb(239,68,68,0.4)] hover:shadow-[0_12px_40px_rgb(239,68,68,0.5)]' 
+                        : 'bg-gradient-to-br from-teal-500 via-blue-600 to-teal-600 hover:from-teal-600 hover:via-blue-700 hover:to-teal-700 shadow-[0_8px_30px_rgb(20,184,166,0.4)] hover:shadow-[0_12px_40px_rgb(20,184,166,0.5)]'
+                    } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''} shadow-lg`}
+                    style={{
+                      boxShadow: isRecording 
+                        ? '0 8px 30px rgba(239, 68, 68, 0.4), 0 2px 8px rgba(239, 68, 68, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                        : '0 8px 30px rgba(20, 184, 166, 0.4), 0 2px 8px rgba(20, 184, 166, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                    }}
                     onClick={isRecording ? onStopRecording : onStartRecording}
                     disabled={isProcessing}
                   >
                     {isRecording ? (
-                      <MicOff className="h-12 w-12 sm:h-14 sm:w-14 text-white drop-shadow-lg" />
+                      <MicOff className="h-12 w-12 sm:h-14 sm:w-14 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
                     ) : (
-                      <Mic className="h-12 w-12 sm:h-14 sm:w-14 text-white drop-shadow-lg" />
+                      <Mic className="h-12 w-12 sm:h-14 sm:w-14 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
                     )}
                   </Button>
                   
@@ -627,22 +653,40 @@ export function MVPHomeScreen({
                       <Button
                         variant="outline"
                         onClick={() => setShowInputSelector(true)}
-                        className="h-12 flex flex-col items-center justify-center gap-1 bg-white/90 backdrop-blur-sm border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 shadow-sm hover:shadow-md rounded-lg"
+                        className="h-12 flex flex-col items-center justify-center gap-1 bg-white/95 backdrop-blur-sm border border-slate-200/60 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 rounded-lg group"
+                        style={{
+                          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.15), 0 2px 6px rgba(59, 130, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
+                        }}
                       >
-                        <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
-                          <Keyboard className="h-3 w-3 text-blue-600" />
+                        <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-blue-200 rounded flex items-center justify-center group-hover:from-blue-200 group-hover:to-blue-300 transition-all duration-300 shadow-sm">
+                          <Keyboard className="h-3 w-3 text-blue-600 drop-shadow-sm" />
                         </div>
-                        <span className="text-xs font-medium text-slate-700">Type</span>
+                        <span className="text-xs font-medium text-slate-700 group-hover:text-blue-700 transition-colors duration-300">Type</span>
                       </Button>
                       <Button
                         variant="outline"
                         onClick={onStartRecording}
-                        className="h-12 flex flex-col items-center justify-center gap-1 bg-white/90 backdrop-blur-sm border border-slate-200 hover:border-teal-400 hover:bg-teal-50 transition-all duration-300 shadow-sm hover:shadow-md rounded-lg"
+                        className="h-12 flex flex-col items-center justify-center gap-1 bg-white/95 backdrop-blur-sm border border-slate-200/60 hover:border-teal-400 hover:bg-teal-50 transition-all duration-300 rounded-lg group"
+                        style={{
+                          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.boxShadow = '0 6px 20px rgba(20, 184, 166, 0.15), 0 2px 6px rgba(20, 184, 166, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
+                        }}
                       >
-                        <div className="w-6 h-6 bg-teal-100 rounded flex items-center justify-center">
-                          <Mic className="h-3 w-3 text-teal-600" />
+                        <div className="w-6 h-6 bg-gradient-to-br from-teal-100 to-teal-200 rounded flex items-center justify-center group-hover:from-teal-200 group-hover:to-teal-300 transition-all duration-300 shadow-sm">
+                          <Mic className="h-3 w-3 text-teal-600 drop-shadow-sm" />
                         </div>
-                        <span className="text-xs font-medium text-slate-700">Voice</span>
+                        <span className="text-xs font-medium text-slate-700 group-hover:text-teal-700 transition-colors duration-300">Voice</span>
                       </Button>
                     </div>
                   </div>
@@ -672,10 +716,13 @@ export function MVPHomeScreen({
                   
                   <Button
                     size="lg"
-                    className="w-full h-12 text-sm font-bold bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 hover:from-emerald-600 hover:via-teal-700 hover:to-emerald-700 text-white shadow-lg shadow-emerald-500/25 transition-all duration-300 transform hover:scale-105"
+                    className="w-full h-12 text-sm font-bold bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 hover:from-emerald-600 hover:via-teal-700 hover:to-emerald-700 text-white transition-all duration-300 transform hover:scale-105"
+                    style={{
+                      boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4), 0 2px 8px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                    }}
                     onClick={() => onNavigate('draft')}
                   >
-                    <FileText className="h-4 w-4 mr-2" />
+                    <FileText className="h-4 w-4 mr-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
                     Preview Draft Note
                   </Button>
                 </div>
@@ -686,9 +733,9 @@ export function MVPHomeScreen({
                 <div className="w-full max-w-sm space-y-2 mt-4">
                   {/* Your Numbers Today - Compact */}
                   <div className="grid grid-cols-3 gap-2">
-                    <Card className="p-2 bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
+                    <Card className="p-2 bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200/60 shadow-[0_2px_8px_rgba(59,130,246,0.1)] hover:shadow-[0_4px_12px_rgba(59,130,246,0.15)] transition-all duration-300">
                       <div className="text-center">
-                        <FileText className="h-4 w-4 text-blue-600 mx-auto mb-1" />
+                        <FileText className="h-4 w-4 text-blue-600 mx-auto mb-1 drop-shadow-sm" />
                         <div className="text-sm font-bold text-blue-700">{userProfile.notesToday}</div>
                         <div className="text-xs text-blue-600">Notes</div>
                         <div className="text-xs text-green-600 flex items-center justify-center gap-0.5 mt-0.5">
@@ -697,9 +744,9 @@ export function MVPHomeScreen({
                         </div>
                       </div>
                     </Card>
-                    <Card className="p-2 bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200">
+                    <Card className="p-2 bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200/60 shadow-[0_2px_8px_rgba(16,185,129,0.1)] hover:shadow-[0_4px_12px_rgba(16,185,129,0.15)] transition-all duration-300">
                       <div className="text-center">
-                        <Timer className="h-4 w-4 text-emerald-600 mx-auto mb-1" />
+                        <Timer className="h-4 w-4 text-emerald-600 mx-auto mb-1 drop-shadow-sm" />
                         <div className="text-sm font-bold text-emerald-700">{userProfile.timeSaved}h</div>
                         <div className="text-xs text-emerald-600">Saved</div>
                         <div className="text-xs text-green-600 flex items-center justify-center gap-0.5 mt-0.5">
@@ -708,9 +755,9 @@ export function MVPHomeScreen({
                         </div>
                       </div>
                     </Card>
-                    <Card className="p-2 bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200">
+                    <Card className="p-2 bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200/60 shadow-[0_2px_8px_rgba(168,85,247,0.1)] hover:shadow-[0_4px_12px_rgba(168,85,247,0.15)] transition-all duration-300">
                       <div className="text-center">
-                        <Target className="h-4 w-4 text-purple-600 mx-auto mb-1" />
+                        <Target className="h-4 w-4 text-purple-600 mx-auto mb-1 drop-shadow-sm" />
                         <div className="text-sm font-bold text-purple-700">{userProfile.accuracy}%</div>
                         <div className="text-xs text-purple-600">Accuracy</div>
                         <div className="text-xs text-green-600 flex items-center justify-center gap-0.5 mt-0.5">
