@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Settings, 
   Mic, 
@@ -11,7 +11,8 @@ import {
   HelpCircle,
   ArrowLeft,
   Save,
-  RotateCcw
+  RotateCcw,
+  CheckCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -25,9 +26,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface MVPSettingsScreenProps {
   onNavigate: (screen: string) => void;
+  onSettingsChange?: (settings: any) => void;
 }
 
-export function MVPSettingsScreen({ onNavigate }: MVPSettingsScreenProps) {
+export function MVPSettingsScreen({ onNavigate, onSettingsChange }: MVPSettingsScreenProps) {
   const [settings, setSettings] = useState({
     // Voice Settings
     voiceSpeed: 1.0,
@@ -55,18 +57,77 @@ export function MVPSettingsScreen({ onNavigate }: MVPSettingsScreenProps) {
     timezone: 'local'
   });
 
+  const [hasChanges, setHasChanges] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
+  // Load settings on mount
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('nursescribe_settings');
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        setSettings(prev => ({ ...prev, ...parsed }));
+      } catch (error) {
+        console.error('Failed to parse saved settings:', error);
+      }
+    }
+  }, []);
+
+  // Save to user profile
+  useEffect(() => {
+    const userProfile = localStorage.getItem('nursescribe_user_profile');
+    if (userProfile) {
+      try {
+        const parsed = JSON.parse(userProfile);
+        const updatedProfile = { ...parsed, settings };
+        localStorage.setItem('nursescribe_user_profile', JSON.stringify(updatedProfile));
+        if (onSettingsChange) {
+          onSettingsChange(settings);
+        }
+      } catch (error) {
+        console.error('Failed to update user profile:', error);
+      }
+    }
+  }, [settings, onSettingsChange]);
+
   const handleSettingChange = (key: string, value: any) => {
     setSettings(prev => ({ ...prev, [key]: value }));
+    setHasChanges(true);
   };
 
-  const handleSaveSettings = () => {
-    localStorage.setItem('nursescribe_settings', JSON.stringify(settings));
-    // Show success feedback
+  const handleSaveSettings = async () => {
+    setSaveStatus('saving');
+    try {
+      // Save to localStorage
+      localStorage.setItem('nursescribe_settings', JSON.stringify(settings));
+      
+      // Update user profile
+      const userProfile = localStorage.getItem('nursescribe_user_profile');
+      if (userProfile) {
+        const parsed = JSON.parse(userProfile);
+        const updatedProfile = { ...parsed, settings };
+        localStorage.setItem('nursescribe_user_profile', JSON.stringify(updatedProfile));
+      }
+      
+      // Notify parent component
+      if (onSettingsChange) {
+        onSettingsChange(settings);
+      }
+      
+      setSaveStatus('saved');
+      setHasChanges(false);
+      
+      // Reset status after 2 seconds
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    }
   };
 
   const handleResetSettings = () => {
-    // Reset to defaults
-    setSettings({
+    const defaultSettings = {
       voiceSpeed: 1.0,
       voiceAccuracy: 'high',
       autoStop: true,
@@ -82,7 +143,9 @@ export function MVPSettingsScreen({ onNavigate }: MVPSettingsScreenProps) {
       darkMode: false,
       language: 'en',
       timezone: 'local'
-    });
+    };
+    setSettings(defaultSettings);
+    setHasChanges(true);
   };
 
   return (
@@ -374,6 +437,19 @@ export function MVPSettingsScreen({ onNavigate }: MVPSettingsScreenProps) {
 
       {/* Mobile-Optimized Action Buttons */}
       <div className="lg:hidden p-3 pb-24 space-y-2 bg-white/90 backdrop-blur-sm border-t border-slate-200">
+        {/* Save Status */}
+        {saveStatus === 'saved' && (
+          <Alert className="py-2">
+            <CheckCircle className="h-3 w-3" />
+            <AlertDescription className="text-xs">Settings saved successfully!</AlertDescription>
+          </Alert>
+        )}
+        {saveStatus === 'error' && (
+          <Alert className="py-2 border-red-200 bg-red-50">
+            <AlertDescription className="text-xs text-red-600">Failed to save settings</AlertDescription>
+          </Alert>
+        )}
+        
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -388,10 +464,20 @@ export function MVPSettingsScreen({ onNavigate }: MVPSettingsScreenProps) {
           <Button
             size="sm"
             onClick={handleSaveSettings}
+            disabled={saveStatus === 'saving' || !hasChanges}
             className="flex-1 h-9 bg-gradient-primary"
           >
-            <Save className="h-3 w-3 mr-1" />
-            Save
+            {saveStatus === 'saving' ? (
+              <>
+                <div className="h-3 w-3 mr-1 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-3 w-3 mr-1" />
+                Save
+              </>
+            )}
           </Button>
         </div>
 
@@ -409,6 +495,19 @@ export function MVPSettingsScreen({ onNavigate }: MVPSettingsScreenProps) {
 
       {/* Desktop Action Buttons */}
       <div className="hidden lg:block p-6 pt-4 space-y-3">
+        {/* Save Status */}
+        {saveStatus === 'saved' && (
+          <Alert className="py-3">
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription>Settings saved successfully!</AlertDescription>
+          </Alert>
+        )}
+        {saveStatus === 'error' && (
+          <Alert className="py-3 border-red-200 bg-red-50">
+            <AlertDescription className="text-red-600">Failed to save settings</AlertDescription>
+          </Alert>
+        )}
+        
         <div className="flex gap-3">
           <Button
             variant="outline"
@@ -423,10 +522,20 @@ export function MVPSettingsScreen({ onNavigate }: MVPSettingsScreenProps) {
           <Button
             size="lg"
             onClick={handleSaveSettings}
+            disabled={saveStatus === 'saving' || !hasChanges}
             className="flex-1 h-12 bg-gradient-primary"
           >
-            <Save className="h-4 w-4 mr-2" />
-            Save Settings
+            {saveStatus === 'saving' ? (
+              <>
+                <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                Save Settings
+              </>
+            )}
           </Button>
         </div>
 

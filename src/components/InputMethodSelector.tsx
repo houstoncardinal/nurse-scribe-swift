@@ -234,7 +234,7 @@ export function InputMethodSelector({
   }
 
   return (
-    <div className="space-y-6 max-h-[80vh] overflow-y-auto">
+    <div className="space-y-6 max-h-[75vh] overflow-y-auto pb-20">
       {/* Header */}
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-3">
@@ -255,7 +255,7 @@ export function InputMethodSelector({
           return (
             <Card
               key={method.id}
-              className={`p-6 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 hover:shadow-${method.color.split('-')[1]}-200/50 ${method.bgColor} ${method.borderColor}`}
+              className={`p-4 lg:p-6 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 hover:shadow-${method.color.split('-')[1]}-200/50 ${method.bgColor} ${method.borderColor}`}
               onClick={() => handleMethodSelect(method.id as any)}
             >
               <div className="space-y-4">
@@ -287,8 +287,8 @@ export function InputMethodSelector({
                 </div>
 
                 <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Benefits:</h4>
-                  <div className="flex flex-wrap gap-2">
+                  <h4 className="text-xs lg:text-sm font-medium">Benefits:</h4>
+                  <div className="flex flex-wrap gap-1 lg:gap-2">
                     {method.benefits.map((benefit, index) => (
                       <Badge
                         key={index}

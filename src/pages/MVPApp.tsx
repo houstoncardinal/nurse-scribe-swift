@@ -16,9 +16,10 @@ import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { enhancedVoiceRecognitionService as voiceRecognitionService } from '@/lib/enhancedVoiceRecognition';
 import { PowerfulAdminDashboard } from '@/components/PowerfulAdminDashboard';
+import { InstructionsPage } from '@/components/InstructionsPage';
 import { toast } from 'sonner';
 
-type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'history' | 'admin';
+type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'history' | 'admin' | 'instructions';
 
 interface NoteContent {
   [key: string]: string;
@@ -112,6 +113,20 @@ export function MVPApp() {
   // Handle template change from home screen
   const handleTemplateChange = (template: string) => {
     setSelectedTemplate(template);
+  };
+
+  const handleSettingsChange = (settings: any) => {
+    // Update user profile with new settings
+    setUserProfile(prev => ({
+      ...prev,
+      preferences: {
+        ...prev.preferences,
+        ...settings
+      }
+    }));
+    
+    // Show success message
+    toast.success('Settings saved successfully!');
   };
 
   // Initialize app
@@ -577,6 +592,7 @@ export function MVPApp() {
         return (
           <MVPSettingsScreen
             onNavigate={handleNavigate}
+            onSettingsChange={handleSettingsChange}
           />
         );
 
@@ -655,6 +671,9 @@ export function MVPApp() {
 
       case 'admin':
         return <PowerfulAdminDashboard />;
+
+      case 'instructions':
+        return <InstructionsPage onNavigate={handleNavigate} />;
       
       default:
         return null;

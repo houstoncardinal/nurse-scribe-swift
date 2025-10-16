@@ -74,7 +74,7 @@ export function MVPHomeScreen({
                 <div className="flex-1 p-4 lg:p-6">
                   <div className="max-w-7xl mx-auto h-full">
                     {/* Desktop Header - Compact */}
-                    <div className="text-center mb-8">
+                    <div className="text-center mb-8 pt-4">
                       <div className="flex items-center justify-center gap-4 mb-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-xl shadow-teal-500/25">
                           <Mic className="h-6 w-6 text-white" />
@@ -458,7 +458,7 @@ export function MVPHomeScreen({
         <div className="flex-shrink-0 px-4 pt-4 pb-2 safe-area-top">
           <div className="text-center space-y-3">
             {/* Mobile Hero - Compact for iPhone */}
-            <div className="space-y-2">
+            <div className="space-y-2 pt-2">
               <div className="flex items-center justify-center gap-2">
                 <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
                   <Mic className="h-4 w-4 text-white" />

@@ -49,6 +49,7 @@ export function EnhancedMobileHeader({
     { id: 'analytics', label: 'Analytics', icon: BarChart3, description: 'Performance metrics' },
     { id: 'education', label: 'Education', icon: BookOpen, description: 'Practice cases' },
     { id: 'team', label: 'Team', icon: Users, description: 'Collaborate with team' },
+    { id: 'instructions', label: 'Instructions', icon: HelpCircle, description: 'Learn how to use the app' },
     { id: 'settings', label: 'Settings', icon: Settings, description: 'App preferences' },
   ];
 
@@ -153,37 +154,49 @@ export function EnhancedMobileHeader({
               </SheetTrigger>
               <SheetContent side="right" className="w-80 bg-white border-l border-slate-200 shadow-xl">
                 <div className="flex flex-col h-full bg-white">
-                  {/* Header */}
-                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-200">
+                  {/* Enhanced Header */}
+                  <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 rounded-xl p-4 mb-6 border border-slate-200">
                     {userProfile.isSignedIn ? (
-                      <>
-                        <Avatar className="w-12 h-12">
-                          <AvatarFallback className="bg-gradient-to-br from-teal-500 to-blue-600 text-white font-semibold">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="w-14 h-14 ring-2 ring-white shadow-lg">
+                          <AvatarFallback className="bg-gradient-to-br from-teal-500 to-blue-600 text-white font-semibold text-lg">
                             {userProfile.name.split(' ').map(n => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
-                          <h2 className="font-semibold text-slate-900">{userProfile.name}</h2>
-                          <p className="text-sm text-slate-600">{userProfile.role}</p>
+                          <h2 className="font-bold text-slate-900 text-lg">{userProfile.name}</h2>
+                          <p className="text-sm text-slate-600 font-medium">{userProfile.role}</p>
                           {userProfile.email && (
-                            <p className="text-xs text-slate-500">{userProfile.email}</p>
+                            <p className="text-xs text-slate-500 mt-1">{userProfile.email}</p>
                           )}
+                          <div className="flex items-center gap-1 mt-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span className="text-xs text-green-600 font-medium">Active</span>
+                          </div>
                         </div>
-                      </>
+                      </div>
                     ) : (
-                      <>
-                        <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
-                          <User className="h-6 w-6 text-slate-400" />
+                      <div className="flex items-center gap-3">
+                        <div className="w-14 h-14 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center shadow-lg">
+                          <User className="h-7 w-7 text-slate-500" />
                         </div>
                         <div className="flex-1">
-                          <h2 className="font-semibold text-slate-900">Guest User</h2>
-                          <p className="text-sm text-slate-600">Sign in for full features</p>
+                          <h2 className="font-bold text-slate-900 text-lg">Guest User</h2>
+                          <p className="text-sm text-slate-600 font-medium">Limited features available</p>
+                          <div className="flex items-center gap-1 mt-2">
+                            <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                            <span className="text-xs text-yellow-600 font-medium">Guest Mode</span>
+                          </div>
                         </div>
-                        <Button onClick={onSignIn} size="sm" className="text-xs">
+                        <Button 
+                          onClick={onSignIn} 
+                          size="sm" 
+                          className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-lg"
+                        >
                           <LogIn className="h-4 w-4 mr-1" />
                           Sign In
                         </Button>
-                      </>
+                      </div>
                     )}
                   </div>
 
@@ -196,12 +209,14 @@ export function EnhancedMobileHeader({
                         <Button
                           key={item.id}
                           variant="ghost"
-                          className="w-full justify-start h-12 hover:bg-slate-50 text-slate-700"
+                          className="w-full justify-start h-14 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50/30 text-slate-700 rounded-xl transition-all duration-200"
                           onClick={() => handleNavigation(item.id)}
                         >
-                          <Icon className="h-4 w-4 mr-3 text-slate-600" />
+                          <div className="w-8 h-8 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center mr-3">
+                            <Icon className="h-4 w-4 text-slate-600" />
+                          </div>
                           <div className="text-left flex-1">
-                            <div className="text-sm font-medium">{item.label}</div>
+                            <div className="text-sm font-semibold">{item.label}</div>
                             <div className="text-xs text-slate-500">{item.description}</div>
                           </div>
                         </Button>
