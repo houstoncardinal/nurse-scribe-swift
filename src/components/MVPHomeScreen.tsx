@@ -20,6 +20,7 @@ interface MVPHomeScreenProps {
   isProcessing: boolean;
   recordingTime: number;
   transcript: string;
+  selectedTemplate?: string;
   interimTranscript?: string;
   voiceSupported?: boolean;
 }
@@ -35,10 +36,11 @@ export function MVPHomeScreen({
   isProcessing,
   recordingTime,
   transcript,
+  selectedTemplate = 'SOAP',
   interimTranscript = '',
   voiceSupported = true
 }: MVPHomeScreenProps) {
-  const [selectedTemplate, setSelectedTemplate] = useState('SOAP');
+  const [localSelectedTemplate, setLocalSelectedTemplate] = useState(selectedTemplate);
   const [showInputSelector, setShowInputSelector] = useState(false);
 
   const templates = [
@@ -71,11 +73,11 @@ export function MVPHomeScreen({
     <div className="mvp-app bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
               {/* Desktop Layout */}
               <div className="hidden lg:flex lg:h-full">
-                <div className="flex-1 p-4 lg:p-6">
-                  <div className="max-w-7xl mx-auto h-full">
-                    {/* Desktop Header - Compact */}
-                    <div className="text-center mb-8 pt-4">
-                      <div className="flex items-center justify-center gap-4 mb-4">
+                <div className="flex-1 p-6">
+                  <div className="max-w-6xl mx-auto h-full">
+      {/* Desktop Header - Compact */}
+      <div className="text-center mb-8 pt-8">
+        <div className="flex items-center justify-center gap-4 mb-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-xl shadow-teal-500/25">
                           <Mic className="h-6 w-6 text-white" />
                         </div>
@@ -90,8 +92,8 @@ export function MVPHomeScreen({
                       {/* Desktop Template Selector - Compact */}
                       <div className="max-w-xl mx-auto">
                         <Label className="text-sm font-semibold text-slate-700 mb-2 block">Select Note Template</Label>
-                        <Select value={selectedTemplate} onValueChange={(value) => {
-                          setSelectedTemplate(value);
+                        <Select value={localSelectedTemplate} onValueChange={(value) => {
+                          setLocalSelectedTemplate(value);
                           onTemplateChange(value);
                         }}>
                           <SelectTrigger className="w-full h-12 text-sm bg-white border-2 border-slate-200 hover:border-teal-300 focus:border-teal-500 transition-colors shadow-md">
@@ -514,6 +516,7 @@ export function MVPHomeScreen({
                   setShowInputSelector(false);
                 }}
                 isProcessing={isProcessing}
+                selectedTemplate={localSelectedTemplate}
               />
             </div>
           ) : (

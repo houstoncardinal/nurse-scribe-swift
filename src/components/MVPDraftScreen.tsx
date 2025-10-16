@@ -51,6 +51,7 @@ export function MVPDraftScreen({
   const [aiInsights, setAiInsights] = useState<any>(null);
   const [selectedICD10Codes, setSelectedICD10Codes] = useState<Array<{code: string, description: string}>>([]);
   const [showICD10Panel, setShowICD10Panel] = useState(false);
+  const [originalContent, setOriginalContent] = useState<any>(null);
 
   // Mock AI-generated note based on template
   const generateNoteFromTemplate = (template: string, transcript: string) => {
@@ -96,6 +97,11 @@ export function MVPDraftScreen({
   // Generate intelligent, situation-specific content using AI
   useEffect(() => {
     if (transcript && selectedTemplate) {
+      // First, generate the original content
+      const original = generateNoteFromTemplate(selectedTemplate, transcript);
+      setOriginalContent(original);
+      
+      // Then enhance it with AI
       generateIntelligentContent();
     }
   }, [transcript, selectedTemplate]);
@@ -230,7 +236,25 @@ export function MVPDraftScreen({
     });
   };
 
-  const noteContent = aiGeneratedContent?.sections || generateNoteFromTemplate(selectedTemplate, transcript);
+  // Merge AI enhancements with original content
+  const getMergedContent = () => {
+    if (aiGeneratedContent?.sections && originalContent) {
+      // Merge AI enhancements with original content
+      const merged: any = {};
+      Object.keys(originalContent).forEach(key => {
+        const aiSection = aiGeneratedContent.sections[key];
+        if (aiSection) {
+          merged[key] = aiSection.content || originalContent[key];
+        } else {
+          merged[key] = originalContent[key];
+        }
+      });
+      return merged;
+    }
+    return originalContent || generateNoteFromTemplate(selectedTemplate, transcript);
+  };
+
+  const noteContent = getMergedContent();
   const currentTime = new Date().toLocaleString();
 
   const handleEdit = (section: string, content: string) => {
@@ -337,51 +361,41 @@ export function MVPDraftScreen({
         </div>
       </div>
 
-      {/* AI Insights Display */}
+      {/* AI Insights Display - Compact */}
       {aiInsights && (
-        <div className="lg:hidden flex-shrink-0 p-3 bg-gradient-to-r from-blue-50 to-teal-50 border-b border-blue-200">
-          <div className="flex items-center gap-2 mb-2">
-            <Brain className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-semibold text-blue-900">AI Insights</span>
-            {isGenerating && (
-              <div className="h-3 w-3 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
-            )}
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-green-600" />
-              <span className="text-slate-700">Confidence: {Math.round(aiInsights.confidence * 100)}%</span>
+        <div className="lg:hidden flex-shrink-0 p-2 bg-gradient-to-r from-blue-50 to-teal-50 border-b border-blue-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Brain className="h-3 w-3 text-blue-600" />
+              <span className="text-xs font-semibold text-blue-900">AI Enhanced</span>
+              {isGenerating && (
+                <div className="h-2 w-2 animate-spin rounded-full border border-blue-600 border-t-transparent" />
+              )}
             </div>
-            <div className="flex items-center gap-1">
-              <Sparkles className="h-3 w-3 text-purple-600" />
-              <span className="text-slate-700">Quality: {Math.round(aiInsights.quality * 100)}%</span>
+            <div className="flex items-center gap-3 text-xs">
+              <div className="flex items-center gap-1">
+                <TrendingUp className="h-3 w-3 text-green-600" />
+                <span className="text-slate-700">{Math.round(aiInsights.confidence * 100)}%</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Target className="h-3 w-3 text-orange-600" />
+                <span className="text-slate-700">{aiInsights.icd10Suggestions?.length || 0}</span>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowICD10Panel(!showICD10Panel)}
+                className="h-6 text-xs bg-white/80 border-blue-200 text-blue-700 hover:bg-blue-50 px-2"
+              >
+                <Target className="h-3 w-3 mr-1" />
+                {showICD10Panel ? 'Hide' : 'ICD-10'}
+              </Button>
+              {selectedICD10Codes.length > 0 && (
+                <Badge className="h-6 px-2 bg-green-100 text-green-800 border-green-200 text-xs">
+                  {selectedICD10Codes.length}
+                </Badge>
+              )}
             </div>
-            <div className="flex items-center gap-1">
-              <FileText className="h-3 w-3 text-blue-600" />
-              <span className="text-slate-700">Terms: {aiInsights.medicalTerms}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Target className="h-3 w-3 text-orange-600" />
-              <span className="text-slate-700">ICD-10: {aiInsights.icd10Suggestions?.length || 0}</span>
-            </div>
-          </div>
-          
-          {/* Quick ICD-10 Actions */}
-          <div className="mt-3 flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setShowICD10Panel(!showICD10Panel)}
-              className="h-7 text-xs bg-white/80 border-blue-200 text-blue-700 hover:bg-blue-50"
-            >
-              <Target className="h-3 w-3 mr-1" />
-              {showICD10Panel ? 'Hide' : 'View'} ICD-10 Codes
-            </Button>
-            {selectedICD10Codes.length > 0 && (
-              <Badge className="h-7 px-2 bg-green-100 text-green-800 border-green-200">
-                {selectedICD10Codes.length} Selected
-              </Badge>
-            )}
           </div>
         </div>
       )}
@@ -486,51 +500,41 @@ export function MVPDraftScreen({
         </div>
       </div>
 
-      {/* Desktop AI Insights */}
+      {/* Desktop AI Insights - Compact */}
       {aiInsights && (
-        <div className="hidden lg:block flex-shrink-0 p-4 bg-gradient-to-r from-blue-50 to-teal-50 border-b border-blue-200">
-          <div className="flex items-center gap-3 mb-3">
-            <Brain className="h-5 w-5 text-blue-600" />
-            <span className="text-lg font-semibold text-blue-900">AI-Powered Analysis</span>
-            {isGenerating && (
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
-            )}
-          </div>
-          <div className="grid grid-cols-4 gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-green-600" />
-              <span className="text-slate-700">Confidence: {Math.round(aiInsights.confidence * 100)}%</span>
+        <div className="hidden lg:block flex-shrink-0 p-3 bg-gradient-to-r from-blue-50 to-teal-50 border-b border-blue-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Brain className="h-4 w-4 text-blue-600" />
+              <span className="text-sm font-semibold text-blue-900">AI-Enhanced Note</span>
+              {isGenerating && (
+                <div className="h-3 w-3 animate-spin rounded-full border border-blue-600 border-t-transparent" />
+              )}
             </div>
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-purple-600" />
-              <span className="text-slate-700">Quality: {Math.round(aiInsights.quality * 100)}%</span>
+            <div className="flex items-center gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-green-600" />
+                <span className="text-slate-700">Confidence: {Math.round(aiInsights.confidence * 100)}%</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Target className="h-4 w-4 text-orange-600" />
+                <span className="text-slate-700">ICD-10: {aiInsights.icd10Suggestions?.length || 0}</span>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowICD10Panel(!showICD10Panel)}
+                className="bg-white/80 border-blue-200 text-blue-700 hover:bg-blue-50"
+              >
+                <Target className="h-4 w-4 mr-2" />
+                {showICD10Panel ? 'Hide' : 'View'} ICD-10
+              </Button>
+              {selectedICD10Codes.length > 0 && (
+                <Badge className="px-3 py-1 bg-green-100 text-green-800 border-green-200">
+                  {selectedICD10Codes.length} Selected
+                </Badge>
+              )}
             </div>
-            <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4 text-blue-600" />
-              <span className="text-slate-700">Medical Terms: {aiInsights.medicalTerms}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Target className="h-4 w-4 text-orange-600" />
-              <span className="text-slate-700">ICD-10 Codes: {aiInsights.icd10Suggestions?.length || 0}</span>
-            </div>
-          </div>
-          
-          {/* Desktop ICD-10 Actions */}
-          <div className="mt-4 flex gap-3">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setShowICD10Panel(!showICD10Panel)}
-              className="bg-white/80 border-blue-200 text-blue-700 hover:bg-blue-50"
-            >
-              <Target className="h-4 w-4 mr-2" />
-              {showICD10Panel ? 'Hide' : 'View'} ICD-10 Codes
-            </Button>
-            {selectedICD10Codes.length > 0 && (
-              <Badge className="px-3 py-1 bg-green-100 text-green-800 border-green-200">
-                {selectedICD10Codes.length} Codes Selected
-              </Badge>
-            )}
           </div>
         </div>
       )}

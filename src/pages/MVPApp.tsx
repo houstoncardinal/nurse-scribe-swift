@@ -663,20 +663,21 @@ export function MVPApp() {
     switch (currentScreen) {
       case 'home':
         return (
-          <MVPHomeScreen
-            onNavigate={handleNavigate}
-            onStartRecording={handleStartRecording}
-            onStopRecording={handleStopRecording}
-            onManualTextSubmit={handleManualTextSubmit}
-            onPasteTextSubmit={handlePasteTextSubmit}
-            onTemplateChange={handleTemplateChange}
-            isRecording={isRecording}
-            isProcessing={isProcessing}
-            recordingTime={recordingTime}
-            transcript={transcript}
-            interimTranscript={interimTranscript}
-            voiceSupported={voiceSupported}
-          />
+            <MVPHomeScreen
+              onNavigate={handleNavigate}
+              onStartRecording={handleStartRecording}
+              onStopRecording={handleStopRecording}
+              onManualTextSubmit={handleManualTextSubmit}
+              onPasteTextSubmit={handlePasteTextSubmit}
+              onTemplateChange={handleTemplateChange}
+              isRecording={isRecording}
+              isProcessing={isProcessing}
+              recordingTime={recordingTime}
+              transcript={transcript}
+              selectedTemplate={selectedTemplate}
+              interimTranscript={interimTranscript}
+              voiceSupported={voiceSupported}
+            />
         );
       
       case 'draft':

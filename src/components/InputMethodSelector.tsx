@@ -12,17 +12,30 @@ interface InputMethodSelectorProps {
   onManualTextSubmit: (text: string) => void;
   onPasteTextSubmit: (text: string) => void;
   isProcessing?: boolean;
+  selectedTemplate?: string;
 }
 
 export function InputMethodSelector({
   onMethodSelect,
   onManualTextSubmit,
   onPasteTextSubmit,
-  isProcessing = false
+  isProcessing = false,
+  selectedTemplate = 'SOAP'
 }: InputMethodSelectorProps) {
   const [selectedMethod, setSelectedMethod] = useState<'voice' | 'manual' | 'paste' | null>(null);
   const [manualText, setManualText] = useState('');
   const [pasteText, setPasteText] = useState('');
+
+  // Get template-specific placeholder text
+  const getTemplatePlaceholder = (template: string) => {
+    const placeholders = {
+      'SOAP': `Subjective: Patient reports...\n\nObjective: Vital signs, physical exam findings...\n\nAssessment: Clinical impression, diagnosis...\n\nPlan: Treatment, medications, follow-up...\n\nExample:\nPatient presents with chest pain, vital signs stable. Pain level 6/10, no shortness of breath. Patient reports pain started this morning...`,
+      'SBAR': `Situation: Current problem or concern...\n\nBackground: Relevant patient history...\n\nAssessment: Clinical assessment and findings...\n\nRecommendation: Suggested actions or interventions...\n\nExample:\nPatient experiencing chest pain with pain level 6/10. Patient has history of hypertension. Vital signs stable, pain controlled...`,
+      'PIE': `Problem: Nursing diagnosis or patient issue...\n\nIntervention: Actions taken by the nurse...\n\nEvaluation: Patient's response to interventions...\n\nExample:\nAcute chest pain. Pain assessment performed, vital signs monitored, medication administered. Patient reports improved comfort...`,
+      'DAR': `Data: Subjective and objective information...\n\nAction: Nursing interventions performed...\n\nResponse: Patient's response to interventions...\n\nExample:\nPatient reports chest pain 6/10, vital signs: BP 118/76, HR 88. Pain medication administered, comfort measures provided. Patient reports improved comfort...`
+    };
+    return placeholders[template as keyof typeof placeholders] || placeholders['SOAP'];
+  };
 
   const handleMethodSelect = (method: 'voice' | 'manual' | 'paste') => {
     setSelectedMethod(method);
@@ -120,7 +133,7 @@ export function InputMethodSelector({
               id="manual-text"
               value={manualText}
               onChange={(e) => setManualText(e.target.value)}
-              placeholder="Type your nursing assessment here...&#10;&#10;Example:&#10;Patient presents with chest pain, vital signs stable. Pain level 6/10, no shortness of breath. Patient reports pain started this morning..."
+              placeholder={getTemplatePlaceholder(selectedTemplate)}
               className="min-h-[200px] resize-none border-2 focus:border-emerald-300 dark:focus:border-emerald-600"
             />
             
