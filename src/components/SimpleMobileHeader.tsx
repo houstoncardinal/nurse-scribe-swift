@@ -26,33 +26,30 @@ export function SimpleMobileHeader({
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-slate-200 shadow-sm">
-      <div className="px-4 py-3">
+      <div className="px-3 py-2">
         <div className="flex items-center justify-between">
-          {/* Logo and App Name */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/25">
-              <Stethoscope className="h-5 w-5 text-white" />
+          {/* Logo and App Name - Compact */}
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md shadow-teal-500/25">
+              <Stethoscope className="h-4 w-4 text-white" />
             </div>
-            <div>
-              <h1 className="text-lg font-bold text-slate-900">NurseScribe AI</h1>
-              <p className="text-xs text-slate-500">Professional Documentation</p>
-            </div>
+            <h1 className="text-base font-semibold text-slate-900">NurseScribe AI</h1>
           </div>
 
           {/* Right Side - Status and Actions */}
-          <div className="flex items-center gap-3">
-            {/* Status Indicators */}
+          <div className="flex items-center gap-1">
+            {/* Status Indicators - Compact */}
             {isRecording && (
-              <Badge className="bg-red-50 text-red-600 border-red-200 text-xs">
-                <div className="w-2 h-2 bg-red-500 rounded-full mr-1.5 animate-pulse" />
-                Recording
+              <Badge className="bg-red-50 text-red-600 border-red-200 text-xs px-1.5 py-0.5">
+                <div className="w-1.5 h-1.5 bg-red-500 rounded-full mr-1 animate-pulse" />
+                Rec
               </Badge>
             )}
             
             {isProcessing && (
-              <Badge className="bg-yellow-50 text-yellow-600 border-yellow-200 text-xs">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full mr-1.5 animate-pulse" />
-                Processing
+              <Badge className="bg-yellow-50 text-yellow-600 border-yellow-200 text-xs px-1.5 py-0.5">
+                <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full mr-1 animate-pulse" />
+                Proc
               </Badge>
             )}
 

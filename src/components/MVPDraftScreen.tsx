@@ -261,46 +261,35 @@ export function MVPDraftScreen({
         )}
       </div>
 
-      {/* Mobile-Optimized Action Buttons - Compact */}
-      <div className="lg:hidden flex-shrink-0 p-2 pb-24 bg-white/90 backdrop-blur-sm border-t border-slate-200">
-        {/* Compact status indicator */}
-        <div className="flex items-center justify-center gap-1 mb-2">
-          <CheckCircle className="h-3 w-3 text-green-600" />
-          <span className="text-xs text-slate-600">Ready for export</span>
-        </div>
-
-        {/* Action buttons - more compact */}
+      {/* Mobile-Optimized Action Buttons - Ultra Compact */}
+      <div className="lg:hidden flex-shrink-0 p-1.5 pb-24 bg-white/95 backdrop-blur-sm border-t border-slate-200">
+        {/* Ultra compact action buttons - no status text */}
         <div className="flex gap-1 mb-1">
           <Button
             variant="outline"
             size="sm"
             onClick={onRegenerateNote}
             disabled={isProcessing}
-            className="flex-1 h-8 text-xs px-2"
+            className="flex-1 h-7 text-xs px-1"
           >
-            <RotateCcw className="h-3 w-3 mr-1" />
-            Regenerate
+            <RotateCcw className="h-3 w-3" />
           </Button>
           
           <Button
             size="sm"
             onClick={() => onNavigate('export')}
-            className="flex-1 h-8 text-xs px-2 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700"
+            className="flex-1 h-7 text-xs px-1 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700"
           >
-            <ArrowRight className="h-3 w-3 mr-1" />
-            Export
+            <ArrowRight className="h-3 w-3" />
           </Button>
-        </div>
-
-        {/* Compact back button */}
-        <div className="text-center">
+          
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onNavigate('home')}
-            className="text-xs text-slate-500 hover:text-slate-700 h-6 px-2"
+            className="h-7 px-1 text-slate-500 hover:text-slate-700"
           >
-            ← Back
+            <ArrowRight className="h-3 w-3 rotate-180" />
           </Button>
         </div>
       </div>
