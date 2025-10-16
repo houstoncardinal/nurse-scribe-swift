@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { type ComposeResult } from '@/lib/compose';
-import { type RedactionResult } from '@/lib/advancedRedaction';
+import { type RedactionResult } from '@/lib/redaction';
 import { ehrExportService, type EHRSystem, type ExportOptions, type ExportMetadata } from '@/lib/ehrExports';
 import { toast } from 'sonner';
 import { useState } from 'react';

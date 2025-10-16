@@ -42,6 +42,7 @@ export function PowerfulHeader({
     efficiency: 94
   }
 }: PowerfulHeaderProps) {
+  console.log('PowerfulHeader rendering...');
   const [showNotifications, setShowNotifications] = useState(false);
 
   const notifications = [

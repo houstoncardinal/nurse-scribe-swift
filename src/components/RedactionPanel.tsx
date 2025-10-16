@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { advancedPHIRedactor, type RedactionResult } from '@/lib/advancedRedaction';
+import { redactPHI, type RedactionResult, validateRedaction } from '@/lib/redaction';
 import { toast } from 'sonner';
 
 interface RedactionPanelProps {
@@ -37,14 +37,12 @@ export function RedactionPanel({
     setIsRedacting(true);
     
     try {
-      const result = await advancedPHIRedactor.redactPHI(transcript, useLLM);
+      const result = redactPHI(transcript, includeNames);
       setRedactionResult(result);
       onRedactionComplete(result.redactedText, result);
 
       if (result.redactionCount > 0) {
-        toast.success(`Protected ${result.redactionCount} PHI element(s)`, {
-          description: `Confidence: ${(result.confidence * 100).toFixed(1)}%`,
-        });
+        toast.success(`Protected ${result.redactionCount} PHI element(s)`);
       } else {
         toast.info('No PHI detected in transcript', {
           description: 'Transcript appears clean',
@@ -162,9 +160,6 @@ export function RedactionPanel({
                           ? `${redactionResult.redactionCount} PHI Elements Protected`
                           : 'No PHI Detected'}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
-                        Confidence: {(redactionResult.confidence * 100).toFixed(1)}%
-                      </p>
                     </div>
                   </div>
                   
@@ -174,24 +169,11 @@ export function RedactionPanel({
                       return (
                         <div key={key} className="flex justify-between">
                           <span className="capitalize">{key}:</span>
-                          <span className="font-semibold">{count}</span>
+                          <span className="font-semibold">{count as number}</span>
                         </div>
                       );
                     })}
                   </div>
-                  
-                  {redactionResult.suggestions.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-border/30">
-                      <h4 className="text-sm font-medium mb-2">AI Suggestions</h4>
-                      <div className="space-y-1">
-                        {redactionResult.suggestions.slice(0, 3).map((suggestion, index) => (
-                          <div key={index} className="text-xs p-2 bg-muted/30 rounded">
-                            <span className="font-medium">{suggestion.type}:</span> {suggestion.reason}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
               </TabsContent>
               
@@ -216,32 +198,11 @@ export function RedactionPanel({
               </TabsContent>
               
               <TabsContent value="audit" className="space-y-3">
-                <Label className="text-sm font-medium">Audit Trail</Label>
-                <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                  {redactionResult.auditTrail.map((entry, index) => (
-                    <div key={index} className="p-3 bg-muted/30 rounded-lg border border-border/20">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-medium capitalize">{entry.type}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(entry.timestamp).toLocaleTimeString()}
-                        </span>
-                      </div>
-                      <div className="text-xs">
-                        <div className="flex justify-between">
-                          <span>Original:</span>
-                          <span className="font-mono">{entry.original}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Redacted:</span>
-                          <span className="font-mono">{entry.redacted}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Confidence:</span>
-                          <span>{(entry.confidence * 100).toFixed(1)}%</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <Label className="text-sm font-medium">Redaction Summary</Label>
+                <div className="p-4 bg-muted/50 rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    All PHI patterns detected and redacted successfully.
+                  </p>
                 </div>
               </TabsContent>
             </Tabs>

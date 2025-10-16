@@ -32,6 +32,7 @@ export function MVPHomeScreen({
   recordingTime,
   transcript
 }: MVPHomeScreenProps) {
+  console.log('MVPHomeScreen rendering...');
   const [selectedTemplate, setSelectedTemplate] = useState('SOAP');
   const [isPlaying, setIsPlaying] = useState(false);
   const [showInputSelector, setShowInputSelector] = useState(false);

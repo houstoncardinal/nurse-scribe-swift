@@ -16,8 +16,6 @@ import {
   Rocket,
   Lightbulb,
   Flame,
-  Thunder,
-  Diamond,
   Medal,
   Trophy,
   Badge as BadgeIcon,
@@ -25,7 +23,6 @@ import {
   Flag,
   Bookmark,
   Tag,
-  Label,
   Circle,
   Square,
   Triangle,
@@ -48,8 +45,6 @@ import {
   Rocket as RocketIcon,
   Lightbulb as LightbulbIcon,
   Flame as FlameIcon,
-  Thunder as ThunderIcon,
-  Diamond as DiamondIcon,
   Medal as MedalIcon,
   Trophy as TrophyIcon
 } from 'lucide-react';

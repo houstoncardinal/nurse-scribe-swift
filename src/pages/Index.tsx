@@ -86,15 +86,6 @@ const Index = () => {
     open_settings: () => {
       setShowApiKeyManager(true);
     },
-    analytics: () => {
-      setShowAnalytics(true);
-    },
-    education: () => {
-      setShowEducation(true);
-    },
-    admin: () => {
-      setShowAdmin(true);
-    },
   };
 
   // Handle voice commands
@@ -273,39 +264,16 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Premium Hero Section */}
-      <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-mesh" />
-        <div className="absolute inset-0 bg-gradient-hero" />
-        
-        <div className="relative mobile-container">
-          <div className="text-center max-w-4xl mx-auto space-y-6 animate-fade-in">
-            <div className="space-y-4">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
-                <span className="text-gradient">Clinical Documentation</span>
-                <br />
-                <span className="text-foreground">at the Speed of Speech</span>
-              </h1>
-              <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                Transform your workflow with AI-powered note composition, built with privacy-first principles and medical-grade security.
-              </p>
-            </div>
-
-            {/* Feature Highlights */}
-            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 pt-6">
-              <div className="flex items-center gap-2 px-4 py-2 bg-card/80 backdrop-blur-sm rounded-full border border-border/50 shadow-sm">
-                <Shield className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">HIPAA Compliant</span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-card/80 backdrop-blur-sm rounded-full border border-border/50 shadow-sm">
-                <Zap className="h-4 w-4 text-secondary" />
-                <span className="text-sm font-medium">Real-time Processing</span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-card/80 backdrop-blur-sm rounded-full border border-border/50 shadow-sm">
-                <Clock className="h-4 w-4 text-accent" />
-                <span className="text-sm font-medium">Save 80% Time</span>
-              </div>
-            </div>
+      {/* Hero Section */}
+      <section className="relative py-6 overflow-hidden border-b bg-gradient-to-b from-background to-muted/20">
+        <div className="mobile-container">
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              <span className="text-gradient">AI-Powered Clinical Documentation</span>
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Voice to note in seconds. HIPAA-compliant. Zero PHI storage.
+            </p>
           </div>
         </div>
       </section>
