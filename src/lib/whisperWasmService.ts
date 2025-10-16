@@ -41,6 +41,13 @@ class WhisperWasmService {
     try {
       console.log('🎤 Initializing Whisper WebAssembly...');
       
+      // Check if we're in a browser environment that supports WebAssembly
+      if (typeof window === 'undefined' || !window.WebAssembly) {
+        console.warn('⚠️ WebAssembly not supported, skipping Whisper initialization');
+        this.isInitialized = false;
+        return;
+      }
+      
       // Use the smaller, faster model for better performance
       this.pipeline = await pipeline(
         'automatic-speech-recognition',
@@ -57,8 +64,18 @@ class WhisperWasmService {
       
       this.isInitialized = true;
       console.log('✅ Whisper WebAssembly initialized successfully');
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Failed to initialize Whisper WebAssembly:', error);
+      
+      // Log specific error details for debugging
+      if (error.message?.includes('JSON')) {
+        console.warn('⚠️ Whisper model files not found - falling back to browser speech recognition');
+      } else if (error.message?.includes('network')) {
+        console.warn('⚠️ Network error loading Whisper - falling back to browser speech recognition');
+      } else {
+        console.warn('⚠️ Whisper initialization failed - falling back to browser speech recognition');
+      }
+      
       this.isInitialized = false;
     }
   }

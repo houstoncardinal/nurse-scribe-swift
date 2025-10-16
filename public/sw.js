@@ -4,8 +4,11 @@
  */
 
 // Generate cache names with version for cache busting
-const VERSION = '1.4.1';
+const VERSION = '1.4.2';
 const TIMESTAMP = Date.now();
+
+// Environment detection
+const ENVIRONMENT = 'production'; // Always production in service worker
 const CACHE_NAME = `nursescribe-v${VERSION}-${TIMESTAMP}`;
 const STATIC_CACHE = `nursescribe-static-v${VERSION}-${TIMESTAMP}`;
 const DYNAMIC_CACHE = `nursescribe-dynamic-v${VERSION}-${TIMESTAMP}`;

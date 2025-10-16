@@ -163,9 +163,7 @@ class SupabaseService {
         .limit(1);
 
       if (error) {
-        console.log('📊 Connection test result:', error);
-        
-        // Handle specific error codes gracefully
+        // Handle specific error codes gracefully with minimal logging
         if (error.code === 'PGRST116') {
           // No rows returned - this is actually OK, table exists but is empty
           console.log('✅ Supabase connection test passed (table exists, no data)');
@@ -175,14 +173,14 @@ class SupabaseService {
           console.log('⚠️ Organizations table does not exist yet - this is OK for initial setup');
           return;
         } else if (error.code === '500' || error.message?.includes('500')) {
-          console.warn('⚠️ Supabase server error (500) - continuing without connection test');
+          console.log('⚠️ Supabase server error (500) - continuing without connection test');
           return;
         } else if (error.code === '42501') {
           // Permission denied - this is OK, we might not have access to this table yet
           console.log('⚠️ Permission denied for organizations table - this is OK for initial setup');
           return;
         } else {
-          console.warn('⚠️ Supabase connection test failed with error:', error);
+          console.log('⚠️ Supabase connection test failed - continuing without full integration');
           return; // Don't throw, just warn and continue
         }
       }
