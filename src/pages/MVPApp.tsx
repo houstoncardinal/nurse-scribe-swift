@@ -14,7 +14,7 @@ import { UserProfile } from '@/components/UserProfile';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { enhancedVoiceRecognitionService as voiceRecognitionService } from '@/lib/enhancedVoiceRecognition';
+import { enhancedVoiceService as voiceRecognitionService } from '@/lib/enhancedVoiceService';
 import { PowerfulAdminDashboard } from '@/components/PowerfulAdminDashboard';
 import { InstructionsPage } from '@/components/InstructionsPage';
 import { knowledgeBaseService } from '@/lib/knowledgeBase';
@@ -154,14 +154,23 @@ export function MVPApp() {
       Promise.resolve(knowledgeBaseService.getKnowledgeStats())
     );
 
-    // Initialize voice recognition service
+    // Initialize enhanced voice recognition service
     const initializeVoiceRecognition = async () => {
       try {
-        // Check if voice recognition is supported
+        // Check available recognition methods
+        const availableMethods = voiceRecognitionService.getAvailableMethods();
         const isSupported = voiceRecognitionService.getIsSupported();
         setVoiceSupported(isSupported);
 
         if (isSupported) {
+          // Configure voice service options
+          voiceRecognitionService.setOptions({
+            useWhisper: true,
+            fallbackToBrowser: true,
+            language: 'en-US',
+            maxRecordingTime: 60
+          });
+
           // Request microphone permissions
           const hasPermission = await voiceRecognitionService.requestMicrophonePermissions();
           
@@ -184,8 +193,9 @@ export function MVPApp() {
                   const analysis = enhancedAIService.analyzeInput(optimizedTranscript);
                   const medicalTermsCount = analysis.medicalTerms.length;
                   
+                  const sourceText = result.source === 'whisper' ? ' (Whisper AI)' : ' (Browser)';
                   toast.success('Voice recognition completed!', {
-                    description: `Confidence: ${Math.round(result.confidence * 100)}% | Medical terms: ${medicalTermsCount}`
+                    description: `Confidence: ${Math.round(result.confidence * 100)}% | Medical terms: ${medicalTermsCount}${sourceText}`
                   });
                 } else {
                   // Update interim transcript with optimization
@@ -251,10 +261,25 @@ export function MVPApp() {
                 if (transcript.trim()) {
                   setIsProcessing(true);
                 }
+              },
+              onProgress: (progress) => {
+                // Show progress for Whisper processing
+                if (progress > 0 && progress < 1) {
+                  toast.info('Processing audio...', {
+                    description: `Whisper AI: ${Math.round(progress * 100)}% complete`
+                  });
+                }
               }
             });
             
-            console.log('Voice recognition service initialized successfully');
+            // Show available methods
+            const whisperInfo = voiceRecognitionService.getWhisperInfo();
+            if (whisperInfo) {
+              console.log('🎤 Available voice recognition methods:', availableMethods);
+              console.log('🤖 Whisper model loaded:', whisperInfo.name, `(${whisperInfo.size})`);
+            }
+            
+            console.log('Enhanced voice recognition service initialized successfully');
           } else {
             toast.error('Microphone access is required for voice recognition');
           }

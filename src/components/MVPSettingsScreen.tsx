@@ -23,6 +23,7 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { VoiceRecognitionStatus } from '@/components/VoiceRecognitionStatus';
 
 interface MVPSettingsScreenProps {
   onNavigate: (screen: string) => void;
@@ -276,6 +277,9 @@ export function MVPSettingsScreen({ onNavigate, onSettingsChange }: MVPSettingsS
             </div>
           </div>
         </Card>
+
+        {/* Voice Recognition Status */}
+        <VoiceRecognitionStatus />
 
         {/* Template Settings */}
         <Card className="p-6">
