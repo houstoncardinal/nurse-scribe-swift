@@ -4,7 +4,7 @@
  */
 
 // Generate cache names with version for cache busting
-const VERSION = '1.4.4';
+const VERSION = '1.4.5';
 const TIMESTAMP = Date.now();
 
 // Environment detection
@@ -59,6 +59,9 @@ const API_CACHE_PATTERNS = [
 self.addEventListener('install', (event) => {
   console.log('Service Worker installing...');
   
+  // Force immediate activation
+  self.skipWaiting();
+  
   event.waitUntil(
     // Force clear ALL caches if FORCE_CACHE_CLEAR is true
     (FORCE_CACHE_CLEAR ? 
@@ -107,6 +110,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
+        console.log('Current caches:', cacheNames);
         return Promise.all(
           cacheNames.map((cacheName) => {
             if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
@@ -119,6 +123,18 @@ self.addEventListener('activate', (event) => {
       .then(() => {
         console.log('Service Worker activated');
         return self.clients.claim();
+      })
+      .then(() => {
+        // Notify all clients about the update
+        return self.clients.matchAll();
+      })
+      .then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({
+            type: 'SW_UPDATED',
+            version: VERSION
+          });
+        });
       })
   );
 });
