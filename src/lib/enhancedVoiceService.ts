@@ -43,7 +43,7 @@ class EnhancedVoiceService {
   private silenceTimer: NodeJS.Timeout | null = null;
   private lastSpeechTime: number = 0;
   private options: RecordingOptions = {
-    useWhisper: true, // Use Whisper as primary for better accuracy
+    useWhisper: false, // Temporarily disable Whisper due to CORS issues
     fallbackToBrowser: true,
     language: 'en-US',
     maxRecordingTime: 60, // 1 minute max

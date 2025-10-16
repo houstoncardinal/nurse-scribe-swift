@@ -13,6 +13,9 @@ env.remotePathTemplate = 'https://huggingface.co/{model}/resolve/main/{filename}
 env.backends.onnx.wasm.proxy = true;
 env.backends.onnx.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/@xenova/transformers@latest/dist/';
 
+// Disable Whisper temporarily due to CORS issues
+env.allowRemoteModels = false;
+
 interface WhisperResult {
   text: string;
   chunks: Array<{
@@ -42,6 +45,13 @@ class WhisperWasmService {
    * Initialize the Whisper pipeline
    */
   private async initialize(): Promise<void> {
+    // Temporarily disable Whisper due to CORS issues
+    console.log('🎤 Whisper WebAssembly temporarily disabled due to CORS issues');
+    console.log('🔄 Using browser speech recognition as primary method');
+    this.isInitialized = false;
+    return;
+    
+    /* Whisper initialization disabled until CORS issues are resolved
     try {
       console.log('🎤 Initializing Whisper WebAssembly...');
       
@@ -74,42 +84,9 @@ class WhisperWasmService {
       
     } catch (error: any) {
       console.error('❌ Failed to initialize Whisper WebAssembly:', error);
-      
-      // Try alternative approach with different model
-      try {
-        console.log('🔄 Trying alternative Whisper model...');
-        
-        this.pipeline = await pipeline(
-          'automatic-speech-recognition',
-          'openai/whisper-tiny',
-          {
-            quantized: true,
-            progress_callback: (progress: any) => {
-              if (this.onProgress) {
-                this.onProgress(progress.loaded / progress.total);
-              }
-            }
-          }
-        );
-        
-        this.isInitialized = true;
-        console.log('✅ Whisper WebAssembly initialized successfully with alternative model');
-        
-      } catch (altError: any) {
-        console.error('❌ Alternative Whisper model also failed:', altError);
-        
-        // Log specific error details for debugging
-        if (error.message?.includes('JSON') || altError.message?.includes('JSON')) {
-          console.warn('⚠️ Whisper model files not found - falling back to browser speech recognition');
-        } else if (error.message?.includes('network') || altError.message?.includes('network')) {
-          console.warn('⚠️ Network error loading Whisper - falling back to browser speech recognition');
-        } else {
-          console.warn('⚠️ Whisper initialization failed - falling back to browser speech recognition');
-        }
-        
-        this.isInitialized = false;
-      }
+      this.isInitialized = false;
     }
+    */
   }
 
   /**

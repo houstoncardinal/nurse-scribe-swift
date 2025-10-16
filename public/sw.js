@@ -4,7 +4,7 @@
  */
 
 // Generate cache names with version for cache busting
-const VERSION = '1.4.6';
+const VERSION = '1.4.7';
 const TIMESTAMP = Date.now();
 
 // Environment detection
@@ -33,8 +33,18 @@ const OLD_CACHE_PATTERNS = [
   'nursescribe-v1.4.3',
   'nursescribe-static-v1.4.3',
   'nursescribe-dynamic-v1.4.3',
+  'nursescribe-v1.4.4',
+  'nursescribe-static-v1.4.4',
+  'nursescribe-dynamic-v1.4.4',
+  'nursescribe-v1.4.5',
+  'nursescribe-static-v1.4.5',
+  'nursescribe-dynamic-v1.4.5',
   'transformers-cache',
-  'whisper-cache'
+  'whisper-cache',
+  // Clear any cache that might contain old asset references
+  'nursescribe',
+  'static',
+  'dynamic'
 ];
 
 // Files to cache for offline functionality
