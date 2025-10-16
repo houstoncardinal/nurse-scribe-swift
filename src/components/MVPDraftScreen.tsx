@@ -188,38 +188,33 @@ export function MVPDraftScreen({
 
       {/* Note Content */}
       <div className="flex-1 overflow-y-auto px-6 space-y-4">
-        {selectedTemplate === 'SOAP' && (
-          <>
-            {renderSection('Subjective', noteContent.subjective, <FileText className="h-4 w-4 text-primary" />)}
-            {renderSection('Objective', noteContent.objective, <FileText className="h-4 w-4 text-secondary" />)}
-            {renderSection('Assessment', noteContent.assessment, <FileText className="h-4 w-4 text-accent" />)}
-            {renderSection('Plan', noteContent.plan, <FileText className="h-4 w-4 text-primary" />)}
-          </>
+        {/* Standardized sections as per client requirements: Assessment, Interventions, Plan */}
+        
+        {/* Assessment Section */}
+        {renderSection('Assessment', 
+          selectedTemplate === 'SOAP' ? noteContent.assessment :
+          selectedTemplate === 'SBAR' ? noteContent.assessment :
+          selectedTemplate === 'PIE' ? noteContent.problem :
+          noteContent.data,
+          <CheckCircle className="h-4 w-4 text-teal-600" />
         )}
 
-        {selectedTemplate === 'SBAR' && (
-          <>
-            {renderSection('Situation', noteContent.situation, <AlertCircle className="h-4 w-4 text-destructive" />)}
-            {renderSection('Background', noteContent.background, <FileText className="h-4 w-4 text-secondary" />)}
-            {renderSection('Assessment', noteContent.assessment, <CheckCircle className="h-4 w-4 text-accent" />)}
-            {renderSection('Recommendation', noteContent.recommendation, <ArrowRight className="h-4 w-4 text-primary" />)}
-          </>
+        {/* Interventions Section */}
+        {renderSection('Interventions', 
+          selectedTemplate === 'SOAP' ? noteContent.objective :
+          selectedTemplate === 'SBAR' ? noteContent.situation :
+          selectedTemplate === 'PIE' ? noteContent.intervention :
+          noteContent.action,
+          <ArrowRight className="h-4 w-4 text-blue-600" />
         )}
 
-        {selectedTemplate === 'PIE' && (
-          <>
-            {renderSection('Problem', noteContent.problem, <AlertCircle className="h-4 w-4 text-destructive" />)}
-            {renderSection('Intervention', noteContent.intervention, <CheckCircle className="h-4 w-4 text-accent" />)}
-            {renderSection('Evaluation', noteContent.evaluation, <FileText className="h-4 w-4 text-primary" />)}
-          </>
-        )}
-
-        {selectedTemplate === 'DAR' && (
-          <>
-            {renderSection('Data', noteContent.data, <FileText className="h-4 w-4 text-secondary" />)}
-            {renderSection('Action', noteContent.action, <CheckCircle className="h-4 w-4 text-accent" />)}
-            {renderSection('Response', noteContent.response, <ArrowRight className="h-4 w-4 text-primary" />)}
-          </>
+        {/* Plan Section */}
+        {renderSection('Plan', 
+          selectedTemplate === 'SOAP' ? noteContent.plan :
+          selectedTemplate === 'SBAR' ? noteContent.recommendation :
+          selectedTemplate === 'PIE' ? noteContent.evaluation :
+          noteContent.response,
+          <FileText className="h-4 w-4 text-purple-600" />
         )}
       </div>
 

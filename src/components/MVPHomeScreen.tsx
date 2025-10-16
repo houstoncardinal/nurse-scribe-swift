@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mic, MicOff, Play, Pause, Square, Clock, Zap, Shield, Keyboard, Upload, Star, Award, Target } from 'lucide-react';
+import { Mic, MicOff, Play, Pause, Square, Clock, Zap, Shield, Keyboard, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,8 +8,6 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { InputMethodSelector } from '@/components/InputMethodSelector';
 import { InteractiveDashboard } from '@/components/InteractiveDashboard';
-import { HeroHeadline, SectionHeadline, AchievementHeadline } from '@/components/ProfessionalHeadlines';
-import { PrimaryButton, FloatingActionButton } from '@/components/ProfessionalButtons';
 
 interface MVPHomeScreenProps {
   onNavigate: (screen: string) => void;
@@ -53,46 +51,38 @@ export function MVPHomeScreen({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header Section */}
-      <div className="p-6 pb-4">
-        <div className="text-center space-y-6">
-          {/* Hero Headline */}
-          <HeroHeadline
-            badge={{ text: "Enterprise Ready", color: "green" }}
-            icon={<Mic />}
-            iconPosition="top"
-            subtitle="Professional Voice Documentation Platform"
-            description="Transform your clinical workflow with AI-powered note generation and HIPAA-compliant documentation"
-          >
-            Start New Note
-          </HeroHeadline>
-
-          {/* Template Selector */}
-          <Card className="p-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 border-0 shadow-lg">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-teal-600" />
-                <SectionHeadline size="lg" color="primary">
-                  Choose Note Template
-                </SectionHeadline>
+      {/* Compact Header Section */}
+      <div className="p-4 pb-2">
+        <div className="text-center space-y-3">
+          {/* Compact Hero */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <Mic className="h-4 w-4 text-white" />
               </div>
-              <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-                <SelectTrigger className="w-full h-12 border-2 focus:border-teal-300 dark:focus:border-teal-600">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {templates.map((template) => (
-                    <SelectItem key={template.value} value={template.value}>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-teal-500 rounded-full" />
-                        {template.label}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <h1 className="text-xl font-bold text-slate-900">Start New Note</h1>
             </div>
-          </Card>
+            <p className="text-sm text-slate-600">Professional voice documentation</p>
+          </div>
+
+          {/* Compact Template Selector */}
+          <div className="max-w-sm mx-auto">
+            <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+              <SelectTrigger className="w-full h-10 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {templates.map((template) => (
+                  <SelectItem key={template.value} value={template.value}>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-teal-500 rounded-full" />
+                      {template.label}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 

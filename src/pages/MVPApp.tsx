@@ -251,24 +251,7 @@ export function MVPApp() {
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* Powerful Header */}
-      <PowerfulHeader
-        onNewNote={handleNewNote}
-        isRecording={isRecording}
-        isProcessing={isProcessing}
-        userProfile={{
-          name: 'Dr. Sarah Johnson',
-          role: 'RN, BSN',
-          efficiency: 94
-        }}
-      />
-
-      {/* Main Content */}
-      <main className="flex-1 overflow-hidden">
-        {renderCurrentScreen()}
-      </main>
-
-      {/* Mobile Navigation */}
+      {/* Mobile Navigation - Only show on mobile */}
       <div className="md:hidden">
         <MobileHeader
           currentScreen={currentScreen}
@@ -282,6 +265,11 @@ export function MVPApp() {
           }}
         />
       </div>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-hidden">
+        {renderCurrentScreen()}
+      </main>
 
       {/* Bottom Safe Area for Mobile */}
       <div className="h-safe-area-inset-bottom bg-background" />

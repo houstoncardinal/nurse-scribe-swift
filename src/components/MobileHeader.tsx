@@ -76,49 +76,46 @@ export function MobileHeader({
 
   return (
     <>
-      {/* Main Header */}
-      <header className="sticky top-0 z-50 bg-white/98 dark:bg-slate-900/98 backdrop-blur-2xl border-b border-slate-200/60 dark:border-slate-700/60 shadow-sm">
-        <div className="px-4 py-3">
+      {/* Clean Top Header */}
+      <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+        <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo & App Name */}
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="w-9 h-9 bg-gradient-to-br from-teal-500 via-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
-                  <Stethoscope className="h-5 w-5 text-white" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse" />
+              <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-sm">
+                <Stethoscope className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">NurseScribe AI</h1>
-                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Enterprise Documentation</p>
+                <h1 className="text-lg font-bold text-slate-900">NurseScribe AI</h1>
+                <p className="text-xs text-slate-500">Professional Documentation</p>
               </div>
             </div>
 
-            {/* Status Indicators */}
-            <div className="flex items-center gap-2">
+            {/* Right Actions */}
+            <div className="flex items-center gap-3">
+              {/* Status Indicators */}
               {isRecording && (
-                <Badge className="bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-800 animate-pulse">
-                  <div className="w-2 h-2 bg-red-500 rounded-full mr-1.5" />
+                <Badge className="bg-red-50 text-red-600 border-red-200 text-xs">
+                  <div className="w-2 h-2 bg-red-500 rounded-full mr-1.5 animate-pulse" />
                   Recording
                 </Badge>
               )}
               
               {isProcessing && (
-                <Badge className="bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/30 dark:text-yellow-400 dark:border-yellow-800">
+                <Badge className="bg-yellow-50 text-yellow-600 border-yellow-200 text-xs">
                   <div className="w-2 h-2 bg-yellow-500 rounded-full mr-1.5 animate-pulse" />
                   Processing
                 </Badge>
               )}
 
-              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800 font-medium">
-                <Shield className="h-3 w-3 mr-1" />
-                HIPAA Ready
-              </Badge>
-
-              {/* Notifications */}
-              <Button variant="ghost" size="sm" className="relative p-2">
-                <Bell className="h-4 w-4" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
+              {/* New Note Button */}
+              <Button
+                onClick={onNewNote}
+                className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-sm"
+                size="sm"
+              >
+                <Mic className="h-4 w-4 mr-2" />
+                New Note
               </Button>
 
               {/* Menu Button */}
