@@ -45,7 +45,7 @@ const App = () => {
       }
       
       // If version changed, clear all caches and update
-      if (lastKnownVersion && lastKnownVersion !== currentVersion) {
+      if (lastKnownVersion && lastKnownVersion !== currentVersion && lastKnownVersion !== 'null') {
         console.log('🚀 New version detected! Clearing caches...');
         
         // Mark that we're about to reload for this version
@@ -93,6 +93,17 @@ const App = () => {
   useEffect(() => {
     // Check for app updates and clear caches automatically
     checkForUpdates();
+    
+    // Fallback: ensure app loads even if service worker fails
+    const fallbackTimer = setTimeout(() => {
+      const rootElement = document.getElementById('root');
+      if (rootElement && !rootElement.innerHTML.trim()) {
+        console.log('🔄 Fallback: App not loaded, forcing reload...');
+        window.location.reload();
+      }
+    }, 3000); // 3 second fallback
+    
+    return () => clearTimeout(fallbackTimer);
     
     // Initialize PWA service
     pwaService.initialize().catch(console.error);

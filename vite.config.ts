@@ -21,20 +21,20 @@ export default defineConfig(({ mode }) => ({
       output: {
         // Add version to chunk names for cache busting
         chunkFileNames: (chunkInfo) => {
-          return `assets/[name]-v1.4.10-${Date.now()}-[hash].js`;
+          return `assets/[name]-v1.4.11-${Date.now()}-[hash].js`;
         },
         entryFileNames: (chunkInfo) => {
-          return `assets/[name]-v1.4.10-${Date.now()}-[hash].js`;
+          return `assets/[name]-v1.4.11-${Date.now()}-[hash].js`;
         },
         assetFileNames: (assetInfo) => {
           const extType = assetInfo.name?.split('.').at(1);
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType ?? '')) {
-            return `assets/images/[name]-v1.4.10-${Date.now()}-[hash].[ext]`;
+            return `assets/images/[name]-v1.4.11-${Date.now()}-[hash].[ext]`;
           }
           if (/css/i.test(extType ?? '')) {
-            return `assets/css/[name]-v1.4.10-${Date.now()}-[hash].[ext]`;
+            return `assets/css/[name]-v1.4.11-${Date.now()}-[hash].[ext]`;
           }
-          return `assets/[name]-v1.4.10-${Date.now()}-[hash].[ext]`;
+          return `assets/[name]-v1.4.11-${Date.now()}-[hash].[ext]`;
         },
       },
     },

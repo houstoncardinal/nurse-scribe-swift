@@ -4,7 +4,7 @@
  */
 
 // Generate cache names with version for cache busting
-const VERSION = '1.4.10';
+const VERSION = '1.4.11';
 const TIMESTAMP = Date.now();
 
 // Environment detection
@@ -65,42 +65,34 @@ const API_CACHE_PATTERNS = [
   /^\/api\/admin/
 ];
 
-// Install event - cache static files with aggressive cache clearing
+// Install event - cache static files with improved strategy
 self.addEventListener('install', (event) => {
   console.log('Service Worker installing...');
   
-  // Force immediate activation
-  self.skipWaiting();
-  
   event.waitUntil(
-    // ALWAYS clear ALL caches to prevent old HTML from being served
-    caches.keys().then((cacheNames) => {
-      console.log('Force clearing all caches:', cacheNames);
-      
-      // Delete all existing caches
-      const deletePromises = cacheNames.map(name => {
-        console.log(`Deleting old cache: ${name}`);
-        return caches.delete(name);
-      });
-      
-      // Also delete any cache that matches our old patterns
-      const patternDeletePromises = OLD_CACHE_PATTERNS.map(pattern => {
-        return cacheNames.filter(name => name.includes(pattern))
-          .map(name => {
-            console.log(`Deleting pattern cache: ${name}`);
-            return caches.delete(name);
-          });
-      }).flat();
-      
-      return Promise.all([...deletePromises, ...patternDeletePromises]);
-    }).then(() => {
-      // Cache new files
-      return caches.open(STATIC_CACHE);
-    }).then((cache) => {
+    // First, cache the new files immediately
+    caches.open(STATIC_CACHE).then((cache) => {
       console.log('Caching static files');
       return cache.addAll(STATIC_FILES);
     }).then(() => {
       console.log('Static files cached successfully');
+      
+      // Then clear old caches in background
+      return caches.keys().then((cacheNames) => {
+        console.log('Clearing old caches:', cacheNames);
+        
+        // Delete old caches that match our patterns
+        const deletePromises = cacheNames.filter(name => {
+          return OLD_CACHE_PATTERNS.some(pattern => name.includes(pattern)) ||
+                 (name !== STATIC_CACHE && name !== DYNAMIC_CACHE && name.includes('nursescribe'));
+        }).map(name => {
+          console.log(`Deleting old cache: ${name}`);
+          return caches.delete(name);
+        });
+        
+        return Promise.all(deletePromises);
+      });
+    }).then(() => {
       console.log('Skipping waiting and activating immediately...');
       return self.skipWaiting();
     }).catch((error) => {
@@ -154,6 +146,22 @@ self.addEventListener('fetch', (event) => {
 
   // Skip non-GET requests
   if (request.method !== 'GET') {
+    return;
+  }
+
+  // Special handling for main HTML document
+  if (request.destination === 'document' && url.pathname === '/') {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          // Always try network first for HTML
+          return response;
+        })
+        .catch(() => {
+          // Fallback to cache if network fails
+          return caches.match(request);
+        })
+    );
     return;
   }
 
