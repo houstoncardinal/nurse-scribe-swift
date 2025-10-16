@@ -1,29 +1,95 @@
 import { useState, useEffect } from 'react';
-import { Mic, FileText, Download, Settings, Stethoscope, Menu } from 'lucide-react';
+import { Mic, FileText, Download, Settings, Stethoscope, Menu, User, BarChart3, BookOpen, Users, Shield } from 'lucide-react';
 import { MobileHeader } from '@/components/MobileHeader';
 import { MobileBottomToolbar } from '@/components/MobileBottomToolbar';
 import { SimpleMobileHeader } from '@/components/SimpleMobileHeader';
+import { EnhancedMobileHeader } from '@/components/EnhancedMobileHeader';
 import { PowerfulHeader } from '@/components/PowerfulHeader';
 import { MVPHomeScreen } from '@/components/MVPHomeScreen';
 import { MVPDraftScreen } from '@/components/MVPDraftScreen';
 import { MVPExportScreen } from '@/components/MVPExportScreen';
 import { MVPSettingsScreen } from '@/components/MVPSettingsScreen';
+import { SignInModal } from '@/components/SignInModal';
+import { UserProfile } from '@/components/UserProfile';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { voiceRecognitionService } from '@/lib/realVoiceRecognition';
 import { toast } from 'sonner';
 
-type Screen = 'home' | 'draft' | 'export' | 'settings';
+type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'history';
 
 interface NoteContent {
   [key: string]: string;
+}
+
+interface UserProfileData {
+  name: string;
+  email: string;
+  role: string;
+  credentials: string;
+  phone?: string;
+  location?: string;
+  joinDate: string;
+  avatar?: string;
+  isSignedIn: boolean;
+  preferences: {
+    notifications: boolean;
+    voiceSpeed: number;
+    defaultTemplate: string;
+    autoSave: boolean;
+    darkMode: boolean;
+  };
+  stats: {
+    totalNotes: number;
+    timeSaved: number;
+    accuracy: number;
+    weeklyGoal: number;
+    notesThisWeek: number;
+  };
+  achievements: Array<{
+    id: string;
+    title: string;
+    description: string;
+    icon: string;
+    unlockedAt: string;
+  }>;
 }
 
 export function MVPApp() {
   console.log('MVPApp rendering...');
   // Screen navigation
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
+  
+  // Authentication state
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [authError, setAuthError] = useState('');
+  
+  // User profile state
+  const [userProfile, setUserProfile] = useState<UserProfileData>({
+    name: 'Guest User',
+    email: '',
+    role: 'Not Signed In',
+    credentials: '',
+    joinDate: new Date().toLocaleDateString(),
+    isSignedIn: false,
+    preferences: {
+      notifications: true,
+      voiceSpeed: 50,
+      defaultTemplate: 'SOAP',
+      autoSave: true,
+      darkMode: false
+    },
+    stats: {
+      totalNotes: 0,
+      timeSaved: 0,
+      accuracy: 99.2,
+      weeklyGoal: 50,
+      notesThisWeek: 0
+    },
+    achievements: []
+  });
   
   // Recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -178,27 +244,175 @@ export function MVPApp() {
   // Handle screen navigation
   const handleNavigate = (screen: string) => {
     if (screen === 'history') {
-      // Navigate to history (future feature)
-      toast.info('Note history coming soon!');
+      setCurrentScreen('history' as Screen);
       return;
     }
     if (screen === 'profile') {
-      // Navigate to profile (future feature)
-      toast.info('User profile coming soon!');
-      return;
-    }
-    if (screen === 'security') {
-      // Navigate to security (future feature)
-      toast.info('Security settings coming soon!');
+      setCurrentScreen('profile' as Screen);
       return;
     }
     if (screen === 'analytics') {
-      // Navigate to analytics (future feature)
-      toast.info('Analytics dashboard coming soon!');
+      setCurrentScreen('analytics' as Screen);
+      return;
+    }
+    if (screen === 'education') {
+      setCurrentScreen('education' as Screen);
+      return;
+    }
+    if (screen === 'team') {
+      setCurrentScreen('team' as Screen);
       return;
     }
     
     setCurrentScreen(screen as Screen);
+  };
+
+  // Authentication functions
+  const handleSignIn = async (email: string, password: string) => {
+    setIsSigningIn(true);
+    setAuthError('');
+    
+    try {
+      // Simulate API call - in real app, this would call your authentication service
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Mock successful sign in
+      const newUserProfile: UserProfileData = {
+        name: 'Dr. Sarah Johnson',
+        email: email,
+        role: 'Registered Nurse',
+        credentials: 'RN, BSN',
+        phone: '+1 (555) 123-4567',
+        location: 'General Hospital',
+        joinDate: new Date().toLocaleDateString(),
+        isSignedIn: true,
+        preferences: {
+          notifications: true,
+          voiceSpeed: 50,
+          defaultTemplate: 'SOAP',
+          autoSave: true,
+          darkMode: false
+        },
+        stats: {
+          totalNotes: 127,
+          timeSaved: 45.2,
+          accuracy: 99.2,
+          weeklyGoal: 50,
+          notesThisWeek: 42
+        },
+        achievements: [
+          {
+            id: 'speed-master',
+            title: 'Speed Master',
+            description: 'Created 10 notes in 1 hour',
+            icon: '🏃‍♀️',
+            unlockedAt: '2 days ago'
+          },
+          {
+            id: 'accuracy-champion',
+            title: 'Accuracy Champion',
+            description: 'Maintained 99%+ accuracy for a week',
+            icon: '🎯',
+            unlockedAt: '1 week ago'
+          }
+        ]
+      };
+      
+      setUserProfile(newUserProfile);
+      setIsSignInModalOpen(false);
+      toast.success('Welcome back!', { description: `Signed in as ${newUserProfile.name}` });
+    } catch (error) {
+      setAuthError('Invalid email or password. Please try again.');
+      toast.error('Sign in failed');
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
+
+  const handleSignUp = async (email: string, password: string, name: string, role: string) => {
+    setIsSigningIn(true);
+    setAuthError('');
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Mock successful sign up
+      const newUserProfile: UserProfileData = {
+        name: name,
+        email: email,
+        role: role,
+        credentials: role,
+        joinDate: new Date().toLocaleDateString(),
+        isSignedIn: true,
+        preferences: {
+          notifications: true,
+          voiceSpeed: 50,
+          defaultTemplate: 'SOAP',
+          autoSave: true,
+          darkMode: false
+        },
+        stats: {
+          totalNotes: 0,
+          timeSaved: 0,
+          accuracy: 0,
+          weeklyGoal: 50,
+          notesThisWeek: 0
+        },
+        achievements: []
+      };
+      
+      setUserProfile(newUserProfile);
+      setIsSignInModalOpen(false);
+      toast.success('Account created!', { description: `Welcome to NurseScribe AI, ${name}` });
+    } catch (error) {
+      setAuthError('Failed to create account. Please try again.');
+      toast.error('Sign up failed');
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
+
+  const handleSignOut = () => {
+    setUserProfile({
+      name: 'Guest User',
+      email: '',
+      role: 'Not Signed In',
+      credentials: '',
+      joinDate: new Date().toLocaleDateString(),
+      isSignedIn: false,
+      preferences: {
+        notifications: true,
+        voiceSpeed: 50,
+        defaultTemplate: 'SOAP',
+        autoSave: true,
+        darkMode: false
+      },
+      stats: {
+        totalNotes: 0,
+        timeSaved: 0,
+        accuracy: 99.2,
+        weeklyGoal: 50,
+        notesThisWeek: 0
+      },
+      achievements: []
+    });
+    
+    // Return to home screen
+    setCurrentScreen('home');
+    toast.info('Signed out successfully');
+  };
+
+  const handleUpdateProfile = async (updatedProfile: Partial<UserProfileData>) => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setUserProfile(prev => ({ ...prev, ...updatedProfile }));
+      toast.success('Profile updated successfully');
+    } catch (error) {
+      toast.error('Failed to update profile');
+    }
   };
 
   // Start recording with real voice recognition
@@ -354,6 +568,79 @@ export function MVPApp() {
             onNavigate={handleNavigate}
           />
         );
+
+      case 'profile':
+        return (
+          <UserProfile
+            user={userProfile}
+            onUpdate={handleUpdateProfile}
+            onSignOut={handleSignOut}
+          />
+        );
+
+      case 'history':
+        return (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-slate-900 mb-4">Note History</h2>
+              <p className="text-slate-600 mb-6">View and manage your past notes</p>
+              <div className="bg-white rounded-lg p-8 shadow-lg">
+                <p className="text-slate-500">Feature coming soon!</p>
+                <Button onClick={() => handleNavigate('home')} className="mt-4">
+                  Back to Home
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'analytics':
+        return (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-slate-900 mb-4">Analytics Dashboard</h2>
+              <p className="text-slate-600 mb-6">Track your performance and productivity</p>
+              <div className="bg-white rounded-lg p-8 shadow-lg">
+                <p className="text-slate-500">Feature coming soon!</p>
+                <Button onClick={() => handleNavigate('home')} className="mt-4">
+                  Back to Home
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'education':
+        return (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-slate-900 mb-4">Education Mode</h2>
+              <p className="text-slate-600 mb-6">Practice with synthetic cases and improve your skills</p>
+              <div className="bg-white rounded-lg p-8 shadow-lg">
+                <p className="text-slate-500">Feature coming soon!</p>
+                <Button onClick={() => handleNavigate('home')} className="mt-4">
+                  Back to Home
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'team':
+        return (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-slate-900 mb-4">Team Collaboration</h2>
+              <p className="text-slate-600 mb-6">Share notes and collaborate with your team</p>
+              <div className="bg-white rounded-lg p-8 shadow-lg">
+                <p className="text-slate-500">Feature coming soon!</p>
+                <Button onClick={() => handleNavigate('home')} className="mt-4">
+                  Back to Home
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
       
       default:
         return null;
@@ -364,124 +651,255 @@ export function MVPApp() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       {/* Desktop Layout */}
       <div className="hidden lg:block">
-        <div className="flex h-screen">
+        <div className="flex h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
           {/* Desktop Sidebar */}
-          <aside className="w-64 bg-white/90 backdrop-blur-sm border-r border-slate-200 shadow-lg">
-            <div className="p-6">
-              {/* Logo */}
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/25">
-                  <Stethoscope className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-slate-900">NurseScribe AI</h1>
-                  <p className="text-xs text-slate-600">Professional Documentation</p>
+          <aside className="w-72 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
+            <div className="flex flex-col h-full">
+              {/* Logo Section */}
+              <div className="p-6 border-b border-slate-200">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/25">
+                    <Stethoscope className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-bold text-slate-900">NurseScribe AI</h1>
+                    <p className="text-sm text-slate-600">Professional Documentation</p>
+                  </div>
                 </div>
               </div>
 
-              {/* Navigation */}
-              <nav className="space-y-2">
+              {/* User Profile Section */}
+              <div className="p-4 border-b border-slate-200">
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                  <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-semibold text-sm">
+                      {userProfile.name.split(' ').map(n => n[0]).join('')}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-900 truncate">{userProfile.name}</p>
+                    <p className="text-xs text-slate-600 truncate">{userProfile.role}</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleNavigate('profile')}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Main Navigation */}
+              <div className="flex-1 p-4">
+                <nav className="space-y-2">
+                  <div className="mb-4">
+                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Core Features</h3>
+                    <div className="space-y-1">
+                      <Button
+                        variant={currentScreen === 'home' ? 'default' : 'ghost'}
+                        className={`w-full justify-start h-11 ${
+                          currentScreen === 'home' 
+                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
+                            : 'hover:bg-slate-100 text-slate-700'
+                        }`}
+                        onClick={() => handleNavigate('home')}
+                      >
+                        <Mic className="h-4 w-4 mr-3" />
+                        New Note
+                      </Button>
+                      <Button
+                        variant={currentScreen === 'draft' ? 'default' : 'ghost'}
+                        className={`w-full justify-start h-11 ${
+                          currentScreen === 'draft' 
+                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
+                            : 'hover:bg-slate-100 text-slate-700'
+                        }`}
+                        onClick={() => handleNavigate('draft')}
+                      >
+                        <FileText className="h-4 w-4 mr-3" />
+                        Draft Preview
+                      </Button>
+                      <Button
+                        variant={currentScreen === 'export' ? 'default' : 'ghost'}
+                        className={`w-full justify-start h-11 ${
+                          currentScreen === 'export' 
+                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
+                            : 'hover:bg-slate-100 text-slate-700'
+                        }`}
+                        onClick={() => handleNavigate('export')}
+                      >
+                        <Download className="h-4 w-4 mr-3" />
+                        Export
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Tools & Analytics</h3>
+                    <div className="space-y-1">
+                      <Button
+                        variant={currentScreen === 'history' ? 'default' : 'ghost'}
+                        className={`w-full justify-start h-11 ${
+                          currentScreen === 'history' 
+                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
+                            : 'hover:bg-slate-100 text-slate-700'
+                        }`}
+                        onClick={() => handleNavigate('history')}
+                      >
+                        <FileText className="h-4 w-4 mr-3" />
+                        Note History
+                      </Button>
+                      <Button
+                        variant={currentScreen === 'analytics' ? 'default' : 'ghost'}
+                        className={`w-full justify-start h-11 ${
+                          currentScreen === 'analytics' 
+                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
+                            : 'hover:bg-slate-100 text-slate-700'
+                        }`}
+                        onClick={() => handleNavigate('analytics')}
+                      >
+                        <BarChart3 className="h-4 w-4 mr-3" />
+                        Analytics
+                      </Button>
+                      <Button
+                        variant={currentScreen === 'education' ? 'default' : 'ghost'}
+                        className={`w-full justify-start h-11 ${
+                          currentScreen === 'education' 
+                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
+                            : 'hover:bg-slate-100 text-slate-700'
+                        }`}
+                        onClick={() => handleNavigate('education')}
+                      >
+                        <BookOpen className="h-4 w-4 mr-3" />
+                        Education
+                      </Button>
+                      <Button
+                        variant={currentScreen === 'team' ? 'default' : 'ghost'}
+                        className={`w-full justify-start h-11 ${
+                          currentScreen === 'team' 
+                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
+                            : 'hover:bg-slate-100 text-slate-700'
+                        }`}
+                        onClick={() => handleNavigate('team')}
+                      >
+                        <Users className="h-4 w-4 mr-3" />
+                        Team
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Account</h3>
+                    <div className="space-y-1">
+                      <Button
+                        variant={currentScreen === 'profile' ? 'default' : 'ghost'}
+                        className={`w-full justify-start h-11 ${
+                          currentScreen === 'profile' 
+                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
+                            : 'hover:bg-slate-100 text-slate-700'
+                        }`}
+                        onClick={() => handleNavigate('profile')}
+                      >
+                        <User className="h-4 w-4 mr-3" />
+                        Profile
+                      </Button>
+                      <Button
+                        variant={currentScreen === 'settings' ? 'default' : 'ghost'}
+                        className={`w-full justify-start h-11 ${
+                          currentScreen === 'settings' 
+                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
+                            : 'hover:bg-slate-100 text-slate-700'
+                        }`}
+                        onClick={() => handleNavigate('settings')}
+                      >
+                        <Settings className="h-4 w-4 mr-3" />
+                        Settings
+                      </Button>
+                    </div>
+                  </div>
+                </nav>
+              </div>
+
+              {/* Bottom Actions */}
+              <div className="p-4 border-t border-slate-200">
                 <Button
-                  variant={currentScreen === 'home' ? 'default' : 'ghost'}
-                  className={`w-full justify-start h-12 ${
-                    currentScreen === 'home' 
-                      ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
-                      : 'hover:bg-slate-100'
-                  }`}
-                  onClick={() => handleNavigate('home')}
+                  onClick={handleNewNote}
+                  className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-lg h-11"
                 >
-                  <Mic className="h-4 w-4 mr-3" />
-                  New Note
+                  <Mic className="h-4 w-4 mr-2" />
+                  Start New Note
                 </Button>
-                <Button
-                  variant={currentScreen === 'draft' ? 'default' : 'ghost'}
-                  className={`w-full justify-start h-12 ${
-                    currentScreen === 'draft' 
-                      ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
-                      : 'hover:bg-slate-100'
-                  }`}
-                  onClick={() => handleNavigate('draft')}
-                >
-                  <FileText className="h-4 w-4 mr-3" />
-                  Draft Preview
-                </Button>
-                <Button
-                  variant={currentScreen === 'export' ? 'default' : 'ghost'}
-                  className={`w-full justify-start h-12 ${
-                    currentScreen === 'export' 
-                      ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
-                      : 'hover:bg-slate-100'
-                  }`}
-                  onClick={() => handleNavigate('export')}
-                >
-                  <Download className="h-4 w-4 mr-3" />
-                  Export
-                </Button>
-                <Button
-                  variant={currentScreen === 'settings' ? 'default' : 'ghost'}
-                  className={`w-full justify-start h-12 ${
-                    currentScreen === 'settings' 
-                      ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
-                      : 'hover:bg-slate-100'
-                  }`}
-                  onClick={() => handleNavigate('settings')}
-                >
-                  <Settings className="h-4 w-4 mr-3" />
-                  Settings
-                </Button>
-              </nav>
+                {!userProfile.isSignedIn && (
+                  <Button
+                    onClick={() => setIsSignInModalOpen(true)}
+                    variant="outline"
+                    className="w-full mt-2 h-10"
+                  >
+                    Sign In
+                  </Button>
+                )}
+              </div>
             </div>
           </aside>
 
           {/* Desktop Main Content */}
           <div className="flex-1 flex flex-col">
             {/* Desktop Header */}
-            <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200 shadow-sm">
-              <div className="px-8 py-4">
+            <header className="bg-white/95 backdrop-blur-xl border-b border-slate-200 shadow-sm">
+              <div className="px-8 py-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-2xl font-bold text-slate-900">
+                    <h2 className="text-3xl font-bold text-slate-900">
                       {currentScreen === 'home' && 'Start New Note'}
                       {currentScreen === 'draft' && 'Draft Preview'}
                       {currentScreen === 'export' && 'Export Note'}
                       {currentScreen === 'settings' && 'Settings'}
+                      {currentScreen === 'profile' && 'Profile'}
+                      {currentScreen === 'history' && 'Note History'}
+                      {currentScreen === 'analytics' && 'Analytics Dashboard'}
+                      {currentScreen === 'education' && 'Education Mode'}
+                      {currentScreen === 'team' && 'Team Collaboration'}
                     </h2>
-                    <p className="text-sm text-slate-600">
-                      {currentScreen === 'home' && 'Create professional nursing documentation'}
-                      {currentScreen === 'draft' && 'Review and edit your note'}
-                      {currentScreen === 'export' && 'Save and share your note'}
-                      {currentScreen === 'settings' && 'Configure your preferences'}
+                    <p className="text-slate-600 mt-1">
+                      {currentScreen === 'home' && 'Create professional nursing documentation with AI assistance'}
+                      {currentScreen === 'draft' && 'Review and edit your AI-generated note'}
+                      {currentScreen === 'export' && 'Save and share your completed note'}
+                      {currentScreen === 'settings' && 'Configure your app preferences and settings'}
+                      {currentScreen === 'profile' && 'Manage your account and personal information'}
+                      {currentScreen === 'history' && 'View and manage your past notes'}
+                      {currentScreen === 'analytics' && 'Track your performance and productivity metrics'}
+                      {currentScreen === 'education' && 'Practice with synthetic cases and improve your skills'}
+                      {currentScreen === 'team' && 'Collaborate and share notes with your team'}
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
                     {/* Status Indicators */}
                     {isRecording && (
-                      <Badge className="bg-red-50 text-red-600 border-red-200">
-                        <div className="w-2 h-2 bg-red-500 rounded-full mr-1.5 animate-pulse" />
+                      <Badge className="bg-red-50 text-red-600 border-red-200 px-3 py-1">
+                        <div className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse" />
                         Recording
                       </Badge>
                     )}
                     {isProcessing && (
-                      <Badge className="bg-yellow-50 text-yellow-600 border-yellow-200">
-                        <div className="w-2 h-2 bg-yellow-500 rounded-full mr-1.5 animate-pulse" />
+                      <Badge className="bg-yellow-50 text-yellow-600 border-yellow-200 px-3 py-1">
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2 animate-pulse" />
                         Processing
                       </Badge>
                     )}
-                    <Button
-                      onClick={handleNewNote}
-                      className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white"
-                    >
-                      <Mic className="h-4 w-4 mr-2" />
-                      New Note
-                    </Button>
+                    <Badge className="bg-green-50 text-green-600 border-green-200 px-3 py-1">
+                      <Shield className="h-3 w-3 mr-1" />
+                      HIPAA Compliant
+                    </Badge>
                   </div>
                 </div>
               </div>
             </header>
 
             {/* Desktop Content */}
-            <main className="flex-1 overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
-              <div className="h-full max-w-6xl mx-auto p-8">
+            <main className="flex-1 overflow-hidden">
+              <div className="h-full">
                 {renderCurrentScreen()}
               </div>
             </main>
@@ -492,32 +910,21 @@ export function MVPApp() {
       {/* Mobile/Tablet Layout */}
       <div className="lg:hidden">
         <div className="h-screen flex flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
-          {/* Mobile Header - Only show on mobile */}
-          <div className="md:hidden">
-            <SimpleMobileHeader
-              onNewNote={handleNewNote}
-              isRecording={isRecording}
-              isProcessing={isProcessing}
-              userProfile={{
-                name: 'Dr. Sarah Johnson',
-                role: 'RN, BSN'
-              }}
-            />
-          </div>
-
-          {/* Tablet Header */}
-          <div className="hidden md:block">
-            <PowerfulHeader
-              onNewNote={handleNewNote}
-              isRecording={isRecording}
-              isProcessing={isProcessing}
-              userProfile={{
-                name: 'Dr. Sarah Johnson',
-                role: 'RN, BSN',
-                efficiency: 94
-              }}
-            />
-          </div>
+          {/* Enhanced Mobile Header */}
+          <EnhancedMobileHeader
+            onNewNote={handleNewNote}
+            onNavigate={handleNavigate}
+            isRecording={isRecording}
+            isProcessing={isProcessing}
+            userProfile={{
+              name: userProfile.name,
+              role: userProfile.role,
+              email: userProfile.email,
+              isSignedIn: userProfile.isSignedIn
+            }}
+            onSignIn={() => setIsSignInModalOpen(true)}
+            onSignOut={handleSignOut}
+          />
 
           {/* Mobile/Tablet Content */}
           <main className="flex-1 overflow-hidden pb-20 md:pb-0">
@@ -535,6 +942,16 @@ export function MVPApp() {
           </div>
         </div>
       </div>
+
+      {/* Sign In Modal */}
+      <SignInModal
+        isOpen={isSignInModalOpen}
+        onClose={() => setIsSignInModalOpen(false)}
+        onSignIn={handleSignIn}
+        onSignUp={handleSignUp}
+        isLoading={isSigningIn}
+        error={authError}
+      />
     </div>
   );
 }

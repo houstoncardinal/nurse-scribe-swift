@@ -1,0 +1,260 @@
+import { useState } from 'react';
+import { 
+  Menu, Mic, Stethoscope, Shield, User, LogIn, LogOut, Settings, 
+  FileText, Download, BarChart3, Users, BookOpen, History, 
+  Bell, ChevronDown, X, Home, Calendar, Target, Award, 
+  Activity, Zap, AlertTriangle, Clock, TrendingUp
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+
+interface UserProfile {
+  name: string;
+  role: string;
+  avatar?: string;
+  email?: string;
+  isSignedIn?: boolean;
+}
+
+interface EnhancedMobileHeaderProps {
+  onNewNote?: () => void;
+  onNavigate?: (screen: string) => void;
+  isRecording?: boolean;
+  isProcessing?: boolean;
+  userProfile?: UserProfile;
+  onSignIn?: () => void;
+  onSignOut?: () => void;
+}
+
+export function EnhancedMobileHeader({
+  onNewNote,
+  onNavigate,
+  isRecording = false,
+  isProcessing = false,
+  userProfile = { name: 'Guest User', role: 'Not Signed In', isSignedIn: false },
+  onSignIn,
+  onSignOut
+}: EnhancedMobileHeaderProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const navigationItems = [
+    { id: 'home', label: 'New Note', icon: Mic, description: 'Start voice dictation' },
+    { id: 'draft', label: 'Draft Preview', icon: FileText, description: 'Review generated notes' },
+    { id: 'export', label: 'Export', icon: Download, description: 'Export to EHR or PDF' },
+    { id: 'history', label: 'Note History', icon: History, description: 'View past notes' },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3, description: 'Performance metrics' },
+    { id: 'education', label: 'Education', icon: BookOpen, description: 'Practice cases' },
+    { id: 'team', label: 'Team', icon: Users, description: 'Collaborate with team' },
+    { id: 'settings', label: 'Settings', icon: Settings, description: 'App preferences' },
+  ];
+
+  const handleNavigation = (screenId: string) => {
+    onNavigate?.(screenId);
+    setIsMenuOpen(false);
+  };
+
+  return (
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-slate-200 shadow-sm">
+      <div className="px-4 py-3">
+        <div className="flex items-center justify-between">
+          {/* Logo and App Name */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/25">
+              <Stethoscope className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-slate-900">NurseScribe AI</h1>
+              <p className="text-xs text-slate-500">Professional Documentation</p>
+            </div>
+          </div>
+
+          {/* Right Side - Status and Actions */}
+          <div className="flex items-center gap-2">
+            {/* Status Indicators */}
+            {isRecording && (
+              <Badge className="bg-red-50 text-red-600 border-red-200 text-xs">
+                <div className="w-2 h-2 bg-red-500 rounded-full mr-1.5 animate-pulse" />
+                Recording
+              </Badge>
+            )}
+            
+            {isProcessing && (
+              <Badge className="bg-yellow-50 text-yellow-600 border-yellow-200 text-xs">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full mr-1.5 animate-pulse" />
+                Processing
+              </Badge>
+            )}
+
+            {/* User Profile / Sign In */}
+            <div className="flex items-center gap-2">
+              {userProfile.isSignedIn ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-9 px-2">
+                      <Avatar className="w-7 h-7">
+                        <AvatarFallback className="bg-gradient-to-br from-teal-500 to-blue-600 text-white text-xs font-semibold">
+                          {userProfile.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 bg-white border border-slate-200 shadow-lg">
+                    <div className="px-3 py-2 border-b border-slate-100">
+                      <p className="text-sm font-semibold text-slate-900">{userProfile.name}</p>
+                      <p className="text-xs text-slate-600">{userProfile.role}</p>
+                      {userProfile.email && (
+                        <p className="text-xs text-slate-500">{userProfile.email}</p>
+                      )}
+                    </div>
+                    <DropdownMenuItem className="hover:bg-slate-50" onClick={() => handleNavigation('profile')}>
+                      <User className="h-4 w-4 mr-2" />
+                      Profile Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-slate-50" onClick={() => handleNavigation('settings')}>
+                      <Settings className="h-4 w-4 mr-2" />
+                      Preferences
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="text-red-600 hover:bg-red-50" onClick={onSignOut}>
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button
+                  onClick={onSignIn}
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-3 text-xs"
+                >
+                  <LogIn className="h-4 w-4 mr-1.5" />
+                  Sign In
+                </Button>
+              )}
+            </div>
+
+            {/* New Note Button */}
+            <Button
+              onClick={onNewNote}
+              className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-lg h-9 px-3 text-xs"
+              size="sm"
+            >
+              <Mic className="h-4 w-4 mr-1.5" />
+              New Note
+            </Button>
+
+            {/* Menu Button */}
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80 bg-white border-l border-slate-200 shadow-xl">
+                <div className="flex flex-col h-full bg-white">
+                  {/* Header */}
+                  <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-200">
+                    {userProfile.isSignedIn ? (
+                      <>
+                        <Avatar className="w-12 h-12">
+                          <AvatarFallback className="bg-gradient-to-br from-teal-500 to-blue-600 text-white font-semibold">
+                            {userProfile.name.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <h2 className="font-semibold text-slate-900">{userProfile.name}</h2>
+                          <p className="text-sm text-slate-600">{userProfile.role}</p>
+                          {userProfile.email && (
+                            <p className="text-xs text-slate-500">{userProfile.email}</p>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
+                          <User className="h-6 w-6 text-slate-400" />
+                        </div>
+                        <div className="flex-1">
+                          <h2 className="font-semibold text-slate-900">Guest User</h2>
+                          <p className="text-sm text-slate-600">Sign in for full features</p>
+                        </div>
+                        <Button onClick={onSignIn} size="sm" className="text-xs">
+                          <LogIn className="h-4 w-4 mr-1" />
+                          Sign In
+                        </Button>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Main Navigation */}
+                  <div className="flex-1 space-y-1">
+                    <h3 className="text-sm font-semibold text-slate-900 px-1 mb-3">App Navigation</h3>
+                    {navigationItems.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <Button
+                          key={item.id}
+                          variant="ghost"
+                          className="w-full justify-start h-12 hover:bg-slate-50 text-slate-700"
+                          onClick={() => handleNavigation(item.id)}
+                        >
+                          <Icon className="h-4 w-4 mr-3 text-slate-600" />
+                          <div className="text-left flex-1">
+                            <div className="text-sm font-medium">{item.label}</div>
+                            <div className="text-xs text-slate-500">{item.description}</div>
+                          </div>
+                        </Button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Quick Stats */}
+                  {userProfile.isSignedIn && (
+                    <>
+                      <Separator className="my-4" />
+                      <div className="space-y-2">
+                        <h3 className="text-sm font-semibold text-slate-900 px-1">Today's Stats</h3>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="text-center p-2 bg-blue-50 rounded-lg">
+                            <div className="text-lg font-bold text-blue-600">12</div>
+                            <div className="text-xs text-blue-600">Notes</div>
+                          </div>
+                          <div className="text-center p-2 bg-emerald-50 rounded-lg">
+                            <div className="text-lg font-bold text-emerald-600">3.2h</div>
+                            <div className="text-xs text-emerald-600">Saved</div>
+                          </div>
+                          <div className="text-center p-2 bg-purple-50 rounded-lg">
+                            <div className="text-lg font-bold text-purple-600">99%</div>
+                            <div className="text-xs text-purple-600">Accuracy</div>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* HIPAA Status */}
+                  <div className="mt-auto pt-4 border-t border-slate-200">
+                    <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Shield className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-semibold text-green-800">HIPAA Compliant</span>
+                      </div>
+                      <p className="text-xs text-green-700">
+                        All data is processed locally. No PHI is stored on servers.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}

@@ -355,37 +355,37 @@ export function MVPHomeScreen({
                           </div>
                         </Card>
 
-                        {/* Needs Your Attention */}
-                        <Card className="p-4 bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 shadow-lg">
+                        {/* Recent Notes */}
+                        <Card className="p-4 bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 shadow-lg">
                           <div className="flex items-center gap-3 mb-4">
-                            <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
-                              <Bell className="h-4 w-4 text-white" />
+                            <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                              <FileText className="h-4 w-4 text-white" />
                             </div>
-                            <h3 className="font-semibold text-slate-900">Needs Your Attention</h3>
+                            <h3 className="font-semibold text-slate-900">Recent Notes</h3>
                           </div>
                           <div className="space-y-3">
-                            <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-orange-100">
-                              <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                                <AlertTriangle className="h-4 w-4 text-red-600" />
+                            <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-indigo-100">
+                              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                <FileText className="h-4 w-4 text-green-600" />
                               </div>
                               <div className="flex-1">
-                                <div className="text-sm font-medium text-slate-700">Pending Reviews</div>
-                                <div className="text-xs text-slate-500">Notes awaiting your approval</div>
+                                <div className="text-sm font-medium text-slate-700">Morning Assessment</div>
+                                <div className="text-xs text-slate-500">SOAP note • 2 hours ago</div>
                               </div>
-                              <Badge className="bg-red-100 text-red-700 border-red-200">{userProfile.pendingReviews}</Badge>
+                              <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">Complete</Badge>
                             </div>
-                            <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-orange-100">
-                              <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                                <Calendar className="h-4 w-4 text-yellow-600" />
+                            <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-indigo-100">
+                              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <FileText className="h-4 w-4 text-blue-600" />
                               </div>
                               <div className="flex-1">
-                                <div className="text-sm font-medium text-slate-700">Upcoming Tasks</div>
-                                <div className="text-xs text-slate-500">Scheduled documentation</div>
+                                <div className="text-sm font-medium text-slate-700">Patient Transfer</div>
+                                <div className="text-xs text-slate-500">SBAR note • 4 hours ago</div>
                               </div>
-                              <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200">{userProfile.upcomingTasks}</Badge>
+                              <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">Exported</Badge>
                             </div>
                             <Button variant="outline" size="sm" className="w-full text-xs">
-                              View All Notifications
+                              View All Notes
                             </Button>
                           </div>
                         </Card>
@@ -716,35 +716,16 @@ export function MVPHomeScreen({
                     </Card>
                   </div>
 
-                  {/* Needs Attention */}
-                  {(userProfile.pendingReviews > 0 || userProfile.upcomingTasks > 0) && (
-                    <Card className="p-3 bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Bell className="h-4 w-4 text-orange-600" />
-                        <span className="text-sm font-semibold text-slate-900">Needs Attention</span>
-                      </div>
-                      <div className="space-y-2">
-                        {userProfile.pendingReviews > 0 && (
-                          <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-orange-100">
-                            <div className="flex items-center gap-2">
-                              <AlertTriangle className="h-3 w-3 text-red-600" />
-                              <span className="text-xs text-slate-700">Pending Reviews</span>
-                            </div>
-                            <Badge className="bg-red-100 text-red-700 border-red-200 text-xs">{userProfile.pendingReviews}</Badge>
-                          </div>
-                        )}
-                        {userProfile.upcomingTasks > 0 && (
-                          <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-orange-100">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-3 w-3 text-yellow-600" />
-                              <span className="text-xs text-slate-700">Upcoming Tasks</span>
-                            </div>
-                            <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200 text-xs">{userProfile.upcomingTasks}</Badge>
-                          </div>
-                        )}
-                      </div>
-                    </Card>
-                  )}
+                  {/* Quick Tips */}
+                  <Card className="p-3 bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <BookOpen className="h-4 w-4 text-orange-600" />
+                      <span className="text-sm font-semibold text-slate-900">Quick Tips</span>
+                    </div>
+                    <p className="text-xs text-slate-700">
+                      Speak clearly and use medical terminology for best AI transcription accuracy.
+                    </p>
+                  </Card>
 
                   {/* Weekly Progress */}
                   <Card className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200">
