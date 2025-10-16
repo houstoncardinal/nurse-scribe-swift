@@ -5,16 +5,16 @@
 
 import { pipeline, env } from '@xenova/transformers';
 
-// Configure transformers to use CDN for better reliability
+// Configure transformers to use a CORS-friendly CDN
 env.allowRemoteModels = true;
-env.allowLocalModels = false; // Disable local models for now
-env.remoteModelURL = 'https://huggingface.co';
-env.remotePathTemplate = 'https://huggingface.co/{model}/resolve/main/{filename}';
+env.allowLocalModels = false;
+env.remoteModelURL = 'https://cdn.jsdelivr.net/gh';
+env.remotePathTemplate = 'https://cdn.jsdelivr.net/gh/huggingface/{model}/main/{filename}';
 env.backends.onnx.wasm.proxy = true;
 env.backends.onnx.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/@xenova/transformers@latest/dist/';
 
-// Disable Whisper temporarily due to CORS issues
-env.allowRemoteModels = false;
+// Enable Whisper with proper CDN configuration
+env.allowRemoteModels = true;
 
 interface WhisperResult {
   text: string;
@@ -45,15 +45,8 @@ class WhisperWasmService {
    * Initialize the Whisper pipeline
    */
   private async initialize(): Promise<void> {
-    // Temporarily disable Whisper due to CORS issues
-    console.log('🎤 Whisper WebAssembly temporarily disabled due to CORS issues');
-    console.log('🔄 Using browser speech recognition as primary method');
-    this.isInitialized = false;
-    return;
-    
-    /* Whisper initialization disabled until CORS issues are resolved
     try {
-      console.log('🎤 Initializing Whisper WebAssembly...');
+      console.log('🎤 Initializing Whisper WebAssembly with CORS-friendly CDN...');
       
       // Check if we're in a browser environment that supports WebAssembly
       if (typeof window === 'undefined' || !window.WebAssembly) {
@@ -62,8 +55,8 @@ class WhisperWasmService {
         return;
       }
 
-      // Try to initialize with a simpler approach first
-      console.log('📦 Loading Whisper model from CDN...');
+      // Try to initialize with a working model
+      console.log('📦 Loading Whisper model from CORS-friendly CDN...');
       
       this.pipeline = await pipeline(
         'automatic-speech-recognition',
@@ -80,13 +73,37 @@ class WhisperWasmService {
       );
       
       this.isInitialized = true;
-      console.log('✅ Whisper WebAssembly initialized successfully');
+      console.log('✅ Whisper WebAssembly initialized successfully with CORS-friendly CDN');
       
     } catch (error: any) {
       console.error('❌ Failed to initialize Whisper WebAssembly:', error);
-      this.isInitialized = false;
+      
+      // Try alternative approach with different model
+      try {
+        console.log('🔄 Trying alternative Whisper model...');
+        
+        this.pipeline = await pipeline(
+          'automatic-speech-recognition',
+          'openai/whisper-tiny',
+          {
+            quantized: true,
+            progress_callback: (progress: any) => {
+              if (this.onProgress) {
+                this.onProgress(progress.loaded / progress.total);
+              }
+            }
+          }
+        );
+        
+        this.isInitialized = true;
+        console.log('✅ Whisper WebAssembly initialized successfully with alternative model');
+        
+      } catch (altError: any) {
+        console.error('❌ Alternative Whisper model also failed:', altError);
+        console.warn('⚠️ Whisper initialization failed - falling back to browser speech recognition');
+        this.isInitialized = false;
+      }
     }
-    */
   }
 
   /**
