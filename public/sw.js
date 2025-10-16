@@ -3,12 +3,11 @@
  * Provides offline functionality, caching, and background sync
  */
 
-// Generate dynamic cache names with timestamp for cache busting
-const TIMESTAMP = Date.now();
+// Generate cache names with version for cache busting
 const VERSION = '1.2.0';
-const CACHE_NAME = `nursescribe-v${VERSION}-${TIMESTAMP}`;
-const STATIC_CACHE = `nursescribe-static-v${VERSION}-${TIMESTAMP}`;
-const DYNAMIC_CACHE = `nursescribe-dynamic-v${VERSION}-${TIMESTAMP}`;
+const CACHE_NAME = `nursescribe-v${VERSION}`;
+const STATIC_CACHE = `nursescribe-static-v${VERSION}`;
+const DYNAMIC_CACHE = `nursescribe-dynamic-v${VERSION}`;
 
 // Force cache invalidation on every update
 const FORCE_CACHE_CLEAR = true;

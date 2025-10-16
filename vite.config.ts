@@ -19,27 +19,22 @@ export default defineConfig(({ mode }) => ({
     // Enable cache busting with content hashes
     rollupOptions: {
       output: {
-        // Add timestamp to chunk names for cache busting
+        // Add version to chunk names for cache busting
         chunkFileNames: (chunkInfo) => {
-          const timestamp = Date.now();
-          const random = Math.random().toString(36).substring(7);
-          return `assets/[name]-${timestamp}-${random}-[hash].js`;
+          return `assets/[name]-v1.2.0-[hash].js`;
         },
         entryFileNames: (chunkInfo) => {
-          const timestamp = Date.now();
-          const random = Math.random().toString(36).substring(7);
-          return `assets/[name]-${timestamp}-${random}-[hash].js`;
+          return `assets/[name]-v1.2.0-[hash].js`;
         },
         assetFileNames: (assetInfo) => {
-          const timestamp = Date.now();
           const extType = assetInfo.name?.split('.').at(1);
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType ?? '')) {
-            return `assets/images/[name]-${timestamp}-[hash].[ext]`;
+            return `assets/images/[name]-v1.2.0-[hash].[ext]`;
           }
           if (/css/i.test(extType ?? '')) {
-            return `assets/css/[name]-${timestamp}-[hash].[ext]`;
+            return `assets/css/[name]-v1.2.0-[hash].[ext]`;
           }
-          return `assets/[name]-${timestamp}-[hash].[ext]`;
+          return `assets/[name]-v1.2.0-[hash].[ext]`;
         },
       },
     },

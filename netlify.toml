@@ -5,6 +5,12 @@
 [build.environment]
   SECRETS_SCAN_ENABLED = "false"
 
+# Redirect rules for SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 # Cache busting and headers
 [[headers]]
   for = "/*"
