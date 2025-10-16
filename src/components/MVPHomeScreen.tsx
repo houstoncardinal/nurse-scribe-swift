@@ -19,6 +19,8 @@ interface MVPHomeScreenProps {
   isProcessing: boolean;
   recordingTime: number;
   transcript: string;
+  interimTranscript?: string;
+  voiceSupported?: boolean;
 }
 
 export function MVPHomeScreen({
@@ -30,7 +32,9 @@ export function MVPHomeScreen({
   isRecording,
   isProcessing,
   recordingTime,
-  transcript
+  transcript,
+  interimTranscript = '',
+  voiceSupported = true
 }: MVPHomeScreenProps) {
   const [selectedTemplate, setSelectedTemplate] = useState('SOAP');
   const [showInputSelector, setShowInputSelector] = useState(false);
@@ -154,22 +158,32 @@ export function MVPHomeScreen({
                       </div>
                     </div>
 
-                    {/* Desktop Status */}
-                    <div className="text-center space-y-4">
-                      {isRecording && (
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-center gap-3">
-                            <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50" />
-                            <span className="text-2xl font-bold text-red-600">Recording...</span>
-                          </div>
-                          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 max-w-sm mx-auto">
-                            <div className="text-4xl font-mono font-bold text-red-700">
-                              {formatTime(recordingTime)}
-                            </div>
-                            <p className="text-sm text-red-600 mt-2">Click to stop recording</p>
-                          </div>
-                        </div>
-                      )}
+                            {/* Desktop Status */}
+                            <div className="text-center space-y-4">
+                              {isRecording && (
+                                <div className="space-y-3">
+                                  <div className="flex items-center justify-center gap-3">
+                                    <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50" />
+                                    <span className="text-2xl font-bold text-red-600">Recording...</span>
+                                  </div>
+                                  <div className="bg-red-50 border border-red-200 rounded-2xl p-6 max-w-sm mx-auto">
+                                    <div className="text-4xl font-mono font-bold text-red-700">
+                                      {formatTime(recordingTime)}
+                                    </div>
+                                    <p className="text-sm text-red-600 mt-2">Click to stop recording</p>
+                                  </div>
+                                  
+                                  {/* Live Transcript Display */}
+                                  {interimTranscript && (
+                                    <div className="bg-white border border-slate-200 rounded-xl p-4 max-w-md mx-auto shadow-lg">
+                                      <p className="text-sm text-slate-600 mb-2">Live transcription:</p>
+                                      <p className="text-slate-800 font-medium italic">
+                                        "{interimTranscript}"
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
 
                       {isProcessing && (
                         <div className="space-y-3">
@@ -184,14 +198,21 @@ export function MVPHomeScreen({
                         </div>
                       )}
 
-                      {!isRecording && !isProcessing && (
-                        <div className="bg-white/90 backdrop-blur-sm border border-slate-200 rounded-2xl p-6 max-w-md mx-auto shadow-lg">
-                          <h2 className="text-2xl font-bold text-slate-900 mb-2">Ready to Record</h2>
-                          <p className="text-base text-slate-600">
-                            Click the microphone to start AI-powered transcription
-                          </p>
-                        </div>
-                      )}
+              {!isRecording && !isProcessing && (
+                <div className="bg-white/90 backdrop-blur-sm border border-slate-200 rounded-2xl p-6 max-w-md mx-auto shadow-lg">
+                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Ready to Record</h2>
+                  <p className="text-base text-slate-600 mb-3">
+                    Click the microphone to start AI-powered transcription
+                  </p>
+                  {!voiceSupported && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                      <p className="text-sm text-yellow-800">
+                        ⚠️ Voice recognition not supported. Use manual text input instead.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
                     </div>
                   </>
                 )}
@@ -388,6 +409,16 @@ export function MVPHomeScreen({
                       </div>
                       <p className="text-xs text-red-600 mt-1">Tap to stop</p>
                     </div>
+                    
+                    {/* Live Transcript Display for Mobile */}
+                    {interimTranscript && (
+                      <div className="bg-white border border-slate-200 rounded-xl p-3 max-w-sm mx-auto shadow-lg">
+                        <p className="text-xs text-slate-600 mb-1">Live transcription:</p>
+                        <p className="text-slate-800 font-medium italic text-sm">
+                          "{interimTranscript}"
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -407,9 +438,16 @@ export function MVPHomeScreen({
                 {!isRecording && !isProcessing && (
                   <div className="bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl p-4 max-w-sm mx-auto shadow-lg">
                     <h2 className="text-lg font-bold text-slate-900 mb-1">Ready to Record</h2>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-slate-600 mb-2">
                       Tap microphone for AI-powered transcription
                     </p>
+                    {!voiceSupported && (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2">
+                        <p className="text-xs text-yellow-800">
+                          ⚠️ Voice not supported. Use manual input.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Mic, FileText, Download, Settings, Stethoscope } from 'lucide-react';
+import { Mic, FileText, Download, Settings, Stethoscope, Menu } from 'lucide-react';
 import { MobileHeader } from '@/components/MobileHeader';
+import { MobileBottomToolbar } from '@/components/MobileBottomToolbar';
+import { SimpleMobileHeader } from '@/components/SimpleMobileHeader';
 import { PowerfulHeader } from '@/components/PowerfulHeader';
 import { MVPHomeScreen } from '@/components/MVPHomeScreen';
 import { MVPDraftScreen } from '@/components/MVPDraftScreen';
@@ -8,6 +10,8 @@ import { MVPExportScreen } from '@/components/MVPExportScreen';
 import { MVPSettingsScreen } from '@/components/MVPSettingsScreen';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { voiceRecognitionService } from '@/lib/realVoiceRecognition';
 import { toast } from 'sonner';
 
 type Screen = 'home' | 'draft' | 'export' | 'settings';
@@ -26,6 +30,11 @@ export function MVPApp() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [recordingInterval, setRecordingInterval] = useState<NodeJS.Timeout | null>(null);
+  
+  // Voice recognition state
+  const [voiceSupported, setVoiceSupported] = useState(false);
+  const [interimTranscript, setInterimTranscript] = useState('');
+  const [finalTranscript, setFinalTranscript] = useState('');
   
   // Note data
   const [transcript, setTranscript] = useState('');
@@ -46,10 +55,122 @@ export function MVPApp() {
     const analytics = JSON.parse(localStorage.getItem('nursescribe_analytics') || '{"totalNotes": 0, "totalTimeSaved": 0}');
     localStorage.setItem('nursescribe_analytics', JSON.stringify(analytics));
 
+    // Initialize voice recognition service
+    const initializeVoiceRecognition = async () => {
+      try {
+        // Check if voice recognition is supported
+        const isSupported = voiceRecognitionService.getIsSupported();
+        setVoiceSupported(isSupported);
+
+        if (isSupported) {
+          // Request microphone permissions
+          const hasPermission = await voiceRecognitionService.requestMicrophonePermissions();
+          
+          if (hasPermission) {
+            // Set up voice recognition callbacks
+            voiceRecognitionService.setCallbacks({
+              onResult: (result) => {
+                if (result.isFinal) {
+                  setFinalTranscript(result.transcript);
+                  setTranscript(result.transcript);
+                  setInterimTranscript('');
+                  
+                  // Stop processing when we get final result
+                  setIsProcessing(false);
+                  
+                  toast.success('Voice recognition completed!', {
+                    description: `Confidence: ${Math.round(result.confidence * 100)}%`
+                  });
+                } else {
+                  // Update interim transcript
+                  setInterimTranscript(result.transcript);
+                  setTranscript(finalTranscript + ' ' + result.transcript);
+                }
+              },
+              onError: (error) => {
+                console.error('Voice recognition error:', error);
+                setIsRecording(false);
+                setIsProcessing(false);
+                
+                let errorMessage = 'Voice recognition error';
+                switch (error) {
+                  case 'no-speech':
+                    errorMessage = 'No speech detected. Please try again.';
+                    break;
+                  case 'audio-capture':
+                    errorMessage = 'Microphone access denied. Please allow microphone access.';
+                    break;
+                  case 'not-allowed':
+                    errorMessage = 'Microphone access denied. Please allow microphone access.';
+                    break;
+                  case 'network':
+                    errorMessage = 'Network error. Please check your connection.';
+                    break;
+                  default:
+                    errorMessage = `Voice recognition error: ${error}`;
+                }
+                
+                toast.error(errorMessage);
+              },
+              onStart: () => {
+                console.log('Voice recognition started');
+                setIsRecording(true);
+                setRecordingTime(0);
+                setInterimTranscript('');
+                setFinalTranscript('');
+                setTranscript('');
+                
+                // Start recording timer
+                const interval = setInterval(() => {
+                  setRecordingTime(prev => prev + 1);
+                }, 1000);
+                setRecordingInterval(interval);
+                
+                toast.success('Listening...', {
+                  description: 'Speak clearly into your microphone'
+                });
+              },
+              onEnd: () => {
+                console.log('Voice recognition ended');
+                setIsRecording(false);
+                
+                // Clear recording timer
+                if (recordingInterval) {
+                  clearInterval(recordingInterval);
+                  setRecordingInterval(null);
+                }
+                
+                // Start processing if we have a transcript
+                if (transcript.trim()) {
+                  setIsProcessing(true);
+                }
+              }
+            });
+            
+            console.log('Voice recognition service initialized successfully');
+          } else {
+            toast.error('Microphone access is required for voice recognition');
+          }
+        } else {
+          toast.error('Voice recognition not supported in this browser');
+        }
+      } catch (error) {
+        console.error('Failed to initialize voice recognition:', error);
+        toast.error('Failed to initialize voice recognition');
+      }
+    };
+
+    initializeVoiceRecognition();
+
     return () => {
       // Cleanup recording interval
       if (recordingInterval) {
         clearInterval(recordingInterval);
+      }
+      
+      // Stop any ongoing voice recognition
+      if (voiceRecognitionService.getIsListening()) {
+        voiceRecognitionService.stopListening();
       }
     };
   }, []);
@@ -80,85 +201,69 @@ export function MVPApp() {
     setCurrentScreen(screen as Screen);
   };
 
-  // Start recording
-  const handleStartRecording = () => {
-    setIsRecording(true);
-    setRecordingTime(0);
-    setTranscript('');
-    
-    // Start recording timer
-    const interval = setInterval(() => {
-      setRecordingTime(prev => prev + 1);
-    }, 1000);
-    setRecordingInterval(interval);
-
-    // Simulate voice recognition (in real app, this would use Web Speech API)
-    setTimeout(() => {
-      setTranscript("Patient presents with chest pain, vital signs stable, pain level 6/10, no shortness of breath. Patient reports the pain started this morning and is described as sharp and stabbing. No radiation to arms or jaw. No nausea or vomiting. Patient denies any recent trauma or injury.");
-    }, 3000);
-
-    toast.success('Recording started', {
-      description: 'Speak clearly into your microphone'
-    });
-  };
-
-  // Stop recording
-  const handleStopRecording = () => {
-    setIsRecording(false);
-    
-    // Clear recording timer
-    if (recordingInterval) {
-      clearInterval(recordingInterval);
-      setRecordingInterval(null);
+  // Start recording with real voice recognition
+  const handleStartRecording = async () => {
+    if (!voiceSupported) {
+      toast.error('Voice recognition not supported in this browser');
+      return;
     }
 
-    // Start processing
-    setIsProcessing(true);
-    
-    // Simulate processing time
-    setTimeout(() => {
-      setIsProcessing(false);
-      toast.success('Recording processed!', {
-        description: 'Ready to review your note'
-      });
-    }, 2000);
+    try {
+      await voiceRecognitionService.startListening();
+      // The callbacks will handle the UI updates
+    } catch (error) {
+      console.error('Failed to start voice recognition:', error);
+      toast.error('Failed to start voice recognition');
+    }
+  };
+
+  // Stop recording with real voice recognition
+  const handleStopRecording = () => {
+    if (voiceRecognitionService.getIsListening()) {
+      voiceRecognitionService.stopListening();
+      // The callbacks will handle the UI updates
+    }
   };
 
   // Handle manual text input
   const handleManualTextSubmit = async (text: string) => {
-    setIsProcessing(true);
     setTranscript(text);
+    setFinalTranscript(text);
+    setInterimTranscript('');
+    setIsProcessing(false);
     
-    // Simulate processing time
-    setTimeout(() => {
-      setIsProcessing(false);
-      toast.success('Text processed!', {
-        description: 'Ready to review your note'
-      });
-    }, 2000);
+    toast.success('Text processed!', {
+      description: 'Ready to review your note'
+    });
   };
 
   // Handle paste text input
   const handlePasteTextSubmit = async (text: string) => {
-    setIsProcessing(true);
     setTranscript(text);
+    setFinalTranscript(text);
+    setInterimTranscript('');
+    setIsProcessing(false);
     
-    // Simulate processing time
-    setTimeout(() => {
-      setIsProcessing(false);
-      toast.success('Text imported!', {
-        description: 'Ready to review your note'
-      });
-    }, 1500);
+    toast.success('Text imported!', {
+      description: 'Ready to review your note'
+    });
   };
 
   // Handle new note creation
   const handleNewNote = () => {
     setTranscript('');
+    setFinalTranscript('');
+    setInterimTranscript('');
     setIsRecording(false);
     setIsProcessing(false);
     setRecordingTime(0);
     setCurrentScreen('home');
+    
+    // Stop any ongoing voice recognition
+    if (voiceRecognitionService.getIsListening()) {
+      voiceRecognitionService.stopListening();
+    }
+    
     toast.info('Starting new note');
   };
 
@@ -216,6 +321,8 @@ export function MVPApp() {
             isProcessing={isProcessing}
             recordingTime={recordingTime}
             transcript={transcript}
+            interimTranscript={interimTranscript}
+            voiceSupported={voiceSupported}
           />
         );
       
@@ -384,12 +491,10 @@ export function MVPApp() {
 
       {/* Mobile/Tablet Layout */}
       <div className="lg:hidden">
-        <div className="h-screen flex flex-col bg-background">
-          {/* Mobile Navigation - Only show on mobile */}
+        <div className="h-screen flex flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+          {/* Mobile Header - Only show on mobile */}
           <div className="md:hidden">
-            <MobileHeader
-              currentScreen={currentScreen}
-              onNavigate={handleNavigate}
+            <SimpleMobileHeader
               onNewNote={handleNewNote}
               isRecording={isRecording}
               isProcessing={isProcessing}
@@ -415,12 +520,19 @@ export function MVPApp() {
           </div>
 
           {/* Mobile/Tablet Content */}
-          <main className="flex-1 overflow-hidden">
+          <main className="flex-1 overflow-hidden pb-20 md:pb-0">
             {renderCurrentScreen()}
           </main>
 
-          {/* Bottom Safe Area for Mobile */}
-          <div className="h-safe-area-inset-bottom bg-background" />
+          {/* Mobile Bottom Toolbar - Only show on mobile */}
+          <div className="md:hidden">
+            <MobileBottomToolbar
+              currentScreen={currentScreen}
+              onNavigate={handleNavigate}
+              isRecording={isRecording}
+              isProcessing={isProcessing}
+            />
+          </div>
         </div>
       </div>
     </div>
