@@ -494,6 +494,12 @@ export function MVPApp() {
       return;
     }
 
+    // Prevent rapid toggling
+    if (isRecording || isProcessing) {
+      console.log('🎤 Already recording or processing, ignoring request');
+      return;
+    }
+
     try {
       // Request microphone permission first
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -528,6 +534,14 @@ export function MVPApp() {
 
   // Stop recording with real voice recognition
   const handleStopRecording = () => {
+    console.log('🎤 Stopping voice recording...');
+    
+    // Only stop if actually recording
+    if (!isRecording && !voiceRecognitionService.getIsListening()) {
+      console.log('🎤 Not currently recording, ignoring stop request');
+      return;
+    }
+    
     if (voiceRecognitionService.getIsListening()) {
       voiceRecognitionService.stopListening();
       // The callbacks will handle the UI updates

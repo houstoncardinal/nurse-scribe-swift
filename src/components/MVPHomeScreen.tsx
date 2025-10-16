@@ -172,21 +172,6 @@ export function MVPHomeScreen({
                                   onStartRecording();
                                 }
                               }}
-                              onTouchStart={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                console.log('🎤 Desktop microphone button touch start, isRecording:', isRecording);
-                              }}
-                              onTouchEnd={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                console.log('🎤 Desktop microphone button touch end, isRecording:', isRecording);
-                                if (isRecording) {
-                                  onStopRecording();
-                                } else {
-                                  onStartRecording();
-                                }
-                              }}
                               disabled={isProcessing}
                               type="button"
                             >
@@ -598,21 +583,6 @@ export function MVPHomeScreen({
                       e.preventDefault();
                       e.stopPropagation();
                       console.log('🎤 Microphone button clicked, isRecording:', isRecording);
-                      if (isRecording) {
-                        onStopRecording();
-                      } else {
-                        onStartRecording();
-                      }
-                    }}
-                    onTouchStart={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log('🎤 Microphone button touch start, isRecording:', isRecording);
-                    }}
-                    onTouchEnd={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log('🎤 Microphone button touch end, isRecording:', isRecording);
                       if (isRecording) {
                         onStopRecording();
                       } else {
