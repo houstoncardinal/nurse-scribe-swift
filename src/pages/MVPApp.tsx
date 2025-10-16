@@ -17,6 +17,9 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { enhancedVoiceRecognitionService as voiceRecognitionService } from '@/lib/enhancedVoiceRecognition';
 import { PowerfulAdminDashboard } from '@/components/PowerfulAdminDashboard';
 import { InstructionsPage } from '@/components/InstructionsPage';
+import { knowledgeBaseService } from '@/lib/knowledgeBase';
+import { enhancedAIService } from '@/lib/enhancedAIService';
+import { performanceService } from '@/lib/performanceService';
 import { toast } from 'sonner';
 
 type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'history' | 'admin' | 'instructions';
@@ -142,6 +145,15 @@ export function MVPApp() {
     const analytics = JSON.parse(localStorage.getItem('nursescribe_analytics') || '{"totalNotes": 0, "totalTimeSaved": 0}');
     localStorage.setItem('nursescribe_analytics', JSON.stringify(analytics));
 
+    // Initialize performance monitoring
+    const performanceMetrics = performanceService.getMetrics();
+    console.log('Performance metrics initialized:', performanceMetrics);
+    
+    // Prefetch knowledge base data
+    performanceService.prefetch('knowledge-base-stats', () => 
+      Promise.resolve(knowledgeBaseService.getKnowledgeStats())
+    );
+
     // Initialize voice recognition service
     const initializeVoiceRecognition = async () => {
       try {
@@ -158,20 +170,28 @@ export function MVPApp() {
             voiceRecognitionService.setCallbacks({
               onResult: (result) => {
                 if (result.isFinal) {
-                  setFinalTranscript(result.transcript);
-                  setTranscript(result.transcript);
+                  // Optimize transcript using knowledge base
+                  const optimizedTranscript = enhancedAIService.optimizeVoiceInput(result.transcript);
+                  
+                  setFinalTranscript(optimizedTranscript);
+                  setTranscript(optimizedTranscript);
                   setInterimTranscript('');
                   
                   // Stop processing when we get final result
                   setIsProcessing(false);
                   
+                  // Analyze the transcript for medical terms
+                  const analysis = enhancedAIService.analyzeInput(optimizedTranscript);
+                  const medicalTermsCount = analysis.medicalTerms.length;
+                  
                   toast.success('Voice recognition completed!', {
-                    description: `Confidence: ${Math.round(result.confidence * 100)}%`
+                    description: `Confidence: ${Math.round(result.confidence * 100)}% | Medical terms: ${medicalTermsCount}`
                   });
                 } else {
-                  // Update interim transcript
-                  setInterimTranscript(result.transcript);
-                  setTranscript(finalTranscript + ' ' + result.transcript);
+                  // Update interim transcript with optimization
+                  const optimizedInterim = enhancedAIService.optimizeVoiceInput(result.transcript);
+                  setInterimTranscript(optimizedInterim);
+                  setTranscript(finalTranscript + ' ' + optimizedInterim);
                 }
               },
               onError: (error) => {
@@ -464,28 +484,121 @@ export function MVPApp() {
     }
   };
 
-  // Handle manual text input
+  // Handle manual text input with AI enhancement
   const handleManualTextSubmit = async (text: string) => {
-    setTranscript(text);
-    setFinalTranscript(text);
-    setInterimTranscript('');
-    setIsProcessing(false);
+    setIsProcessing(true);
     
-    toast.success('Text processed!', {
-      description: 'Ready to review your note'
-    });
+    try {
+      // Optimize voice input using knowledge base
+      const optimizedText = enhancedAIService.optimizeVoiceInput(text);
+      
+      // Generate enhanced note using AI service
+      const aiPrompt = {
+        template: selectedTemplate as 'SOAP' | 'SBAR' | 'PIE' | 'DAR',
+        input: optimizedText,
+        context: {
+          patientAge: userProfile.stats?.totalNotes ? undefined : undefined, // Add context as needed
+          chiefComplaint: optimizedText.substring(0, 100) // Extract from input
+        }
+      };
+
+      const generatedNote = await performanceService.queueRequest(() => 
+        enhancedAIService.generateNote(aiPrompt)
+      );
+
+      // Set the generated content
+      setTranscript(text);
+      setFinalTranscript(text);
+      setInterimTranscript('');
+      
+      // Store AI-generated note content
+      const noteContent: NoteContent = {};
+      Object.entries(generatedNote.sections).forEach(([section, data]) => {
+        noteContent[section.toLowerCase()] = data.content;
+      });
+      setNoteContent(noteContent);
+      setEditedNoteContent(noteContent);
+
+      // Show success with AI insights
+      toast.success('AI-Enhanced Note Generated!', {
+        description: `Confidence: ${Math.round(generatedNote.overallConfidence * 100)}% | Quality: ${Math.round(generatedNote.qualityScore * 100)}%`
+      });
+
+      // Navigate to draft screen
+      handleNavigate('draft');
+      
+    } catch (error) {
+      console.error('AI note generation failed:', error);
+      
+      // Fallback to basic processing
+      setTranscript(text);
+      setFinalTranscript(text);
+      setInterimTranscript('');
+      
+      toast.success('Text processed!', {
+        description: 'Ready to review your note (basic mode)'
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  // Handle paste text input
+  // Handle paste text input with AI enhancement
   const handlePasteTextSubmit = async (text: string) => {
-    setTranscript(text);
-    setFinalTranscript(text);
-    setInterimTranscript('');
-    setIsProcessing(false);
+    setIsProcessing(true);
     
-    toast.success('Text imported!', {
-      description: 'Ready to review your note'
-    });
+    try {
+      // Optimize and analyze pasted text
+      const optimizedText = enhancedAIService.optimizeVoiceInput(text);
+      
+      // Generate enhanced note using AI service
+      const aiPrompt = {
+        template: selectedTemplate as 'SOAP' | 'SBAR' | 'PIE' | 'DAR',
+        input: optimizedText,
+        context: {
+          chiefComplaint: 'Pasted from EHR'
+        }
+      };
+
+      const generatedNote = await performanceService.queueRequest(() => 
+        enhancedAIService.generateNote(aiPrompt)
+      );
+
+      // Set the generated content
+      setTranscript(text);
+      setFinalTranscript(text);
+      setInterimTranscript('');
+      
+      // Store AI-generated note content
+      const noteContent: NoteContent = {};
+      Object.entries(generatedNote.sections).forEach(([section, data]) => {
+        noteContent[section.toLowerCase()] = data.content;
+      });
+      setNoteContent(noteContent);
+      setEditedNoteContent(noteContent);
+
+      // Show success with AI insights
+      toast.success('AI-Enhanced Note Generated!', {
+        description: `Confidence: ${Math.round(generatedNote.overallConfidence * 100)}% | ICD-10: ${generatedNote.icd10Suggestions.length} suggestions`
+      });
+
+      // Navigate to draft screen
+      handleNavigate('draft');
+      
+    } catch (error) {
+      console.error('AI note generation failed:', error);
+      
+      // Fallback to basic processing
+      setTranscript(text);
+      setFinalTranscript(text);
+      setInterimTranscript('');
+      
+      toast.success('Text imported!', {
+        description: 'Ready to review your note (basic mode)'
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // Handle new note creation
