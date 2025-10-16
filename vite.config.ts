@@ -15,4 +15,39 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    // Enable cache busting with content hashes
+    rollupOptions: {
+      output: {
+        // Add timestamp to chunk names for cache busting
+        chunkFileNames: (chunkInfo) => {
+          const timestamp = Date.now();
+          return `assets/[name]-${timestamp}-[hash].js`;
+        },
+        entryFileNames: (chunkInfo) => {
+          const timestamp = Date.now();
+          return `assets/[name]-${timestamp}-[hash].js`;
+        },
+        assetFileNames: (assetInfo) => {
+          const timestamp = Date.now();
+          const extType = assetInfo.name?.split('.').at(1);
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType ?? '')) {
+            return `assets/images/[name]-${timestamp}-[hash].[ext]`;
+          }
+          if (/css/i.test(extType ?? '')) {
+            return `assets/css/[name]-${timestamp}-[hash].[ext]`;
+          }
+          return `assets/[name]-${timestamp}-[hash].[ext]`;
+        },
+      },
+    },
+    // Generate manifest for cache busting
+    manifest: true,
+    // Ensure proper source maps for debugging
+    sourcemap: mode === "development",
+  },
+  // Add cache busting for development
+  define: {
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+  },
 }));

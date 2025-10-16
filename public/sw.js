@@ -3,9 +3,11 @@
  * Provides offline functionality, caching, and background sync
  */
 
-const CACHE_NAME = 'nursescribe-v1.0.0';
-const STATIC_CACHE = 'nursescribe-static-v1';
-const DYNAMIC_CACHE = 'nursescribe-dynamic-v1';
+// Generate dynamic cache names with timestamp for cache busting
+const TIMESTAMP = Date.now();
+const CACHE_NAME = `nursescribe-v1.0.0-${TIMESTAMP}`;
+const STATIC_CACHE = `nursescribe-static-v1-${TIMESTAMP}`;
+const DYNAMIC_CACHE = `nursescribe-dynamic-v1-${TIMESTAMP}`;
 
 // Files to cache for offline functionality
 const STATIC_FILES = [
