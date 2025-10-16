@@ -40,7 +40,8 @@ export function MVPHomeScreen({
   interimTranscript = '',
   voiceSupported = true
 }: MVPHomeScreenProps) {
-  const [localSelectedTemplate, setLocalSelectedTemplate] = useState(selectedTemplate);
+  // Use the prop value directly - no need for local state
+  const currentTemplate = selectedTemplate;
   const [showInputSelector, setShowInputSelector] = useState(false);
 
   const templates = [
@@ -92,8 +93,7 @@ export function MVPHomeScreen({
                       {/* Desktop Template Selector - Compact */}
                       <div className="max-w-xl mx-auto">
                         <Label className="text-sm font-semibold text-slate-700 mb-2 block">Select Note Template</Label>
-                        <Select value={localSelectedTemplate} onValueChange={(value) => {
-                          setLocalSelectedTemplate(value);
+                        <Select value={currentTemplate} onValueChange={(value) => {
                           onTemplateChange(value);
                         }}>
                           <SelectTrigger className="w-full h-12 text-sm bg-white border-2 border-slate-200 hover:border-teal-300 focus:border-teal-500 transition-colors shadow-md">
@@ -135,6 +135,7 @@ export function MVPHomeScreen({
                         setShowInputSelector(false);
                       }}
                       isProcessing={isProcessing}
+                      selectedTemplate={currentTemplate}
                     />
                   </div>
                 ) : (
@@ -495,8 +496,7 @@ export function MVPHomeScreen({
 
             {/* Mobile Template Selector - Compact */}
             <div className="max-w-xs mx-auto">
-              <Select value={localSelectedTemplate} onValueChange={(value) => {
-                setLocalSelectedTemplate(value);
+              <Select value={currentTemplate} onValueChange={(value) => {
                 onTemplateChange(value);
               }}>
                 <SelectTrigger className="w-full h-9 text-xs bg-white border border-slate-200 hover:border-teal-300 focus:border-teal-500 transition-colors shadow-sm">
@@ -537,7 +537,7 @@ export function MVPHomeScreen({
                   setShowInputSelector(false);
                 }}
                 isProcessing={isProcessing}
-                selectedTemplate={localSelectedTemplate}
+                selectedTemplate={currentTemplate}
               />
             </div>
           ) : (
