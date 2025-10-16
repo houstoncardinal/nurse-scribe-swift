@@ -163,9 +163,9 @@ export function MVPApp() {
         setVoiceSupported(isSupported);
 
         if (isSupported) {
-          // Configure voice service options - use Whisper as primary with CORS-friendly CDN
+          // Configure voice service options - use Whisper as primary with browser fallback
           voiceRecognitionService.setOptions({
-            useWhisper: true, // Re-enable Whisper with CORS-friendly CDN
+            useWhisper: true, // Re-enable Whisper for production use
             fallbackToBrowser: true,
             language: 'en-US',
             maxRecordingTime: 60

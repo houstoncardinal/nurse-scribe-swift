@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { InputMethodSelector } from '@/components/InputMethodSelector';
-import { VoiceDebugPanel } from '@/components/VoiceDebugPanel';
 
 interface MVPHomeScreenProps {
   onNavigate: (screen: string) => void;
@@ -44,7 +43,6 @@ export function MVPHomeScreen({
   // Use the prop value directly - no need for local state
   const currentTemplate = selectedTemplate;
   const [showInputSelector, setShowInputSelector] = useState(false);
-  const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   const templates = [
     { value: 'SOAP', label: 'SOAP (Subjective, Objective, Assessment, Plan)' },
@@ -506,15 +504,21 @@ export function MVPHomeScreen({
               <p className="text-xs text-slate-600">Professional AI-powered documentation</p>
             </div>
 
-            {/* Mobile Template Selector - Compact */}
-            <div className="max-w-xs mx-auto">
+            {/* Mobile Template Selector - Fixed Overflow */}
+            <div className="w-full max-w-xs mx-auto px-4">
               <Select value={currentTemplate} onValueChange={(value) => {
                 onTemplateChange(value);
               }}>
                 <SelectTrigger className="w-full h-9 text-xs bg-white border border-slate-200 hover:border-teal-300 focus:border-teal-500 transition-colors shadow-sm">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white border border-slate-200 shadow-xl">
+                <SelectContent 
+                  className="bg-white border border-slate-200 shadow-xl"
+                  position="popper"
+                  side="bottom"
+                  align="center"
+                  sideOffset={4}
+                >
                   {templates.map((template) => (
                     <SelectItem key={template.value} value={template.value} className="hover:bg-teal-50">
                       <div className="flex items-center gap-2">
@@ -825,22 +829,6 @@ export function MVPHomeScreen({
         </div>
       </div>
 
-      {/* Debug Panel */}
-      <VoiceDebugPanel 
-        isVisible={showDebugPanel} 
-        onClose={() => setShowDebugPanel(false)} 
-      />
-      
-      {/* Debug Button (only visible in development) */}
-      {process.env.NODE_ENV === 'development' && (
-        <Button
-          onClick={() => setShowDebugPanel(!showDebugPanel)}
-          className="fixed bottom-4 left-4 z-40 bg-red-500 hover:bg-red-600 text-white shadow-lg"
-          size="sm"
-        >
-          🐛 Debug Voice
-        </Button>
-      )}
     </div>
   );
 }

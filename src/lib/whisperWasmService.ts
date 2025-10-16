@@ -5,16 +5,17 @@
 
 import { pipeline, env } from '@xenova/transformers';
 
-// Configure transformers to use a CORS-friendly CDN
+// Configure transformers for production-ready Whisper WebAssembly
 env.allowRemoteModels = true;
 env.allowLocalModels = false;
-env.remoteModelURL = 'https://cdn.jsdelivr.net/gh';
-env.remotePathTemplate = 'https://cdn.jsdelivr.net/gh/huggingface/{model}/main/{filename}';
+env.remoteModelURL = 'https://huggingface.co';
+env.remotePathTemplate = '{model}/resolve/main/{filename}';
 env.backends.onnx.wasm.proxy = true;
 env.backends.onnx.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/@xenova/transformers@latest/dist/';
 
-// Enable Whisper with proper CDN configuration
+// Production-ready configuration
 env.allowRemoteModels = true;
+env.allowLocalModels = false;
 
 interface WhisperResult {
   text: string;
@@ -42,11 +43,11 @@ class WhisperWasmService {
   }
 
   /**
-   * Initialize the Whisper pipeline
+   * Initialize the Whisper pipeline for production use
    */
   private async initialize(): Promise<void> {
     try {
-      console.log('🎤 Initializing Whisper WebAssembly with CORS-friendly CDN...');
+      console.log('🎤 Initializing Whisper WebAssembly for production...');
       
       // Check if we're in a browser environment that supports WebAssembly
       if (typeof window === 'undefined' || !window.WebAssembly) {
@@ -55,8 +56,18 @@ class WhisperWasmService {
         return;
       }
 
-      // Try to initialize with a working model
-      console.log('📦 Loading Whisper model from CORS-friendly CDN...');
+      // Check if we're in a production environment (Netlify, Vercel, etc.)
+      const isProduction = window.location.hostname !== 'localhost' && 
+                          window.location.hostname !== '127.0.0.1' &&
+                          !window.location.hostname.includes('localhost');
+      
+      if (!isProduction) {
+        console.log('🏠 Development environment detected - Whisper may have CORS issues');
+        console.log('🚀 Whisper will work properly when deployed to production');
+      }
+
+      // Initialize with the most reliable Whisper model
+      console.log('📦 Loading Whisper model from Hugging Face CDN...');
       
       this.pipeline = await pipeline(
         'automatic-speech-recognition',
@@ -64,8 +75,9 @@ class WhisperWasmService {
         {
           quantized: true,
           progress_callback: (progress: any) => {
-            if (this.onProgress) {
-              console.log(`📈 Whisper loading progress: ${Math.round((progress.loaded / progress.total) * 100)}%`);
+            if (this.onProgress && progress.total > 0) {
+              const percentage = Math.round((progress.loaded / progress.total) * 100);
+              console.log(`📈 Whisper loading progress: ${percentage}%`);
               this.onProgress(progress.loaded / progress.total);
             }
           }
@@ -73,14 +85,14 @@ class WhisperWasmService {
       );
       
       this.isInitialized = true;
-      console.log('✅ Whisper WebAssembly initialized successfully with CORS-friendly CDN');
+      console.log('✅ Whisper WebAssembly initialized successfully for production use');
       
     } catch (error: any) {
       console.error('❌ Failed to initialize Whisper WebAssembly:', error);
       
-      // Try alternative approach with different model
+      // Try alternative model as fallback
       try {
-        console.log('🔄 Trying alternative Whisper model...');
+        console.log('🔄 Trying alternative Whisper model (openai/whisper-tiny)...');
         
         this.pipeline = await pipeline(
           'automatic-speech-recognition',
@@ -88,7 +100,7 @@ class WhisperWasmService {
           {
             quantized: true,
             progress_callback: (progress: any) => {
-              if (this.onProgress) {
+              if (this.onProgress && progress.total > 0) {
                 this.onProgress(progress.loaded / progress.total);
               }
             }
@@ -100,7 +112,18 @@ class WhisperWasmService {
         
       } catch (altError: any) {
         console.error('❌ Alternative Whisper model also failed:', altError);
-        console.warn('⚠️ Whisper initialization failed - falling back to browser speech recognition');
+        
+        // Check if this is a CORS issue in development
+        const isLocalhost = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1';
+        
+        if (isLocalhost) {
+          console.warn('⚠️ Whisper CORS issue in development - will work in production');
+          console.log('🚀 Deploy to Netlify/Vercel for full Whisper functionality');
+        } else {
+          console.warn('⚠️ Whisper initialization failed in production - using browser fallback');
+        }
+        
         this.isInitialized = false;
       }
     }

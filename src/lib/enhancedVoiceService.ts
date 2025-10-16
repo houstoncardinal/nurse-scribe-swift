@@ -43,7 +43,7 @@ class EnhancedVoiceService {
   private silenceTimer: NodeJS.Timeout | null = null;
   private lastSpeechTime: number = 0;
   private options: RecordingOptions = {
-    useWhisper: true, // Re-enable Whisper with CORS-friendly CDN
+    useWhisper: true, // Re-enable Whisper for production use
     fallbackToBrowser: true,
     language: 'en-US',
     maxRecordingTime: 60, // 1 minute max
@@ -450,6 +450,38 @@ class EnhancedVoiceService {
       
       return false;
     }
+  }
+
+  /**
+   * Get the current voice recognition method being used
+   */
+  public getCurrentMethod(): 'whisper' | 'browser' | 'unknown' {
+    if (this.options.useWhisper && this.whisperService.isReady()) {
+      return 'whisper';
+    }
+    if (this.speechRecognition) {
+      return 'browser';
+    }
+    return 'unknown';
+  }
+
+  /**
+   * Get Whisper initialization status
+   */
+  public getWhisperStatus(): 'loading' | 'ready' | 'failed' | 'disabled' {
+    if (!this.options.useWhisper) return 'disabled';
+    if (this.whisperService.isReady()) return 'ready';
+    if (this.whisperService.isInitialized() === false) return 'failed';
+    return 'loading';
+  }
+
+  /**
+   * Get the current recording status
+   */
+  public getRecordingStatus(): 'idle' | 'recording' | 'processing' {
+    if (this.isRecording) return 'recording';
+    if (this.isProcessing) return 'processing';
+    return 'idle';
   }
 
   /**
