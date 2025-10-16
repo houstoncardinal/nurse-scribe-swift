@@ -1,0 +1,369 @@
+/**
+ * Service Worker for NurseScribe AI
+ * Provides offline functionality, caching, and background sync
+ */
+
+const CACHE_NAME = 'nursescribe-v1.0.0';
+const STATIC_CACHE = 'nursescribe-static-v1';
+const DYNAMIC_CACHE = 'nursescribe-dynamic-v1';
+
+// Files to cache for offline functionality
+const STATIC_FILES = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/favicon.ico',
+  '/placeholder.svg',
+  '/robots.txt'
+];
+
+// API endpoints to cache
+const API_CACHE_PATTERNS = [
+  /^\/api\/templates/,
+  /^\/api\/analytics/,
+  /^\/api\/education/,
+  /^\/api\/admin/
+];
+
+// Install event - cache static files
+self.addEventListener('install', (event) => {
+  console.log('Service Worker installing...');
+  
+  event.waitUntil(
+    caches.open(STATIC_CACHE)
+      .then((cache) => {
+        console.log('Caching static files');
+        return cache.addAll(STATIC_FILES);
+      })
+      .then(() => {
+        console.log('Static files cached successfully');
+        return self.skipWaiting();
+      })
+      .catch((error) => {
+        console.error('Failed to cache static files:', error);
+      })
+  );
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', (event) => {
+  console.log('Service Worker activating...');
+  
+  event.waitUntil(
+    caches.keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
+              console.log('Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+      .then(() => {
+        console.log('Service Worker activated');
+        return self.clients.claim();
+      })
+  );
+});
+
+// Fetch event - handle requests with caching strategies
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip non-GET requests
+  if (request.method !== 'GET') {
+    return;
+  }
+
+  // Handle different types of requests
+  if (isStaticFile(request.url)) {
+    // Static files - cache first strategy
+    event.respondWith(cacheFirst(request));
+  } else if (isAPIRequest(request.url)) {
+    // API requests - network first with cache fallback
+    event.respondWith(networkFirst(request));
+  } else if (isExternalRequest(request.url)) {
+    // External requests - network only
+    event.respondWith(networkOnly(request));
+  } else {
+    // Default - stale while revalidate
+    event.respondWith(staleWhileRevalidate(request));
+  }
+});
+
+// Background sync for offline data
+self.addEventListener('sync', (event) => {
+  console.log('Background sync triggered:', event.tag);
+  
+  if (event.tag === 'offline-notes') {
+    event.waitUntil(syncOfflineNotes());
+  } else if (event.tag === 'analytics') {
+    event.waitUntil(syncAnalytics());
+  } else if (event.tag === 'education-progress') {
+    event.waitUntil(syncEducationProgress());
+  }
+});
+
+// Push notifications for updates
+self.addEventListener('push', (event) => {
+  console.log('Push notification received');
+  
+  const options = {
+    body: event.data ? event.data.text() : 'New update available for NurseScribe AI',
+    icon: '/placeholder.svg',
+    badge: '/placeholder.svg',
+    vibrate: [200, 100, 200],
+    data: {
+      dateOfArrival: Date.now(),
+      primaryKey: 1
+    },
+    actions: [
+      {
+        action: 'explore',
+        title: 'View Update',
+        icon: '/placeholder.svg'
+      },
+      {
+        action: 'close',
+        title: 'Close',
+        icon: '/placeholder.svg'
+      }
+    ]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification('NurseScribe AI', options)
+  );
+});
+
+// Notification click handler
+self.addEventListener('notificationclick', (event) => {
+  console.log('Notification clicked:', event.action);
+  
+  event.notification.close();
+
+  if (event.action === 'explore') {
+    event.waitUntil(
+      clients.openWindow('/')
+    );
+  }
+});
+
+// Cache strategies
+async function cacheFirst(request) {
+  try {
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(STATIC_CACHE);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    console.error('Cache first strategy failed:', error);
+    return new Response('Offline - Resource not available', { status: 503 });
+  }
+}
+
+async function networkFirst(request) {
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(DYNAMIC_CACHE);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    console.log('Network failed, trying cache:', error);
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    return new Response('Offline - API not available', { status: 503 });
+  }
+}
+
+async function networkOnly(request) {
+  try {
+    return await fetch(request);
+  } catch (error) {
+    console.error('Network only strategy failed:', error);
+    return new Response('Offline - External resource not available', { status: 503 });
+  }
+}
+
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(DYNAMIC_CACHE);
+  const cachedResponse = await cache.match(request);
+
+  const fetchPromise = fetch(request).then((networkResponse) => {
+    if (networkResponse.ok) {
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  }).catch((error) => {
+    console.error('Stale while revalidate network failed:', error);
+    return null;
+  });
+
+  return cachedResponse || await fetchPromise;
+}
+
+// Helper functions
+function isStaticFile(url) {
+  return STATIC_FILES.some(file => url.includes(file)) ||
+         url.includes('.js') ||
+         url.includes('.css') ||
+         url.includes('.png') ||
+         url.includes('.jpg') ||
+         url.includes('.svg') ||
+         url.includes('.ico');
+}
+
+function isAPIRequest(url) {
+  return API_CACHE_PATTERNS.some(pattern => pattern.test(url)) ||
+         url.includes('/api/');
+}
+
+function isExternalRequest(url) {
+  return url.startsWith('https://api.openai.com') ||
+         url.startsWith('https://api.elevenlabs.io') ||
+         url.startsWith('https://supabase.co');
+}
+
+// Background sync functions
+async function syncOfflineNotes() {
+  try {
+    // Get offline notes from IndexedDB
+    const offlineNotes = await getOfflineNotes();
+    
+    for (const note of offlineNotes) {
+      try {
+        // Attempt to sync each note
+        await fetch('/api/notes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(note)
+        });
+        
+        // Remove from offline storage if successful
+        await removeOfflineNote(note.id);
+        console.log('Synced offline note:', note.id);
+      } catch (error) {
+        console.error('Failed to sync note:', note.id, error);
+      }
+    }
+  } catch (error) {
+    console.error('Background sync for notes failed:', error);
+  }
+}
+
+async function syncAnalytics() {
+  try {
+    // Get offline analytics from localStorage
+    const offlineAnalytics = localStorage.getItem('nursescribe_offline_analytics');
+    
+    if (offlineAnalytics) {
+      const analytics = JSON.parse(offlineAnalytics);
+      
+      await fetch('/api/analytics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(analytics)
+      });
+      
+      // Clear offline analytics after successful sync
+      localStorage.removeItem('nursescribe_offline_analytics');
+      console.log('Synced offline analytics');
+    }
+  } catch (error) {
+    console.error('Background sync for analytics failed:', error);
+  }
+}
+
+async function syncEducationProgress() {
+  try {
+    // Get offline education progress
+    const offlineProgress = localStorage.getItem('nursescribe_offline_education');
+    
+    if (offlineProgress) {
+      const progress = JSON.parse(offlineProgress);
+      
+      await fetch('/api/education/progress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(progress)
+      });
+      
+      // Clear offline progress after successful sync
+      localStorage.removeItem('nursescribe_offline_education');
+      console.log('Synced offline education progress');
+    }
+  } catch (error) {
+    console.error('Background sync for education progress failed:', error);
+  }
+}
+
+// IndexedDB helpers for offline storage
+async function getOfflineNotes() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('NurseScribeOffline', 1);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const db = request.result;
+      const transaction = db.transaction(['notes'], 'readonly');
+      const store = transaction.objectStore('notes');
+      const getAllRequest = store.getAll();
+      
+      getAllRequest.onsuccess = () => resolve(getAllRequest.result);
+      getAllRequest.onerror = () => reject(getAllRequest.error);
+    };
+    
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains('notes')) {
+        db.createObjectStore('notes', { keyPath: 'id' });
+      }
+    };
+  });
+}
+
+async function removeOfflineNote(noteId) {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('NurseScribeOffline', 1);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const db = request.result;
+      const transaction = db.transaction(['notes'], 'readwrite');
+      const store = transaction.objectStore('notes');
+      const deleteRequest = store.delete(noteId);
+      
+      deleteRequest.onsuccess = () => resolve();
+      deleteRequest.onerror = () => reject(deleteRequest.error);
+    };
+  });
+}
+
+// Health check endpoint for service worker
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'HEALTH_CHECK') {
+    event.ports[0].postMessage({ status: 'healthy', version: CACHE_NAME });
+  }
+});
+
+console.log('NurseScribe AI Service Worker loaded successfully');
