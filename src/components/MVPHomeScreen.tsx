@@ -15,6 +15,7 @@ interface MVPHomeScreenProps {
   onStopRecording: () => void;
   onManualTextSubmit: (text: string) => void;
   onPasteTextSubmit: (text: string) => void;
+  onTemplateChange: (template: string) => void;
   isRecording: boolean;
   isProcessing: boolean;
   recordingTime: number;
@@ -29,6 +30,7 @@ export function MVPHomeScreen({
   onStopRecording,
   onManualTextSubmit,
   onPasteTextSubmit,
+  onTemplateChange,
   isRecording,
   isProcessing,
   recordingTime,
@@ -65,8 +67,8 @@ export function MVPHomeScreen({
     notesThisWeek: 42
   };
 
-          return (
-            <div className="h-full flex flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+  return (
+    <div className="mvp-app bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
               {/* Desktop Layout */}
               <div className="hidden lg:flex lg:h-full">
                 <div className="flex-1 p-4 lg:p-6">
@@ -88,7 +90,10 @@ export function MVPHomeScreen({
                       {/* Desktop Template Selector - Compact */}
                       <div className="max-w-xl mx-auto">
                         <Label className="text-sm font-semibold text-slate-700 mb-2 block">Select Note Template</Label>
-                        <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                        <Select value={selectedTemplate} onValueChange={(value) => {
+                          setSelectedTemplate(value);
+                          onTemplateChange(value);
+                        }}>
                           <SelectTrigger className="w-full h-12 text-sm bg-white border-2 border-slate-200 hover:border-teal-300 focus:border-teal-500 transition-colors shadow-md">
                             <SelectValue />
                           </SelectTrigger>
@@ -448,35 +453,38 @@ export function MVPHomeScreen({
               </div>
 
       {/* Mobile/Tablet Layout */}
-      <div className="lg:hidden">
-        {/* Responsive Header Section - Compact */}
-        <div className="flex-shrink-0 p-4 pb-2">
+      <div className="lg:hidden mvp-screen">
+        {/* Mobile Header - iPhone 16 Optimized */}
+        <div className="flex-shrink-0 px-4 pt-4 pb-2 safe-area-top">
           <div className="text-center space-y-3">
-            {/* Responsive Hero - Compact */}
+            {/* Mobile Hero - Compact for iPhone */}
             <div className="space-y-2">
-              <div className="flex items-center justify-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/25">
-                  <Mic className="h-5 w-5 text-white" />
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                  <Mic className="h-4 w-4 text-white" />
                 </div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                   Start New Note
                 </h1>
               </div>
-              <p className="text-sm text-slate-600 font-medium">Professional AI-powered documentation</p>
+              <p className="text-xs text-slate-600">Professional AI-powered documentation</p>
             </div>
 
-            {/* Responsive Template Selector - Compact */}
-            <div className="max-w-sm mx-auto">
-              <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-                <SelectTrigger className="w-full h-10 text-sm bg-white border border-slate-200 hover:border-teal-300 focus:border-teal-500 transition-colors shadow-sm">
+            {/* Mobile Template Selector - Compact */}
+            <div className="max-w-xs mx-auto">
+              <Select value={selectedTemplate} onValueChange={(value) => {
+                setSelectedTemplate(value);
+                onTemplateChange(value);
+              }}>
+                <SelectTrigger className="w-full h-9 text-xs bg-white border border-slate-200 hover:border-teal-300 focus:border-teal-500 transition-colors shadow-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-white border border-slate-200 shadow-xl">
                   {templates.map((template) => (
                     <SelectItem key={template.value} value={template.value} className="hover:bg-teal-50">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full" />
-                        <span className="font-medium text-sm">{template.label}</span>
+                        <div className="w-1.5 h-1.5 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full" />
+                        <span className="font-medium text-xs">{template.label}</span>
                       </div>
                     </SelectItem>
                   ))}
@@ -486,8 +494,8 @@ export function MVPHomeScreen({
           </div>
         </div>
 
-        {/* Responsive Main Content Area - Full Height */}
-        <div className="flex-1 flex flex-col items-center justify-center p-4 space-y-4">
+        {/* Mobile Main Content Area - iPhone 16 Optimized */}
+        <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 space-y-4 overflow-y-auto">
           {showInputSelector ? (
             <div className="w-full max-w-2xl">
               <InputMethodSelector
@@ -525,7 +533,7 @@ export function MVPHomeScreen({
                   {/* Responsive Main Button - Larger */}
                   <Button
                     size="lg"
-                    className={`w-32 h-32 md:w-40 md:h-40 rounded-full shadow-2xl transition-all duration-500 transform hover:scale-105 active:scale-95 ${
+                    className={`w-28 h-28 sm:w-32 sm:h-32 rounded-full shadow-2xl transition-all duration-500 transform hover:scale-105 active:scale-95 ${
                       isRecording 
                         ? 'bg-gradient-to-br from-red-500 via-pink-600 to-red-600 hover:from-red-600 hover:via-pink-700 hover:to-red-700 shadow-red-500/30' 
                         : 'bg-gradient-to-br from-teal-500 via-blue-600 to-teal-600 hover:from-teal-600 hover:via-blue-700 hover:to-teal-700 shadow-teal-500/30'
@@ -534,14 +542,14 @@ export function MVPHomeScreen({
                     disabled={isProcessing}
                   >
                     {isRecording ? (
-                      <MicOff className="h-16 w-16 md:h-20 md:w-20 text-white drop-shadow-lg" />
+                      <MicOff className="h-12 w-12 sm:h-14 sm:w-14 text-white drop-shadow-lg" />
                     ) : (
-                      <Mic className="h-16 w-16 md:h-20 md:w-20 text-white drop-shadow-lg" />
+                      <Mic className="h-12 w-12 sm:h-14 sm:w-14 text-white drop-shadow-lg" />
                     )}
                   </Button>
                   
-                  {/* Responsive Status Indicator */}
-                  <div className={`absolute -top-1 -right-1 md:-top-2 md:-right-2 w-5 h-5 md:w-6 md:h-6 rounded-full border-3 md:border-4 border-white ${
+                  {/* Mobile Status Indicator */}
+                  <div className={`absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-white ${
                     isRecording ? 'bg-red-500 animate-pulse' : 
                     isProcessing ? 'bg-yellow-500 animate-spin' : 
                     'bg-green-500'
@@ -549,19 +557,19 @@ export function MVPHomeScreen({
                 </div>
               </div>
 
-              {/* Compact Status Indicators */}
-              <div className="text-center space-y-3">
+              {/* Mobile Status Indicators - iPhone 16 Optimized */}
+              <div className="text-center space-y-2">
                 {isRecording && (
                   <div className="space-y-2">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50" />
-                      <span className="text-lg font-bold text-red-600">Recording...</span>
+                    <div className="flex items-center justify-center gap-1">
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                      <span className="text-sm font-bold text-red-600">Recording</span>
                     </div>
-                    <div className="bg-red-50 border border-red-200 rounded-xl p-3 max-w-xs mx-auto">
-                      <div className="text-2xl font-mono font-bold text-red-700">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-2 max-w-xs mx-auto">
+                      <div className="text-lg font-mono font-bold text-red-700">
                         {formatTime(recordingTime)}
                       </div>
-                      <p className="text-xs text-red-600 mt-1">Tap to stop</p>
+                      <p className="text-xs text-red-600">Tap to stop</p>
                     </div>
                     
                     {/* Live Transcript Display for Mobile */}
@@ -578,22 +586,22 @@ export function MVPHomeScreen({
 
                 {isProcessing && (
                   <div className="space-y-2">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse shadow-lg shadow-yellow-500/50" />
-                      <span className="text-lg font-bold text-yellow-600">Processing...</span>
+                    <div className="flex items-center justify-center gap-1">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
+                      <span className="text-sm font-bold text-yellow-600">Processing</span>
                     </div>
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 max-w-xs mx-auto">
-                      <Progress value={75} className="w-full h-2 mb-2" />
-                      <p className="text-xs text-yellow-700">AI analyzing speech...</p>
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 max-w-xs mx-auto">
+                      <Progress value={75} className="w-full h-1 mb-1" />
+                      <p className="text-xs text-yellow-700">AI analyzing...</p>
                     </div>
                   </div>
                 )}
 
                 {!isRecording && !isProcessing && (
-                  <div className="bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl p-4 max-w-sm mx-auto shadow-lg">
-                    <h2 className="text-lg font-bold text-slate-900 mb-1">Ready to Record</h2>
-                    <p className="text-sm text-slate-600 mb-2">
-                      Tap microphone for AI-powered transcription
+                  <div className="bg-white/80 backdrop-blur-sm border border-slate-200 rounded-lg p-3 max-w-xs mx-auto shadow-lg">
+                    <h2 className="text-base font-bold text-slate-900 mb-1">Ready to Record</h2>
+                    <p className="text-xs text-slate-600">
+                      Tap microphone to start
                     </p>
                     {!voiceSupported && (
                       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2">
@@ -606,38 +614,32 @@ export function MVPHomeScreen({
                 )}
               </div>
 
-              {/* Compact Input Method Options */}
+              {/* Mobile Input Method Options - iPhone 16 Optimized */}
                 {!isRecording && !isProcessing && !transcript && (
-                  <div className="w-full max-w-sm space-y-3">
+                  <div className="w-full max-w-xs space-y-2">
                     <div className="text-center">
-                      <p className="text-sm font-medium text-slate-700 mb-3">Or choose another input method:</p>
+                      <p className="text-xs text-slate-600 mb-2">Or choose another method:</p>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2">
                       <Button
                         variant="outline"
                         onClick={() => setShowInputSelector(true)}
-                        className="h-16 flex flex-col items-center justify-center gap-2 bg-white/90 backdrop-blur-sm border-2 border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 shadow-md hover:shadow-lg rounded-xl"
+                        className="h-12 flex flex-col items-center justify-center gap-1 bg-white/90 backdrop-blur-sm border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 shadow-sm hover:shadow-md rounded-lg"
                       >
-                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <Keyboard className="h-5 w-5 text-blue-600" />
+                        <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
+                          <Keyboard className="h-3 w-3 text-blue-600" />
                         </div>
-                        <div className="flex flex-col items-center gap-1">
-                          <span className="text-sm font-semibold text-slate-700">Type/Paste</span>
-                          <span className="text-xs text-slate-500">Manual</span>
-                        </div>
+                        <span className="text-xs font-medium text-slate-700">Type</span>
                       </Button>
                       <Button
                         variant="outline"
                         onClick={onStartRecording}
-                        className="h-16 flex flex-col items-center justify-center gap-2 bg-white/90 backdrop-blur-sm border-2 border-slate-200 hover:border-teal-400 hover:bg-teal-50 transition-all duration-300 shadow-md hover:shadow-lg rounded-xl"
+                        className="h-12 flex flex-col items-center justify-center gap-1 bg-white/90 backdrop-blur-sm border border-slate-200 hover:border-teal-400 hover:bg-teal-50 transition-all duration-300 shadow-sm hover:shadow-md rounded-lg"
                       >
-                        <div className="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
-                          <Mic className="h-5 w-5 text-teal-600" />
+                        <div className="w-6 h-6 bg-teal-100 rounded flex items-center justify-center">
+                          <Mic className="h-3 w-3 text-teal-600" />
                         </div>
-                        <div className="flex flex-col items-center gap-1">
-                          <span className="text-sm font-semibold text-slate-700">Voice</span>
-                          <span className="text-xs text-slate-500">AI Speech</span>
-                        </div>
+                        <span className="text-xs font-medium text-slate-700">Voice</span>
                       </Button>
                     </div>
                   </div>
@@ -676,40 +678,40 @@ export function MVPHomeScreen({
                 </div>
               )}
 
-              {/* Mobile Profile Widgets */}
+              {/* Mobile Profile Widgets - iPhone 16 Optimized */}
               {!isRecording && !isProcessing && (
-                <div className="w-full max-w-md space-y-3 mt-6">
-                  {/* Your Numbers Today */}
-                  <div className="grid grid-cols-3 gap-3">
-                    <Card className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
+                <div className="w-full max-w-sm space-y-2 mt-4">
+                  {/* Your Numbers Today - Compact */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <Card className="p-2 bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
                       <div className="text-center">
-                        <FileText className="h-5 w-5 text-blue-600 mx-auto mb-1" />
-                        <div className="text-lg font-bold text-blue-700">{userProfile.notesToday}</div>
-                        <div className="text-xs text-blue-600">Today's Notes</div>
-                        <div className="text-xs text-green-600 flex items-center justify-center gap-0.5 mt-1">
-                          <TrendingUp className="h-2 w-2" />
+                        <FileText className="h-4 w-4 text-blue-600 mx-auto mb-1" />
+                        <div className="text-sm font-bold text-blue-700">{userProfile.notesToday}</div>
+                        <div className="text-xs text-blue-600">Notes</div>
+                        <div className="text-xs text-green-600 flex items-center justify-center gap-0.5 mt-0.5">
+                          <TrendingUp className="h-1.5 w-1.5" />
                           +3
                         </div>
                       </div>
                     </Card>
-                    <Card className="p-3 bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200">
+                    <Card className="p-2 bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200">
                       <div className="text-center">
-                        <Timer className="h-5 w-5 text-emerald-600 mx-auto mb-1" />
-                        <div className="text-lg font-bold text-emerald-700">{userProfile.timeSaved}h</div>
-                        <div className="text-xs text-emerald-600">Time Saved</div>
-                        <div className="text-xs text-green-600 flex items-center justify-center gap-0.5 mt-1">
-                          <TrendingUp className="h-2 w-2" />
+                        <Timer className="h-4 w-4 text-emerald-600 mx-auto mb-1" />
+                        <div className="text-sm font-bold text-emerald-700">{userProfile.timeSaved}h</div>
+                        <div className="text-xs text-emerald-600">Saved</div>
+                        <div className="text-xs text-green-600 flex items-center justify-center gap-0.5 mt-0.5">
+                          <TrendingUp className="h-1.5 w-1.5" />
                           +47m
                         </div>
                       </div>
                     </Card>
-                    <Card className="p-3 bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200">
+                    <Card className="p-2 bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200">
                       <div className="text-center">
-                        <Target className="h-5 w-5 text-purple-600 mx-auto mb-1" />
-                        <div className="text-lg font-bold text-purple-700">{userProfile.accuracy}%</div>
+                        <Target className="h-4 w-4 text-purple-600 mx-auto mb-1" />
+                        <div className="text-sm font-bold text-purple-700">{userProfile.accuracy}%</div>
                         <div className="text-xs text-purple-600">Accuracy</div>
-                        <div className="text-xs text-green-600 flex items-center justify-center gap-0.5 mt-1">
-                          <TrendingUp className="h-2 w-2" />
+                        <div className="text-xs text-green-600 flex items-center justify-center gap-0.5 mt-0.5">
+                          <TrendingUp className="h-1.5 w-1.5" />
                           +0.5%
                         </div>
                       </div>

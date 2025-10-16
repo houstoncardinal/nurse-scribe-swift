@@ -127,13 +127,12 @@ export function EnhancedMobileHeader({
                 </DropdownMenu>
               ) : (
                 <Button
-                  onClick={onSignIn}
-                  variant="outline"
+                  onClick={() => onNavigate?.('profile')}
+                  variant="ghost"
                   size="sm"
-                  className="h-9 px-3 text-xs"
+                  className="h-9 w-9 p-0"
                 >
-                  <LogIn className="h-4 w-4 mr-1.5" />
-                  Sign In
+                  <User className="h-5 w-5 text-slate-600" />
                 </Button>
               )}
             </div>

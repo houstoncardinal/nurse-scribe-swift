@@ -14,10 +14,11 @@ import { UserProfile } from '@/components/UserProfile';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { voiceRecognitionService } from '@/lib/realVoiceRecognition';
+import { enhancedVoiceRecognitionService as voiceRecognitionService } from '@/lib/enhancedVoiceRecognition';
+import { PowerfulAdminDashboard } from '@/components/PowerfulAdminDashboard';
 import { toast } from 'sonner';
 
-type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'history';
+type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'history' | 'admin';
 
 interface NoteContent {
   [key: string]: string;
@@ -107,6 +108,11 @@ export function MVPApp() {
   const [selectedTemplate, setSelectedTemplate] = useState('SOAP');
   const [noteContent, setNoteContent] = useState<NoteContent>({});
   const [editedNoteContent, setEditedNoteContent] = useState<NoteContent>({});
+  
+  // Handle template change from home screen
+  const handleTemplateChange = (template: string) => {
+    setSelectedTemplate(template);
+  };
 
   // Initialize app
   useEffect(() => {
@@ -261,6 +267,10 @@ export function MVPApp() {
     }
     if (screen === 'team') {
       setCurrentScreen('team' as Screen);
+      return;
+    }
+    if (screen === 'admin') {
+      setCurrentScreen('admin' as Screen);
       return;
     }
     
@@ -531,6 +541,7 @@ export function MVPApp() {
             onStopRecording={handleStopRecording}
             onManualTextSubmit={handleManualTextSubmit}
             onPasteTextSubmit={handlePasteTextSubmit}
+            onTemplateChange={handleTemplateChange}
             isRecording={isRecording}
             isProcessing={isProcessing}
             recordingTime={recordingTime}
@@ -641,6 +652,9 @@ export function MVPApp() {
             </div>
           </div>
         );
+
+      case 'admin':
+        return <PowerfulAdminDashboard />;
       
       default:
         return null;

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { 
   User, Mail, Phone, MapPin, Calendar, Award, Shield, 
   Edit3, Save, X, Camera, Bell, Lock, Globe, Clock,
-  TrendingUp, FileText, Timer, Target, BarChart3
+  TrendingUp, FileText, Timer, Target, BarChart3, AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -78,15 +78,15 @@ export function UserProfile({ user, onUpdate, onSignOut }: UserProfileProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="mvp-app max-w-4xl mx-auto p-3 lg:p-6 space-y-4 lg:space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Profile</h1>
-          <p className="text-slate-600">Manage your account and preferences</p>
+          <h1 className="text-xl lg:text-3xl font-bold text-slate-900">Profile</h1>
+          <p className="text-xs lg:text-sm text-slate-600">Manage your account and preferences</p>
         </div>
-        <Button onClick={onSignOut} variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
-          Sign Out
+        <Button onClick={onSignOut} variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 h-8 lg:h-10">
+          <span className="text-xs lg:text-sm">Sign Out</span>
         </Button>
       </div>
 

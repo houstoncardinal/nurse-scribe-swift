@@ -86,9 +86,32 @@ export function MVPSettingsScreen({ onNavigate }: MVPSettingsScreenProps) {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="p-6 pb-4">
+    <div className="mvp-app bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+      {/* Mobile-Optimized Compact Header */}
+      <div className="lg:hidden flex-shrink-0 p-3 bg-white/90 backdrop-blur-sm border-b border-slate-200">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onNavigate('home')}
+            className="h-8 w-8 p-0"
+          >
+            <ArrowLeft className="h-3 w-3" />
+          </Button>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-r from-teal-500 to-blue-600 rounded-lg flex items-center justify-center">
+              <Settings className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-slate-900">Settings</h1>
+              <p className="text-xs text-slate-600">Customize experience</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Header */}
+      <div className="hidden lg:block flex-shrink-0 p-4 bg-white/90 backdrop-blur-sm border-b border-slate-200">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -99,33 +122,33 @@ export function MVPSettingsScreen({ onNavigate }: MVPSettingsScreenProps) {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
-              <Settings className="h-5 w-5 text-primary-foreground" />
+            <div className="w-10 h-10 bg-gradient-to-r from-teal-500 to-blue-600 rounded-xl flex items-center justify-center">
+              <Settings className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Settings</h1>
-              <p className="text-sm text-muted-foreground">Customize your experience</p>
+              <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
+              <p className="text-sm text-slate-600">Customize your experience</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Settings Content */}
-      <div className="flex-1 overflow-y-auto px-6 space-y-6">
+      {/* Settings Content - Mobile Optimized */}
+      <div className="flex-1 overflow-y-auto px-3 py-2 lg:px-4 lg:py-4 space-y-4 lg:space-y-6 min-h-0">
         {/* Voice Settings */}
-        <Card className="p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-8 h-8 bg-gradient-primary/10 rounded-lg flex items-center justify-center">
-              <Mic className="h-4 w-4 text-primary" />
+        <Card className="p-4 lg:p-6">
+          <div className="flex items-center gap-2 lg:gap-3 mb-4 lg:mb-6">
+            <div className="w-6 h-6 lg:w-8 lg:h-8 bg-gradient-primary/10 rounded-lg flex items-center justify-center">
+              <Mic className="h-3 w-3 lg:h-4 lg:w-4 text-primary" />
             </div>
-            <h2 className="text-lg font-semibold">Voice Settings</h2>
+            <h2 className="text-base lg:text-lg font-semibold">Voice Settings</h2>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 lg:space-y-6">
             {/* Voice Speed */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Recording Speed</Label>
-              <div className="px-3">
+            <div className="space-y-2 lg:space-y-3">
+              <Label className="text-xs lg:text-sm font-medium">Recording Speed</Label>
+              <div className="px-2 lg:px-3">
                 <Slider
                   value={[settings.voiceSpeed]}
                   onValueChange={(value) => handleSettingChange('voiceSpeed', value[0])}
@@ -143,13 +166,13 @@ export function MVPSettingsScreen({ onNavigate }: MVPSettingsScreenProps) {
             </div>
 
             {/* Voice Accuracy */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Voice Recognition Accuracy</Label>
+            <div className="space-y-2 lg:space-y-3">
+              <Label className="text-xs lg:text-sm font-medium">Voice Recognition Accuracy</Label>
               <Select 
                 value={settings.voiceAccuracy} 
                 onValueChange={(value) => handleSettingChange('voiceAccuracy', value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-8 lg:h-10">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -349,8 +372,43 @@ export function MVPSettingsScreen({ onNavigate }: MVPSettingsScreenProps) {
         </Card>
       </div>
 
-      {/* Action Buttons */}
-      <div className="p-6 pt-4 space-y-3">
+      {/* Mobile-Optimized Action Buttons */}
+      <div className="lg:hidden p-3 pb-24 space-y-2 bg-white/90 backdrop-blur-sm border-t border-slate-200">
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleResetSettings}
+            className="flex-1 h-9"
+          >
+            <RotateCcw className="h-3 w-3 mr-1" />
+            Reset
+          </Button>
+          
+          <Button
+            size="sm"
+            onClick={handleSaveSettings}
+            className="flex-1 h-9 bg-gradient-primary"
+          >
+            <Save className="h-3 w-3 mr-1" />
+            Save
+          </Button>
+        </div>
+
+        <div className="text-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onNavigate('home')}
+            className="text-xs text-muted-foreground h-7"
+          >
+            ← Back to Home
+          </Button>
+        </div>
+      </div>
+
+      {/* Desktop Action Buttons */}
+      <div className="hidden lg:block p-6 pt-4 space-y-3">
         <div className="flex gap-3">
           <Button
             variant="outline"

@@ -9,7 +9,9 @@ import {
   Shield,
   CheckCircle,
   AlertCircle,
-  FileText
+  FileText,
+  Target,
+  AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -104,41 +106,43 @@ export function MVPDraftScreen({
     const isEditing = editingSection === title.toLowerCase().replace(/\s+/g, '');
     
     return (
-      <Card className="p-4">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-gradient-primary/10 rounded-lg flex items-center justify-center">
+      <Card className="p-3 lg:p-4 shadow-sm">
+        <div className="flex items-center gap-2 lg:gap-3 mb-3 lg:mb-4">
+          <div className="w-6 h-6 lg:w-8 lg:h-8 bg-gradient-to-r from-teal-500/10 to-blue-600/10 rounded-lg flex items-center justify-center">
             {icon}
           </div>
-          <h3 className="text-lg font-semibold">{title}</h3>
+          <h3 className="text-base lg:text-lg font-semibold text-slate-900">{title}</h3>
         </div>
         
         {isEditing ? (
-          <div className="space-y-3">
+          <div className="space-y-3 lg:space-y-4">
             <Textarea
               value={editedContent}
               onChange={(e) => setEditedContent(e.target.value)}
-              className="min-h-[100px]"
+              className="min-h-[120px] lg:min-h-[200px] resize-none text-sm leading-relaxed"
               placeholder={`Edit ${title.toLowerCase()} content...`}
             />
             <div className="flex gap-2">
-              <Button size="sm" onClick={handleSaveEdit}>
-                Save Changes
+              <Button size="sm" onClick={handleSaveEdit} className="bg-teal-600 hover:bg-teal-700 h-8">
+                Save
               </Button>
-              <Button size="sm" variant="outline" onClick={handleCancelEdit}>
+              <Button size="sm" variant="outline" onClick={handleCancelEdit} className="h-8">
                 Cancel
               </Button>
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
+          <div className="space-y-3 lg:space-y-4">
+            <div className="min-h-[100px] lg:min-h-[150px] p-3 lg:p-4 bg-slate-50 rounded-lg border border-slate-200">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-800">{content}</p>
+            </div>
             <Button
               size="sm"
               variant="outline"
               onClick={() => handleEdit(title.toLowerCase().replace(/\s+/g, ''), content)}
-              className="w-fit"
+              className="w-fit hover:bg-teal-50 hover:border-teal-300 h-8"
             >
-              <Edit3 className="h-4 w-4 mr-2" />
+              <Edit3 className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
               Edit
             </Button>
           </div>
@@ -148,83 +152,163 @@ export function MVPDraftScreen({
   };
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
-      {/* Enhanced Header */}
-      <div className="p-6 pb-4 bg-white/80 backdrop-blur-sm border-b border-slate-200">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                Draft Note Preview
-              </h1>
-              <p className="text-sm text-slate-600 font-medium mt-1">
-                Review and edit your {selectedTemplate} note
-              </p>
-            </div>
-            <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-4 py-2 text-sm font-semibold shadow-lg shadow-teal-500/25">
-              {selectedTemplate}
-            </Badge>
+    <div className="mvp-app bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+      {/* Mobile-Optimized Compact Header */}
+      <div className="lg:hidden flex-shrink-0 p-3 bg-white/90 backdrop-blur-sm border-b border-slate-200">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h1 className="text-lg font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+              Draft Preview
+            </h1>
+            <p className="text-xs text-slate-600">
+              Review your {selectedTemplate} note
+            </p>
           </div>
+          <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-2 py-1 text-xs font-semibold">
+            {selectedTemplate}
+          </Badge>
+        </div>
 
-          {/* Enhanced Note Header Info */}
-          <Card className="p-5 bg-white/90 backdrop-blur-sm border border-slate-200 shadow-lg">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg">
-                  <Calendar className="h-4 w-4 text-slate-600" />
-                  <span className="text-sm font-medium text-slate-700">{currentTime}</span>
-                </div>
-                <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg">
-                  <User className="h-4 w-4 text-slate-600" />
-                  <span className="text-sm font-medium text-slate-700">Patient Note</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
-                <Shield className="h-4 w-4 text-green-600" />
-                <span className="text-green-700 font-semibold text-sm">HIPAA Protected</span>
-              </div>
+        {/* Mobile Compact Note Header Info */}
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-slate-50 px-1.5 py-0.5 rounded text-xs">
+              <Calendar className="h-2.5 w-2.5 text-slate-600" />
+              <span className="text-slate-700">{currentTime}</span>
             </div>
-          </Card>
+            <div className="flex items-center gap-1 bg-slate-50 px-1.5 py-0.5 rounded text-xs">
+              <User className="h-2.5 w-2.5 text-slate-600" />
+              <span className="text-slate-700">Note</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 bg-green-50 px-1.5 py-0.5 rounded border border-green-200 text-xs">
+            <Shield className="h-2.5 w-2.5 text-green-600" />
+            <span className="text-green-700 font-medium">HIPAA</span>
+          </div>
         </div>
       </div>
 
-      {/* Note Content */}
-      <div className="flex-1 overflow-y-auto px-6 space-y-4">
-        {/* Standardized sections as per client requirements: Assessment, Interventions, Plan */}
-        
-        {/* Assessment Section */}
-        {renderSection('Assessment', 
-          selectedTemplate === 'SOAP' ? noteContent.assessment :
-          selectedTemplate === 'SBAR' ? noteContent.assessment :
-          selectedTemplate === 'PIE' ? noteContent.problem :
-          noteContent.data,
-          <CheckCircle className="h-4 w-4 text-teal-600" />
+      {/* Desktop Header */}
+      <div className="hidden lg:block flex-shrink-0 p-4 bg-white/90 backdrop-blur-sm border-b border-slate-200">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+              Draft Preview
+            </h1>
+            <p className="text-sm text-slate-600">
+              Review and edit your {selectedTemplate} note
+            </p>
+          </div>
+          <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-3 py-1 text-sm font-semibold">
+            {selectedTemplate}
+          </Badge>
+        </div>
+
+        {/* Desktop Note Header Info */}
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded">
+              <Calendar className="h-3 w-3 text-slate-600" />
+              <span className="text-slate-700">{currentTime}</span>
+            </div>
+            <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded">
+              <User className="h-3 w-3 text-slate-600" />
+              <span className="text-slate-700">Patient Note</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded border border-green-200">
+            <Shield className="h-3 w-3 text-green-600" />
+            <span className="text-green-700 font-medium">HIPAA Protected</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Note Content - Mobile Optimized */}
+      <div className="flex-1 overflow-y-auto px-3 py-2 lg:px-4 lg:py-4 space-y-3 lg:space-y-4 min-h-0">
+        {/* Template-specific sections */}
+        {selectedTemplate === 'SOAP' && (
+          <>
+            {renderSection('Subjective', noteContent.subjective, <User className="h-4 w-4 text-blue-600" />)}
+            {renderSection('Objective', noteContent.objective, <Target className="h-4 w-4 text-green-600" />)}
+            {renderSection('Assessment', noteContent.assessment, <CheckCircle className="h-4 w-4 text-teal-600" />)}
+            {renderSection('Plan', noteContent.plan, <FileText className="h-4 w-4 text-purple-600" />)}
+          </>
         )}
 
-        {/* Interventions Section */}
-        {renderSection('Interventions', 
-          selectedTemplate === 'SOAP' ? noteContent.objective :
-          selectedTemplate === 'SBAR' ? noteContent.situation :
-          selectedTemplate === 'PIE' ? noteContent.intervention :
-          noteContent.action,
-          <ArrowRight className="h-4 w-4 text-blue-600" />
+        {selectedTemplate === 'SBAR' && (
+          <>
+            {renderSection('Situation', noteContent.situation, <AlertTriangle className="h-4 w-4 text-red-600" />)}
+            {renderSection('Background', noteContent.background, <Clock className="h-4 w-4 text-blue-600" />)}
+            {renderSection('Assessment', noteContent.assessment, <CheckCircle className="h-4 w-4 text-teal-600" />)}
+            {renderSection('Recommendation', noteContent.recommendation, <ArrowRight className="h-4 w-4 text-purple-600" />)}
+          </>
         )}
 
-        {/* Plan Section */}
-        {renderSection('Plan', 
-          selectedTemplate === 'SOAP' ? noteContent.plan :
-          selectedTemplate === 'SBAR' ? noteContent.recommendation :
-          selectedTemplate === 'PIE' ? noteContent.evaluation :
-          noteContent.response,
-          <FileText className="h-4 w-4 text-purple-600" />
+        {selectedTemplate === 'PIE' && (
+          <>
+            {renderSection('Problem', noteContent.problem, <AlertTriangle className="h-4 w-4 text-red-600" />)}
+            {renderSection('Intervention', noteContent.intervention, <ArrowRight className="h-4 w-4 text-blue-600" />)}
+            {renderSection('Evaluation', noteContent.evaluation, <CheckCircle className="h-4 w-4 text-green-600" />)}
+          </>
+        )}
+
+        {selectedTemplate === 'DAR' && (
+          <>
+            {renderSection('Data', noteContent.data, <FileText className="h-4 w-4 text-blue-600" />)}
+            {renderSection('Action', noteContent.action, <ArrowRight className="h-4 w-4 text-green-600" />)}
+            {renderSection('Response', noteContent.response, <CheckCircle className="h-4 w-4 text-teal-600" />)}
+          </>
         )}
       </div>
 
-      {/* Action Buttons */}
-      <div className="p-6 pt-4 space-y-4">
-        <Alert>
+      {/* Mobile-Optimized Action Buttons */}
+      <div className="lg:hidden flex-shrink-0 p-3 pb-24 space-y-2 bg-white/90 backdrop-blur-sm border-t border-slate-200">
+        <Alert className="py-2">
+          <CheckCircle className="h-3 w-3" />
+          <AlertDescription className="text-xs">
+            Note ready for export. Review sections before proceeding.
+          </AlertDescription>
+        </Alert>
+
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRegenerateNote}
+            disabled={isProcessing}
+            className="flex-1 h-9"
+          >
+            <RotateCcw className="h-3 w-3 mr-1" />
+            Regenerate
+          </Button>
+          
+          <Button
+            size="sm"
+            onClick={() => onNavigate('export')}
+            className="flex-1 h-9 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700"
+          >
+            Export
+            <ArrowRight className="h-3 w-3 ml-1" />
+          </Button>
+        </div>
+
+        <div className="text-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onNavigate('home')}
+            className="text-xs text-slate-500 hover:text-slate-700 h-7"
+          >
+            ← Back
+          </Button>
+        </div>
+      </div>
+
+      {/* Desktop Action Buttons */}
+      <div className="hidden lg:block flex-shrink-0 p-4 space-y-3 bg-white/90 backdrop-blur-sm border-t border-slate-200">
+        <Alert className="py-2">
           <CheckCircle className="h-4 w-4" />
-          <AlertDescription>
+          <AlertDescription className="text-sm">
             Note is ready for export. Review all sections before proceeding.
           </AlertDescription>
         </Alert>
@@ -235,7 +319,7 @@ export function MVPDraftScreen({
             size="lg"
             onClick={onRegenerateNote}
             disabled={isProcessing}
-            className="flex-1 h-12"
+            className="flex-1 h-11"
           >
             <RotateCcw className="h-4 w-4 mr-2" />
             Regenerate
@@ -244,7 +328,7 @@ export function MVPDraftScreen({
           <Button
             size="lg"
             onClick={() => onNavigate('export')}
-            className="flex-1 h-12 bg-gradient-primary"
+            className="flex-1 h-11 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700"
           >
             Export Note
             <ArrowRight className="h-4 w-4 ml-2" />
@@ -256,7 +340,7 @@ export function MVPDraftScreen({
             variant="ghost"
             size="sm"
             onClick={() => onNavigate('home')}
-            className="text-muted-foreground"
+            className="text-slate-500 hover:text-slate-700"
           >
             ← Back to Recording
           </Button>

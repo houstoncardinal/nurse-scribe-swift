@@ -43,7 +43,7 @@ export function MobileBottomToolbar({
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-slate-200 shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-slate-200 shadow-lg safe-area-bottom">
       <div className="px-4 py-2">
         <div className="flex items-center justify-around bg-slate-50/80 rounded-2xl p-1 border border-slate-100">
           {navigationItems.map((item) => {
