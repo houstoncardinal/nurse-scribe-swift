@@ -35,32 +35,37 @@ const App = () => {
       console.log('Current version:', currentVersion);
       console.log('Last known version:', lastKnownVersion);
       
-      // If version changed, clear all caches and update
-      if (lastKnownVersion && lastKnownVersion !== currentVersion) {
-        console.log('🚀 New version detected! Clearing caches...');
-        
-        // Clear all caches
-        if ('caches' in window) {
-          const cacheNames = await caches.keys();
-          await Promise.all(cacheNames.map(name => caches.delete(name)));
-          console.log('✅ All caches cleared');
-        }
-        
-        // Clear localStorage items that might cause issues
-        localStorage.removeItem('background-sync-registered');
-        localStorage.removeItem('whisper-model-loaded');
-        
-        // Update service worker
-        if ('serviceWorker' in navigator) {
-          const registration = await navigator.serviceWorker.getRegistration();
-          if (registration) {
-            await registration.update();
-            console.log('✅ Service worker updated');
+        // If version changed, clear all caches and update
+        if (lastKnownVersion && lastKnownVersion !== currentVersion) {
+          console.log('🚀 New version detected! Clearing caches...');
+          
+          // Clear all caches
+          if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map(name => caches.delete(name)));
+            console.log('✅ All caches cleared');
           }
+          
+          // Clear localStorage items that might cause issues
+          localStorage.removeItem('background-sync-registered');
+          localStorage.removeItem('whisper-model-loaded');
+          
+          // Update service worker
+          if ('serviceWorker' in navigator) {
+            const registration = await navigator.serviceWorker.getRegistration();
+            if (registration) {
+              await registration.update();
+              console.log('✅ Service worker updated');
+            }
+          }
+          
+          console.log('🎉 App updated to version', currentVersion);
+          console.log('🔄 Auto-reloading to apply updates...');
+          
+          // Automatically reload to apply the new version
+          window.location.reload();
+          return; // Exit early since we're reloading
         }
-        
-        console.log('🎉 App updated to version', currentVersion);
-      }
       
       // Store current version
       localStorage.setItem('nursescribe-version', currentVersion);
@@ -109,16 +114,15 @@ const App = () => {
       console.log('PWA update available');
     };
 
-    // Handle service worker messages
-    const handleServiceWorkerMessage = (event: MessageEvent) => {
-      if (event.data?.type === 'SW_UPDATED') {
-        console.log('🔄 Service worker updated to version:', event.data.version);
-        // Optionally reload the page to ensure fresh state
-        if (confirm('New version available! Reload to get the latest updates?')) {
+      // Handle service worker messages
+      const handleServiceWorkerMessage = (event: MessageEvent) => {
+        if (event.data?.type === 'SW_UPDATED') {
+          console.log('🔄 Service worker updated to version:', event.data.version);
+          console.log('🔄 Auto-reloading to apply updates...');
+          // Automatically reload the page to ensure fresh state
           window.location.reload();
         }
-      }
-    };
+      };
 
     const handleOffline = () => {
       console.log('App is offline');
