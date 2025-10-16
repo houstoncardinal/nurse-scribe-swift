@@ -5,9 +5,13 @@
 
 // Generate dynamic cache names with timestamp for cache busting
 const TIMESTAMP = Date.now();
-const CACHE_NAME = `nursescribe-v1.0.0-${TIMESTAMP}`;
-const STATIC_CACHE = `nursescribe-static-v1-${TIMESTAMP}`;
-const DYNAMIC_CACHE = `nursescribe-dynamic-v1-${TIMESTAMP}`;
+const VERSION = '1.2.0';
+const CACHE_NAME = `nursescribe-v${VERSION}-${TIMESTAMP}`;
+const STATIC_CACHE = `nursescribe-static-v${VERSION}-${TIMESTAMP}`;
+const DYNAMIC_CACHE = `nursescribe-dynamic-v${VERSION}-${TIMESTAMP}`;
+
+// Force cache invalidation on every update
+const FORCE_CACHE_CLEAR = true;
 
 // Files to cache for offline functionality
 const STATIC_FILES = [
@@ -27,23 +31,30 @@ const API_CACHE_PATTERNS = [
   /^\/api\/admin/
 ];
 
-// Install event - cache static files
+// Install event - cache static files with aggressive cache clearing
 self.addEventListener('install', (event) => {
   console.log('Service Worker installing...');
   
   event.waitUntil(
-    caches.open(STATIC_CACHE)
-      .then((cache) => {
-        console.log('Caching static files');
-        return cache.addAll(STATIC_FILES);
-      })
-      .then(() => {
-        console.log('Static files cached successfully');
-        return self.skipWaiting();
-      })
-      .catch((error) => {
-        console.error('Failed to cache static files:', error);
-      })
+    // Force clear ALL caches if FORCE_CACHE_CLEAR is true
+    (FORCE_CACHE_CLEAR ? 
+      caches.keys().then((cacheNames) => {
+        console.log('Force clearing all caches:', cacheNames);
+        return Promise.all(cacheNames.map(name => caches.delete(name)));
+      }) : 
+      Promise.resolve()
+    ).then(() => {
+      // Cache new files
+      return caches.open(STATIC_CACHE);
+    }).then((cache) => {
+      console.log('Caching static files');
+      return cache.addAll(STATIC_FILES);
+    }).then(() => {
+      console.log('Static files cached successfully');
+      return self.skipWaiting();
+    }).catch((error) => {
+      console.error('Failed to cache static files:', error);
+    })
   );
 });
 

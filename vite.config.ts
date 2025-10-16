@@ -22,11 +22,13 @@ export default defineConfig(({ mode }) => ({
         // Add timestamp to chunk names for cache busting
         chunkFileNames: (chunkInfo) => {
           const timestamp = Date.now();
-          return `assets/[name]-${timestamp}-[hash].js`;
+          const random = Math.random().toString(36).substring(7);
+          return `assets/[name]-${timestamp}-${random}-[hash].js`;
         },
         entryFileNames: (chunkInfo) => {
           const timestamp = Date.now();
-          return `assets/[name]-${timestamp}-[hash].js`;
+          const random = Math.random().toString(36).substring(7);
+          return `assets/[name]-${timestamp}-${random}-[hash].js`;
         },
         assetFileNames: (assetInfo) => {
           const timestamp = Date.now();
