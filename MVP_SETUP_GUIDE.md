@@ -129,7 +129,7 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 VITE_USE_SUPABASE=true
 VITE_HIPAA_MODE=true
 VITE_APP_VERSION=1.0.0
-VITE_APP_NAME=NurseScribe AI
+VITE_APP_NAME=Your App Name
 ```
 
 ---

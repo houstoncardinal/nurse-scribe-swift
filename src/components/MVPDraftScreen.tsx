@@ -148,38 +148,40 @@ export function MVPDraftScreen({
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="p-6 pb-4">
+    <div className="flex flex-col h-full bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+      {/* Enhanced Header */}
+      <div className="p-6 pb-4 bg-white/80 backdrop-blur-sm border-b border-slate-200">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold">Draft Note Preview</h1>
-              <p className="text-sm text-muted-foreground">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                Draft Note Preview
+              </h1>
+              <p className="text-sm text-slate-600 font-medium mt-1">
                 Review and edit your {selectedTemplate} note
               </p>
             </div>
-            <Badge className="bg-gradient-primary">
+            <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-4 py-2 text-sm font-semibold shadow-lg shadow-teal-500/25">
               {selectedTemplate}
             </Badge>
           </div>
 
-          {/* Note Header Info */}
-          <Card className="p-4">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>{currentTime}</span>
+          {/* Enhanced Note Header Info */}
+          <Card className="p-5 bg-white/90 backdrop-blur-sm border border-slate-200 shadow-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg">
+                  <Calendar className="h-4 w-4 text-slate-600" />
+                  <span className="text-sm font-medium text-slate-700">{currentTime}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span>Patient Note</span>
+                <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg">
+                  <User className="h-4 w-4 text-slate-600" />
+                  <span className="text-sm font-medium text-slate-700">Patient Note</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Shield className="h-4 w-4 text-success" />
-                <span className="text-success font-medium">HIPAA Protected</span>
+              <div className="flex items-center gap-2 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
+                <Shield className="h-4 w-4 text-green-600" />
+                <span className="text-green-700 font-semibold text-sm">HIPAA Protected</span>
               </div>
             </div>
           </Card>
