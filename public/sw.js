@@ -4,7 +4,7 @@
  */
 
 // Generate cache names with version for cache busting
-const VERSION = '1.4.8';
+const VERSION = '1.4.9';
 const TIMESTAMP = Date.now();
 
 // Environment detection
@@ -73,29 +73,27 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
   
   event.waitUntil(
-    // Force clear ALL caches if FORCE_CACHE_CLEAR is true
-    (FORCE_CACHE_CLEAR ? 
-      caches.keys().then((cacheNames) => {
-        console.log('Force clearing all caches:', cacheNames);
-        // Delete all existing caches
-        const deletePromises = cacheNames.map(name => {
-          console.log(`Deleting old cache: ${name}`);
-          return caches.delete(name);
-        });
-        
-        // Also delete any cache that matches our old patterns
-        const patternDeletePromises = OLD_CACHE_PATTERNS.map(pattern => {
-          return cacheNames.filter(name => name.includes(pattern))
-            .map(name => {
-              console.log(`Deleting pattern cache: ${name}`);
-              return caches.delete(name);
-            });
-        }).flat();
-        
-        return Promise.all([...deletePromises, ...patternDeletePromises]);
-      }) : 
-      Promise.resolve()
-    ).then(() => {
+    // ALWAYS clear ALL caches to prevent old HTML from being served
+    caches.keys().then((cacheNames) => {
+      console.log('Force clearing all caches:', cacheNames);
+      
+      // Delete all existing caches
+      const deletePromises = cacheNames.map(name => {
+        console.log(`Deleting old cache: ${name}`);
+        return caches.delete(name);
+      });
+      
+      // Also delete any cache that matches our old patterns
+      const patternDeletePromises = OLD_CACHE_PATTERNS.map(pattern => {
+        return cacheNames.filter(name => name.includes(pattern))
+          .map(name => {
+            console.log(`Deleting pattern cache: ${name}`);
+            return caches.delete(name);
+          });
+      }).flat();
+      
+      return Promise.all([...deletePromises, ...patternDeletePromises]);
+    }).then(() => {
       // Cache new files
       return caches.open(STATIC_CACHE);
     }).then((cache) => {

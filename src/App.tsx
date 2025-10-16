@@ -35,37 +35,52 @@ const App = () => {
       console.log('Current version:', currentVersion);
       console.log('Last known version:', lastKnownVersion);
       
-        // If version changed, clear all caches and update
-        if (lastKnownVersion && lastKnownVersion !== currentVersion) {
-          console.log('🚀 New version detected! Clearing caches...');
-          
-          // Clear all caches
-          if ('caches' in window) {
-            const cacheNames = await caches.keys();
-            await Promise.all(cacheNames.map(name => caches.delete(name)));
-            console.log('✅ All caches cleared');
-          }
-          
-          // Clear localStorage items that might cause issues
-          localStorage.removeItem('background-sync-registered');
-          localStorage.removeItem('whisper-model-loaded');
-          
-          // Update service worker
-          if ('serviceWorker' in navigator) {
-            const registration = await navigator.serviceWorker.getRegistration();
-            if (registration) {
-              await registration.update();
-              console.log('✅ Service worker updated');
-            }
-          }
-          
-          console.log('🎉 App updated to version', currentVersion);
-          console.log('🔄 Auto-reloading to apply updates...');
-          
-          // Automatically reload to apply the new version
-          window.location.reload();
-          return; // Exit early since we're reloading
+      // Prevent infinite reload loops
+      const reloadKey = `reload-${currentVersion}`;
+      const hasReloaded = sessionStorage.getItem(reloadKey);
+      
+      if (hasReloaded) {
+        console.log('🔄 Already reloaded for this version, skipping update check');
+        return;
+      }
+      
+      // If version changed, clear all caches and update
+      if (lastKnownVersion && lastKnownVersion !== currentVersion) {
+        console.log('🚀 New version detected! Clearing caches...');
+        
+        // Mark that we're about to reload for this version
+        sessionStorage.setItem(reloadKey, 'true');
+        
+        // Clear all caches
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          await Promise.all(cacheNames.map(name => caches.delete(name)));
+          console.log('✅ All caches cleared');
         }
+        
+        // Clear localStorage items that might cause issues
+        localStorage.removeItem('background-sync-registered');
+        localStorage.removeItem('whisper-model-loaded');
+        
+        // Update service worker
+        if ('serviceWorker' in navigator) {
+          const registration = await navigator.serviceWorker.getRegistration();
+          if (registration) {
+            await registration.update();
+            console.log('✅ Service worker updated');
+          }
+        }
+        
+        console.log('🎉 App updated to version', currentVersion);
+        console.log('🔄 Auto-reloading to apply updates...');
+        
+        // Store the new version before reloading
+        localStorage.setItem('nursescribe-version', currentVersion);
+        
+        // Automatically reload to apply the new version
+        window.location.reload();
+        return; // Exit early since we're reloading
+      }
       
       // Store current version
       localStorage.setItem('nursescribe-version', currentVersion);
@@ -118,7 +133,19 @@ const App = () => {
       const handleServiceWorkerMessage = (event: MessageEvent) => {
         if (event.data?.type === 'SW_UPDATED') {
           console.log('🔄 Service worker updated to version:', event.data.version);
-          console.log('🔄 Auto-reloading to apply updates...');
+          
+          // Prevent infinite reload loops from service worker updates
+          const swReloadKey = `sw-reload-${event.data.version}`;
+          const hasSwReloaded = sessionStorage.getItem(swReloadKey);
+          
+          if (hasSwReloaded) {
+            console.log('🔄 Already reloaded for this SW version, skipping');
+            return;
+          }
+          
+          console.log('🔄 Auto-reloading to apply service worker updates...');
+          sessionStorage.setItem(swReloadKey, 'true');
+          
           // Automatically reload the page to ensure fresh state
           window.location.reload();
         }
