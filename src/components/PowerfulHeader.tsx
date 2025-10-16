@@ -7,7 +7,6 @@ import {
   Settings, 
   User, 
   ChevronDown,
-  TrendingUp,
   Activity,
   CheckCircle,
   AlertTriangle,
@@ -75,29 +74,6 @@ export function PowerfulHeader({
     }
   ];
 
-  const quickStats = [
-    {
-      label: 'Today\'s Notes',
-      value: '12',
-      change: '+3',
-      trend: 'up',
-      color: 'text-emerald-600'
-    },
-    {
-      label: 'Time Saved',
-      value: '47m',
-      change: '+12m',
-      trend: 'up',
-      color: 'text-blue-600'
-    },
-    {
-      label: 'Accuracy',
-      value: '99.2%',
-      change: '+0.5%',
-      trend: 'up',
-      color: 'text-purple-600'
-    }
-  ];
 
   return (
     <div className="sticky top-0 z-50 bg-white/98 dark:bg-slate-900/98 backdrop-blur-2xl border-b border-slate-200/60 dark:border-slate-700/60 shadow-sm">
@@ -122,25 +98,6 @@ export function PowerfulHeader({
             </div>
           </div>
 
-          {/* Center: Quick Stats */}
-          <div className="hidden md:flex items-center gap-4">
-            {quickStats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className={`text-lg font-bold ${stat.color}`}>
-                  {stat.value}
-                </div>
-                <div className="text-xs text-slate-600 dark:text-slate-400">
-                  {stat.label}
-                </div>
-                <div className="flex items-center justify-center gap-1 text-xs">
-                  <TrendingUp className="h-3 w-3 text-green-500" />
-                  <span className="text-green-600 dark:text-green-400">
-                    {stat.change}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
 
           {/* Right: Actions & Profile */}
           <div className="flex items-center gap-2">
@@ -291,27 +248,6 @@ export function PowerfulHeader({
         </div>
       </div>
 
-      {/* Mobile Quick Stats */}
-      <div className="md:hidden px-4 pb-3">
-        <div className="grid grid-cols-3 gap-3">
-          {quickStats.map((stat, index) => (
-            <div key={index} className="text-center p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-              <div className={`text-lg font-bold ${stat.color}`}>
-                {stat.value}
-              </div>
-              <div className="text-xs text-slate-600 dark:text-slate-400">
-                {stat.label}
-              </div>
-              <div className="flex items-center justify-center gap-1 text-xs">
-                <TrendingUp className="h-3 w-3 text-green-500" />
-                <span className="text-green-600 dark:text-green-400">
-                  {stat.change}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
