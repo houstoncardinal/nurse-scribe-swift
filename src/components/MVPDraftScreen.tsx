@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Edit3, 
   RotateCcw, 
@@ -11,7 +11,10 @@ import {
   AlertCircle,
   FileText,
   Target,
-  AlertTriangle
+  AlertTriangle,
+  Brain,
+  Sparkles,
+  TrendingUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -19,6 +22,8 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { enhancedAIService } from '@/lib/enhancedAIService';
+import { knowledgeBaseService } from '@/lib/knowledgeBase';
 
 interface MVPDraftScreenProps {
   onNavigate: (screen: string) => void;
@@ -39,6 +44,9 @@ export function MVPDraftScreen({
 }: MVPDraftScreenProps) {
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editedContent, setEditedContent] = useState<string>('');
+  const [aiGeneratedContent, setAiGeneratedContent] = useState<any>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiInsights, setAiInsights] = useState<any>(null);
 
   // Mock AI-generated note based on template
   const generateNoteFromTemplate = (template: string, transcript: string) => {
@@ -81,7 +89,71 @@ export function MVPDraftScreen({
     }
   };
 
-  const noteContent = generateNoteFromTemplate(selectedTemplate, transcript);
+  // Generate intelligent, situation-specific content using AI
+  useEffect(() => {
+    if (transcript && selectedTemplate) {
+      generateIntelligentContent();
+    }
+  }, [transcript, selectedTemplate]);
+
+  const generateIntelligentContent = async () => {
+    setIsGenerating(true);
+    try {
+      // Analyze the input for medical context
+      const analysis = enhancedAIService.analyzeInput(transcript);
+      
+      // Generate AI-powered note
+      const aiPrompt = {
+        template: selectedTemplate as 'SOAP' | 'SBAR' | 'PIE' | 'DAR',
+        input: transcript,
+        context: {
+          chiefComplaint: extractChiefComplaint(transcript),
+          medicalHistory: analysis.medicalTerms.map(t => t.term),
+          urgency: determineUrgency(transcript)
+        }
+      };
+
+      const generatedNote = await enhancedAIService.generateNote(aiPrompt);
+      setAiGeneratedContent(generatedNote);
+      
+      // Get AI insights
+      const insights = {
+        confidence: generatedNote.overallConfidence,
+        quality: generatedNote.qualityScore,
+        medicalTerms: analysis.medicalTerms.length,
+        icd10Suggestions: generatedNote.icd10Suggestions,
+        suggestions: generatedNote.suggestions
+      };
+      setAiInsights(insights);
+      
+    } catch (error) {
+      console.error('AI content generation failed:', error);
+      // Fallback to basic content
+      setAiGeneratedContent(null);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const extractChiefComplaint = (text: string): string => {
+    const complaints = ['chest pain', 'shortness of breath', 'headache', 'abdominal pain', 'fever', 'nausea', 'dizziness'];
+    const found = complaints.find(complaint => text.toLowerCase().includes(complaint));
+    return found || 'General complaint';
+  };
+
+  const determineUrgency = (text: string): 'low' | 'medium' | 'high' => {
+    const urgentKeywords = ['severe', 'acute', 'emergency', 'critical', 'unstable'];
+    const moderateKeywords = ['moderate', 'mild', 'stable'];
+    
+    if (urgentKeywords.some(keyword => text.toLowerCase().includes(keyword))) {
+      return 'high';
+    } else if (moderateKeywords.some(keyword => text.toLowerCase().includes(keyword))) {
+      return 'medium';
+    }
+    return 'low';
+  };
+
+  const noteContent = aiGeneratedContent?.sections || generateNoteFromTemplate(selectedTemplate, transcript);
   const currentTime = new Date().toLocaleString();
 
   const handleEdit = (section: string, content: string) => {
@@ -188,6 +260,37 @@ export function MVPDraftScreen({
         </div>
       </div>
 
+      {/* AI Insights Display */}
+      {aiInsights && (
+        <div className="lg:hidden flex-shrink-0 p-3 bg-gradient-to-r from-blue-50 to-teal-50 border-b border-blue-200">
+          <div className="flex items-center gap-2 mb-2">
+            <Brain className="h-4 w-4 text-blue-600" />
+            <span className="text-sm font-semibold text-blue-900">AI Insights</span>
+            {isGenerating && (
+              <div className="h-3 w-3 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="flex items-center gap-1">
+              <TrendingUp className="h-3 w-3 text-green-600" />
+              <span className="text-slate-700">Confidence: {Math.round(aiInsights.confidence * 100)}%</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Sparkles className="h-3 w-3 text-purple-600" />
+              <span className="text-slate-700">Quality: {Math.round(aiInsights.quality * 100)}%</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <FileText className="h-3 w-3 text-blue-600" />
+              <span className="text-slate-700">Terms: {aiInsights.medicalTerms}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Target className="h-3 w-3 text-orange-600" />
+              <span className="text-slate-700">ICD-10: {aiInsights.icd10Suggestions?.length || 0}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Desktop Header */}
       <div className="hidden lg:block flex-shrink-0 p-4 bg-white/90 backdrop-blur-sm border-b border-slate-200">
         <div className="flex items-center justify-between mb-3">
@@ -222,6 +325,37 @@ export function MVPDraftScreen({
           </div>
         </div>
       </div>
+
+      {/* Desktop AI Insights */}
+      {aiInsights && (
+        <div className="hidden lg:block flex-shrink-0 p-4 bg-gradient-to-r from-blue-50 to-teal-50 border-b border-blue-200">
+          <div className="flex items-center gap-3 mb-3">
+            <Brain className="h-5 w-5 text-blue-600" />
+            <span className="text-lg font-semibold text-blue-900">AI-Powered Analysis</span>
+            {isGenerating && (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+            )}
+          </div>
+          <div className="grid grid-cols-4 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-green-600" />
+              <span className="text-slate-700">Confidence: {Math.round(aiInsights.confidence * 100)}%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-purple-600" />
+              <span className="text-slate-700">Quality: {Math.round(aiInsights.quality * 100)}%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-blue-600" />
+              <span className="text-slate-700">Medical Terms: {aiInsights.medicalTerms}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Target className="h-4 w-4 text-orange-600" />
+              <span className="text-slate-700">ICD-10 Codes: {aiInsights.icd10Suggestions?.length || 0}</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Note Content - Mobile Optimized */}
       <div className="flex-1 overflow-y-auto px-3 py-2 lg:px-4 lg:py-4 space-y-3 lg:space-y-4 min-h-0">

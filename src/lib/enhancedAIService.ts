@@ -274,20 +274,53 @@ class EnhancedAIService {
         messages: [
           {
             role: 'system',
-            content: 'You are an expert nursing documentation specialist with extensive knowledge of clinical documentation standards, medical terminology, and nursing best practices. Generate professional, accurate, and comprehensive nursing notes that follow established templates and guidelines.'
+            content: `You are an expert nursing documentation specialist with extensive knowledge of clinical documentation standards, medical terminology, and nursing best practices. 
+
+CORE CAPABILITIES:
+- Generate professional, accurate, and comprehensive nursing notes
+- Follow established templates (SOAP, SBAR, PIE, DAR) with precision
+- Use proper medical terminology and nursing language
+- Include specific measurements, times, and objective data
+- Provide actionable nursing interventions and assessments
+- Ensure HIPAA compliance and patient safety focus
+- Generate situation-specific content based on input context
+- Create detailed, clinically relevant documentation
+
+MEDICAL EXPERTISE:
+- Advanced knowledge of pathophysiology and nursing care
+- Understanding of medication administration and monitoring
+- Expertise in assessment techniques and clinical reasoning
+- Knowledge of evidence-based nursing practices
+- Familiarity with healthcare regulations and standards
+
+OUTPUT REQUIREMENTS:
+- Use professional medical terminology
+- Include specific measurements and vital signs
+- Provide detailed nursing assessments
+- Suggest appropriate interventions
+- Include patient education components
+- Ensure clinical accuracy and relevance
+- Follow proper documentation format
+- Maintain professional tone throughout
+
+Generate comprehensive, professional nursing documentation that demonstrates clinical expertise and follows best practices.`
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        temperature: 0.3,
-        max_tokens: 2000,
+        temperature: 0.2, // Lower temperature for more consistent, professional output
+        max_tokens: 3000, // Increased for more comprehensive notes
+        top_p: 0.9,
+        frequency_penalty: 0.1,
+        presence_penalty: 0.1,
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`OpenAI API error: ${response.status} ${response.statusText} - ${errorData.error?.message || 'Unknown error'}`);
     }
 
     const data = await response.json();

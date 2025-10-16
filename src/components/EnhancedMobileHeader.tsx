@@ -154,46 +154,43 @@ export function EnhancedMobileHeader({
               </SheetTrigger>
               <SheetContent side="right" className="w-80 bg-white border-l border-slate-200 shadow-xl">
                 <div className="flex flex-col h-full bg-white">
-                  {/* Enhanced Header */}
-                  <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 rounded-xl p-4 mb-6 border border-slate-200">
+                  {/* Compact Header */}
+                  <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 rounded-lg p-3 mb-4 border border-slate-200">
                     {userProfile.isSignedIn ? (
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-14 h-14 ring-2 ring-white shadow-lg">
-                          <AvatarFallback className="bg-gradient-to-br from-teal-500 to-blue-600 text-white font-semibold text-lg">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="w-10 h-10 ring-1 ring-white shadow-md">
+                          <AvatarFallback className="bg-gradient-to-br from-teal-500 to-blue-600 text-white font-semibold text-sm">
                             {userProfile.name.split(' ').map(n => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="flex-1">
-                          <h2 className="font-bold text-slate-900 text-lg">{userProfile.name}</h2>
-                          <p className="text-sm text-slate-600 font-medium">{userProfile.role}</p>
-                          {userProfile.email && (
-                            <p className="text-xs text-slate-500 mt-1">{userProfile.email}</p>
-                          )}
-                          <div className="flex items-center gap-1 mt-2">
-                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                            <span className="text-xs text-green-600 font-medium">Active</span>
+                        <div className="flex-1 min-w-0">
+                          <h2 className="font-semibold text-slate-900 text-sm truncate">{userProfile.name}</h2>
+                          <p className="text-xs text-slate-600 truncate">{userProfile.role}</p>
+                          <div className="flex items-center gap-1 mt-1">
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                            <span className="text-xs text-green-600">Active</span>
                           </div>
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-3">
-                        <div className="w-14 h-14 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center shadow-lg">
-                          <User className="h-7 w-7 text-slate-500" />
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center shadow-md">
+                          <User className="h-5 w-5 text-slate-500" />
                         </div>
-                        <div className="flex-1">
-                          <h2 className="font-bold text-slate-900 text-lg">Guest User</h2>
-                          <p className="text-sm text-slate-600 font-medium">Limited features available</p>
-                          <div className="flex items-center gap-1 mt-2">
-                            <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                            <span className="text-xs text-yellow-600 font-medium">Guest Mode</span>
+                        <div className="flex-1 min-w-0">
+                          <h2 className="font-semibold text-slate-900 text-sm">Guest User</h2>
+                          <p className="text-xs text-slate-600">Limited features</p>
+                          <div className="flex items-center gap-1 mt-1">
+                            <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></div>
+                            <span className="text-xs text-yellow-600">Guest Mode</span>
                           </div>
                         </div>
                         <Button 
                           onClick={onSignIn} 
                           size="sm" 
-                          className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-lg"
+                          className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-md h-8 px-3 text-xs"
                         >
-                          <LogIn className="h-4 w-4 mr-1" />
+                          <LogIn className="h-3 w-3 mr-1" />
                           Sign In
                         </Button>
                       </div>
@@ -209,15 +206,15 @@ export function EnhancedMobileHeader({
                         <Button
                           key={item.id}
                           variant="ghost"
-                          className="w-full justify-start h-14 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50/30 text-slate-700 rounded-xl transition-all duration-200"
+                          className="w-full justify-start h-12 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50/30 text-slate-700 rounded-lg transition-all duration-200"
                           onClick={() => handleNavigation(item.id)}
                         >
-                          <div className="w-8 h-8 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center mr-3">
-                            <Icon className="h-4 w-4 text-slate-600" />
+                          <div className="w-7 h-7 bg-gradient-to-br from-slate-100 to-slate-200 rounded-md flex items-center justify-center mr-3">
+                            <Icon className="h-3.5 w-3.5 text-slate-600" />
                           </div>
                           <div className="text-left flex-1">
-                            <div className="text-sm font-semibold">{item.label}</div>
-                            <div className="text-xs text-slate-500">{item.description}</div>
+                            <div className="text-sm font-medium">{item.label}</div>
+                            <div className="text-xs text-slate-500 truncate">{item.description}</div>
                           </div>
                         </Button>
                       );
