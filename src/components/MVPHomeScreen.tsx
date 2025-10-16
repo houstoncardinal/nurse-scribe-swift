@@ -263,9 +263,7 @@ export function MVPHomeScreen({
             )}
           </>
         )}
-        </div>
       </div>
-
     </div>
   );
 }

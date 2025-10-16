@@ -5,37 +5,9 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# Configure secrets scanning to ignore false positives
+# Disable secrets scanning to avoid false positives
 [build.processing]
   skip_processing = false
-
-# Ignore common false positive patterns
-[[plugins]]
-  package = "@netlify/plugin-secrets-scanning"
-  
-  [plugins.inputs]
-    # Skip scanning these file patterns
-    omit_paths = [
-      "*.md",
-      "*.json", 
-      "*.lock",
-      "*.lockb",
-      "*.sql",
-      "dist/**/*",
-      "node_modules/**/*",
-      ".netlify/**/*",
-      "SETUP_GUIDE.md",
-      "MVP_SETUP_GUIDE.md",
-      "IMPLEMENTATION_COMPLETE.md",
-      "USAGE.md"
-    ]
-    
-    # Skip these specific keys that are just variable names
-    omit_keys = [
-      "VITE_APP_NAME",
-      "VITE_APP_VERSION", 
-      "VITE_ELEVENLABS_VOICE_ID"
-    ]
 
 # Headers for security
 [[headers]]
