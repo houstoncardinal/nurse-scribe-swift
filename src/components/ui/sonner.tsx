@@ -20,7 +20,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
           cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
           closeButton:
-            "group-[.toast]:bg-red-500 group-[.toast]:text-white group-[.toast]:border-red-600 group-[.toast]:hover:bg-red-600 group-[.toast]:w-6 group-[.toast]:h-6 group-[.toast]:rounded-full group-[.toast]:flex group-[.toast]:items-center group-[.toast]:justify-center group-[.toast]:font-bold group-[.toast]:text-sm",
+            "group-[.toast]:bg-transparent group-[.toast]:text-slate-400 group-[.toast]:hover:text-slate-600 group-[.toast]:hover:bg-slate-100 group-[.toast]:w-4 group-[.toast]:h-4 group-[.toast]:rounded group-[.toast]:flex group-[.toast]:items-center group-[.toast]:justify-center group-[.toast]:text-xs group-[.toast]:transition-colors",
         },
         style: {
           background: 'white',
