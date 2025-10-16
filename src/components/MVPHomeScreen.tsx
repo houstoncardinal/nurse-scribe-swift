@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mic, MicOff, Clock, Zap, Shield, Keyboard, Upload, FileText, TrendingUp, Target, Award, Activity, BarChart3, CheckCircle, Star, Timer, Users, BookOpen } from 'lucide-react';
+import { Mic, MicOff, Clock, Zap, Shield, Keyboard, Upload, FileText, TrendingUp, Target, Award, Activity, BarChart3, CheckCircle, Star, Timer, Users, BookOpen, AlertTriangle, Bell, Calendar, TrendingDown, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -50,6 +50,19 @@ export function MVPHomeScreen({
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Mock user profile data - in real app, this would come from user context/API
+  const userProfile = {
+    name: 'Dr. Sarah Johnson',
+    role: 'RN, BSN',
+    notesToday: 12,
+    timeSaved: 3.2,
+    accuracy: 99.2,
+    pendingReviews: 3,
+    upcomingTasks: 2,
+    weeklyGoal: 50,
+    notesThisWeek: 42
   };
 
           return (
@@ -289,113 +302,143 @@ export function MVPHomeScreen({
                 )}
               </div>
 
-                      {/* Right Side - Powerful Dashboard */}
+                      {/* Right Side - Profile Dashboard */}
                       <div className="lg:col-span-1 space-y-6 flex flex-col justify-start min-h-[500px]">
-                        {/* Quick Stats */}
+                        {/* Your Performance Today */}
                         <Card className="p-4 bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-lg">
                           <div className="flex items-center gap-3 mb-4">
                             <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
                               <BarChart3 className="h-4 w-4 text-white" />
                             </div>
-                            <h3 className="font-semibold text-slate-900">Today's Performance</h3>
+                            <h3 className="font-semibold text-slate-900">Your Performance Today</h3>
                           </div>
                           <div className="space-y-3">
-                            <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-100">
+                            <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-100">
                               <div className="flex items-center gap-2">
                                 <FileText className="h-4 w-4 text-blue-600" />
                                 <span className="text-sm font-medium text-slate-700">Notes Created</span>
                               </div>
-                              <span className="text-lg font-bold text-blue-600">12</span>
+                              <div className="text-right">
+                                <span className="text-lg font-bold text-blue-600">{userProfile.notesToday}</span>
+                                <div className="text-xs text-green-600 flex items-center gap-1">
+                                  <TrendingUp className="h-3 w-3" />
+                                  +3 from yesterday
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-100">
+                            <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-100">
                               <div className="flex items-center gap-2">
                                 <Timer className="h-4 w-4 text-emerald-600" />
                                 <span className="text-sm font-medium text-slate-700">Time Saved</span>
                               </div>
-                              <span className="text-lg font-bold text-emerald-600">3.2h</span>
+                              <div className="text-right">
+                                <span className="text-lg font-bold text-emerald-600">{userProfile.timeSaved}h</span>
+                                <div className="text-xs text-green-600 flex items-center gap-1">
+                                  <TrendingUp className="h-3 w-3" />
+                                  +47m today
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-100">
+                            <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-100">
                               <div className="flex items-center gap-2">
                                 <Target className="h-4 w-4 text-purple-600" />
-                                <span className="text-sm font-medium text-slate-700">Accuracy</span>
+                                <span className="text-sm font-medium text-slate-700">Accuracy Rate</span>
                               </div>
-                              <span className="text-lg font-bold text-purple-600">99.2%</span>
+                              <div className="text-right">
+                                <span className="text-lg font-bold text-purple-600">{userProfile.accuracy}%</span>
+                                <div className="text-xs text-green-600 flex items-center gap-1">
+                                  <TrendingUp className="h-3 w-3" />
+                                  +0.5% this week
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </Card>
 
-                        {/* Quick Tips */}
+                        {/* Needs Your Attention */}
+                        <Card className="p-4 bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 shadow-lg">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
+                              <Bell className="h-4 w-4 text-white" />
+                            </div>
+                            <h3 className="font-semibold text-slate-900">Needs Your Attention</h3>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-orange-100">
+                              <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                                <AlertTriangle className="h-4 w-4 text-red-600" />
+                              </div>
+                              <div className="flex-1">
+                                <div className="text-sm font-medium text-slate-700">Pending Reviews</div>
+                                <div className="text-xs text-slate-500">Notes awaiting your approval</div>
+                              </div>
+                              <Badge className="bg-red-100 text-red-700 border-red-200">{userProfile.pendingReviews}</Badge>
+                            </div>
+                            <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-orange-100">
+                              <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <Calendar className="h-4 w-4 text-yellow-600" />
+                              </div>
+                              <div className="flex-1">
+                                <div className="text-sm font-medium text-slate-700">Upcoming Tasks</div>
+                                <div className="text-xs text-slate-500">Scheduled documentation</div>
+                              </div>
+                              <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200">{userProfile.upcomingTasks}</Badge>
+                            </div>
+                            <Button variant="outline" size="sm" className="w-full text-xs">
+                              View All Notifications
+                            </Button>
+                          </div>
+                        </Card>
+
+                        {/* Weekly Progress */}
                         <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-lg">
                           <div className="flex items-center gap-3 mb-4">
                             <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                              <BookOpen className="h-4 w-4 text-white" />
+                              <Target className="h-4 w-4 text-white" />
                             </div>
-                            <h3 className="font-semibold text-slate-900">Quick Tips</h3>
+                            <h3 className="font-semibold text-slate-900">Weekly Goal Progress</h3>
                           </div>
                           <div className="space-y-3">
-                            <div className="flex items-start gap-3 p-2 bg-white rounded-lg border border-blue-100">
-                              <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                              <span className="text-sm text-slate-700">Speak clearly and at normal pace for best accuracy</span>
+                            <div className="p-3 bg-white rounded-lg border border-blue-100">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-medium text-slate-700">Notes This Week</span>
+                                <span className="text-sm font-bold text-blue-600">{userProfile.notesThisWeek}/{userProfile.weeklyGoal}</span>
+                              </div>
+                              <Progress value={(userProfile.notesThisWeek / userProfile.weeklyGoal) * 100} className="h-2" />
+                              <div className="text-xs text-slate-500 mt-1">
+                                {userProfile.weeklyGoal - userProfile.notesThisWeek} more notes to reach goal
+                              </div>
                             </div>
-                            <div className="flex items-start gap-3 p-2 bg-white rounded-lg border border-blue-100">
-                              <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                              <span className="text-sm text-slate-700">Use specific medical terminology for better AI understanding</span>
-                            </div>
-                            <div className="flex items-start gap-3 p-2 bg-white rounded-lg border border-blue-100">
-                              <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                              <span className="text-sm text-slate-700">Review and edit generated notes before exporting</span>
+                            <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-blue-100">
+                              <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center">
+                                <TrendingUp className="h-3 w-3 text-green-600" />
+                              </div>
+                              <span className="text-sm text-slate-700">On track to exceed weekly goal</span>
                             </div>
                           </div>
                         </Card>
 
-                        {/* Recent Activity */}
-                        <Card className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 shadow-lg">
+                        {/* Quick Actions */}
+                        <Card className="p-4 bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 shadow-lg">
                           <div className="flex items-center gap-3 mb-4">
-                            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
-                              <Activity className="h-4 w-4 text-white" />
+                            <div className="w-8 h-8 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center">
+                              <Zap className="h-4 w-4 text-white" />
                             </div>
-                            <h3 className="font-semibold text-slate-900">Recent Activity</h3>
+                            <h3 className="font-semibold text-slate-900">Quick Actions</h3>
                           </div>
-                          <div className="space-y-3">
-                            <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-purple-100">
-                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                              <span className="text-sm text-slate-700">SOAP note completed</span>
-                              <span className="text-xs text-slate-500 ml-auto">2m ago</span>
-                            </div>
-                            <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-purple-100">
-                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                              <span className="text-sm text-slate-700">Voice recognition session</span>
-                              <span className="text-xs text-slate-500 ml-auto">15m ago</span>
-                            </div>
-                            <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-purple-100">
-                              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                              <span className="text-sm text-slate-700">SBAR template used</span>
-                              <span className="text-xs text-slate-500 ml-auto">1h ago</span>
-                            </div>
-                          </div>
-                        </Card>
-
-                        {/* Achievements */}
-                        <Card className="p-4 bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 shadow-lg">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="w-8 h-8 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center">
-                              <Award className="h-4 w-4 text-white" />
-                            </div>
-                            <h3 className="font-semibold text-slate-900">Achievements</h3>
-                          </div>
-                          <div className="space-y-3">
-                            <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-yellow-100">
-                              <Star className="h-4 w-4 text-yellow-500" />
-                              <span className="text-sm text-slate-700">Speed Master - 10 notes in 1 hour</span>
-                            </div>
-                            <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-yellow-100">
-                              <Target className="h-4 w-4 text-green-500" />
-                              <span className="text-sm text-slate-700">Accuracy Champion - 99%+ rate</span>
-                            </div>
-                            <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-yellow-100">
-                              <Users className="h-4 w-4 text-blue-500" />
-                              <span className="text-sm text-slate-700">Team Player - 50+ shared notes</span>
-                            </div>
+                          <div className="space-y-2">
+                            <Button variant="outline" size="sm" className="w-full justify-start text-xs">
+                              <FileText className="h-3 w-3 mr-2" />
+                              Review Pending Notes
+                            </Button>
+                            <Button variant="outline" size="sm" className="w-full justify-start text-xs">
+                              <BarChart3 className="h-3 w-3 mr-2" />
+                              View Weekly Report
+                            </Button>
+                            <Button variant="outline" size="sm" className="w-full justify-start text-xs">
+                              <Settings className="h-3 w-3 mr-2" />
+                              Update Preferences
+                            </Button>
                           </div>
                         </Card>
                       </div>
@@ -633,42 +676,92 @@ export function MVPHomeScreen({
                 </div>
               )}
 
-              {/* Mobile Dashboard - Compact Stats */}
+              {/* Mobile Profile Widgets */}
               {!isRecording && !isProcessing && (
                 <div className="w-full max-w-md space-y-3 mt-6">
+                  {/* Your Numbers Today */}
                   <div className="grid grid-cols-3 gap-3">
                     <Card className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
                       <div className="text-center">
                         <FileText className="h-5 w-5 text-blue-600 mx-auto mb-1" />
-                        <div className="text-lg font-bold text-blue-700">12</div>
-                        <div className="text-xs text-blue-600">Notes</div>
+                        <div className="text-lg font-bold text-blue-700">{userProfile.notesToday}</div>
+                        <div className="text-xs text-blue-600">Today's Notes</div>
+                        <div className="text-xs text-green-600 flex items-center justify-center gap-0.5 mt-1">
+                          <TrendingUp className="h-2 w-2" />
+                          +3
+                        </div>
                       </div>
                     </Card>
                     <Card className="p-3 bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200">
                       <div className="text-center">
                         <Timer className="h-5 w-5 text-emerald-600 mx-auto mb-1" />
-                        <div className="text-lg font-bold text-emerald-700">3.2h</div>
-                        <div className="text-xs text-emerald-600">Saved</div>
+                        <div className="text-lg font-bold text-emerald-700">{userProfile.timeSaved}h</div>
+                        <div className="text-xs text-emerald-600">Time Saved</div>
+                        <div className="text-xs text-green-600 flex items-center justify-center gap-0.5 mt-1">
+                          <TrendingUp className="h-2 w-2" />
+                          +47m
+                        </div>
                       </div>
                     </Card>
                     <Card className="p-3 bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200">
                       <div className="text-center">
                         <Target className="h-5 w-5 text-purple-600 mx-auto mb-1" />
-                        <div className="text-lg font-bold text-purple-700">99%</div>
+                        <div className="text-lg font-bold text-purple-700">{userProfile.accuracy}%</div>
                         <div className="text-xs text-purple-600">Accuracy</div>
+                        <div className="text-xs text-green-600 flex items-center justify-center gap-0.5 mt-1">
+                          <TrendingUp className="h-2 w-2" />
+                          +0.5%
+                        </div>
                       </div>
                     </Card>
                   </div>
 
-                  {/* Mobile Tips */}
-                  <Card className="p-3 bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200">
+                  {/* Needs Attention */}
+                  {(userProfile.pendingReviews > 0 || userProfile.upcomingTasks > 0) && (
+                    <Card className="p-3 bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Bell className="h-4 w-4 text-orange-600" />
+                        <span className="text-sm font-semibold text-slate-900">Needs Attention</span>
+                      </div>
+                      <div className="space-y-2">
+                        {userProfile.pendingReviews > 0 && (
+                          <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-orange-100">
+                            <div className="flex items-center gap-2">
+                              <AlertTriangle className="h-3 w-3 text-red-600" />
+                              <span className="text-xs text-slate-700">Pending Reviews</span>
+                            </div>
+                            <Badge className="bg-red-100 text-red-700 border-red-200 text-xs">{userProfile.pendingReviews}</Badge>
+                          </div>
+                        )}
+                        {userProfile.upcomingTasks > 0 && (
+                          <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-orange-100">
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-3 w-3 text-yellow-600" />
+                              <span className="text-xs text-slate-700">Upcoming Tasks</span>
+                            </div>
+                            <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200 text-xs">{userProfile.upcomingTasks}</Badge>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  )}
+
+                  {/* Weekly Progress */}
+                  <Card className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200">
                     <div className="flex items-center gap-2 mb-2">
-                      <BookOpen className="h-4 w-4 text-orange-600" />
-                      <span className="text-sm font-semibold text-slate-900">Quick Tip</span>
+                      <Target className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-semibold text-slate-900">Weekly Goal</span>
                     </div>
-                    <p className="text-xs text-slate-700">
-                      Speak clearly and use medical terminology for best AI transcription accuracy.
-                    </p>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-700">Progress</span>
+                        <span className="text-xs font-bold text-blue-600">{userProfile.notesThisWeek}/{userProfile.weeklyGoal}</span>
+                      </div>
+                      <Progress value={(userProfile.notesThisWeek / userProfile.weeklyGoal) * 100} className="h-1.5" />
+                      <div className="text-xs text-slate-500">
+                        {userProfile.weeklyGoal - userProfile.notesThisWeek} more to reach goal
+                      </div>
+                    </div>
                   </Card>
                 </div>
               )}
