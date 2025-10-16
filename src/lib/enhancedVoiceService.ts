@@ -389,13 +389,39 @@ class EnhancedVoiceService {
    * Stop listening
    */
   public stopListening(): void {
-    if (this.recognition && this.recognition.state === 'running') {
-      this.recognition.stop();
+    console.log('🛑 Enhanced voice service stopping...');
+    
+    // Stop browser speech recognition
+    if (this.recognition) {
+      if (this.recognition.state === 'running' || this.isListening) {
+        console.log('🛑 Stopping browser speech recognition...');
+        this.recognition.stop();
+      }
+      this.isListening = false;
     }
 
+    // Stop media recording
     if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+      console.log('🛑 Stopping media recording...');
       this.stopRecording();
     }
+
+    // Clear timers
+    if (this.recordingTimer) {
+      clearTimeout(this.recordingTimer);
+      this.recordingTimer = null;
+    }
+
+    if (this.silenceTimer) {
+      clearTimeout(this.silenceTimer);
+      this.silenceTimer = null;
+    }
+
+    // Reset state
+    this.isRecording = false;
+    this.isProcessing = false;
+    
+    console.log('✅ Voice service stopped successfully');
   }
 
   /**

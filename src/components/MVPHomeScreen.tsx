@@ -165,8 +165,10 @@ export function MVPHomeScreen({
                                 e.stopPropagation();
                                 console.log('🎤 Desktop microphone button clicked, isRecording:', isRecording);
                                 if (isRecording) {
+                                  console.log('🛑 Stopping recording...');
                                   onStopRecording();
                                 } else {
+                                  console.log('🎤 Starting recording...');
                                   onStartRecording();
                                 }
                               }}
@@ -586,10 +588,12 @@ export function MVPHomeScreen({
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('🎤 Microphone button clicked, isRecording:', isRecording);
+                      console.log('🎤 Mobile microphone button clicked, isRecording:', isRecording);
                       if (isRecording) {
+                        console.log('🛑 Stopping recording...');
                         onStopRecording();
                       } else {
+                        console.log('🎤 Starting recording...');
                         onStartRecording();
                       }
                     }}

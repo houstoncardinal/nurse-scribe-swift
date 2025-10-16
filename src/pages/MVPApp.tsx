@@ -536,16 +536,30 @@ export function MVPApp() {
   const handleStopRecording = () => {
     console.log('🎤 Stopping voice recording...');
     
-    // Only stop if actually recording
+    // Only stop if actually recording or listening
     if (!isRecording && !voiceRecognitionService.getIsListening()) {
       console.log('🎤 Not currently recording, ignoring stop request');
       return;
     }
     
+    console.log('🎤 Force stopping voice recognition...');
+    
+    // Force stop the recording
+    setIsRecording(false);
+    setIsProcessing(false);
+    
+    // Stop the voice recognition service
     if (voiceRecognitionService.getIsListening()) {
       voiceRecognitionService.stopListening();
-      // The callbacks will handle the UI updates
     }
+    
+    // Clear any timers
+    if (recordingInterval) {
+      clearInterval(recordingInterval);
+      setRecordingInterval(null);
+    }
+    
+    console.log('✅ Voice recording stopped successfully');
   };
 
   // Handle manual text input with AI enhancement
