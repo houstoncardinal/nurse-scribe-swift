@@ -221,8 +221,8 @@ export function MVPHomeScreen({
         )}
       </div>
 
-      {/* Interactive Dashboard */}
-      <div className="p-6 pt-4">
+      {/* Compact Dashboard */}
+      <div className="p-4 pt-2">
         <InteractiveDashboard />
       </div>
     </div>
