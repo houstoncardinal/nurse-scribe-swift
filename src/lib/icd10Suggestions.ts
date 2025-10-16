@@ -344,30 +344,40 @@ class ICD10SuggestionService {
 
     codesToSearch.forEach(code => {
       let confidence = 0;
-      let matchType: 'exact' | 'partial' | 'synonym' | 'related' = 'related';
+      let matchType: 'exact' | 'partial' | 'synonym' | 'related' | 'fuzzy' = 'related';
 
-      // Exact match in common terms
+      // Strategy 1: Exact match in common terms (highest priority)
       const exactMatch = code.commonTerms.find(term => term.toLowerCase() === searchTerm);
       if (exactMatch) {
         confidence = 1.0;
         matchType = 'exact';
       }
-      // Partial match in common terms
+      // Strategy 2: Partial match in common terms
       else if (code.commonTerms.some(term => term.toLowerCase().includes(searchTerm))) {
         confidence = 0.9;
         matchType = 'partial';
       }
-      // Match in description
-      else if (code.description.toLowerCase().includes(searchTerm)) {
+      // Strategy 3: Fuzzy matching for common medical abbreviations
+      else if (this.fuzzyMatch(searchTerm, code.commonTerms)) {
+        confidence = 0.85;
+        matchType = 'fuzzy';
+      }
+      // Strategy 4: Multi-word search (e.g., "chest pain" matches both words)
+      else if (this.multiWordMatch(searchTerm, code)) {
         confidence = 0.8;
         matchType = 'partial';
       }
-      // Match in synonyms
+      // Strategy 5: Match in description
+      else if (code.description.toLowerCase().includes(searchTerm)) {
+        confidence = 0.75;
+        matchType = 'partial';
+      }
+      // Strategy 6: Match in synonyms
       else if (code.synonyms.some(synonym => synonym.toLowerCase().includes(searchTerm))) {
         confidence = 0.7;
         matchType = 'synonym';
       }
-      // Match in related codes
+      // Strategy 7: Related codes search
       else if (code.relatedCodes?.some(relatedCode => {
         const relatedCodeData = this.icd10Codes.find(c => c.code === relatedCode);
         return relatedCodeData?.commonTerms.some(term => term.toLowerCase().includes(searchTerm));
@@ -391,6 +401,55 @@ class ICD10SuggestionService {
     return suggestions
       .sort((a, b) => b.confidence - a.confidence)
       .slice(0, limit);
+  }
+
+  // Enhanced fuzzy matching for medical abbreviations
+  private fuzzyMatch(searchTerm: string, terms: string[]): boolean {
+    const abbreviations: { [key: string]: string[] } = {
+      'cp': ['chest pain', 'cardiac pain'],
+      'sob': ['shortness of breath', 'dyspnea'],
+      'n/v': ['nausea', 'vomiting'],
+      'abd': ['abdominal', 'abdomen'],
+      'bp': ['blood pressure'],
+      'hr': ['heart rate'],
+      'temp': ['temperature', 'fever'],
+      'mi': ['myocardial infarction', 'heart attack'],
+      'cva': ['cerebrovascular accident', 'stroke'],
+      'copd': ['chronic obstructive pulmonary disease'],
+      'dm': ['diabetes mellitus'],
+      'htn': ['hypertension'],
+      'chf': ['congestive heart failure']
+    };
+
+    const searchLower = searchTerm.toLowerCase();
+    
+    // Check direct abbreviation mapping
+    if (abbreviations[searchLower]) {
+      return abbreviations[searchLower].some(expansion => 
+        terms.some(term => term.toLowerCase().includes(expansion))
+      );
+    }
+
+    // Check if search term is contained in any expansion
+    for (const [abbr, expansions] of Object.entries(abbreviations)) {
+      if (expansions.some(expansion => expansion.includes(searchLower))) {
+        return terms.some(term => term.toLowerCase().includes(abbr));
+      }
+    }
+
+    return false;
+  }
+
+  // Multi-word search matching
+  private multiWordMatch(searchTerm: string, code: ICD10Code): boolean {
+    const words = searchTerm.split(/\s+/).filter(word => word.length > 2);
+    if (words.length < 2) return false;
+
+    const allTerms = [...code.commonTerms, ...code.synonyms, code.description.toLowerCase()];
+    const searchText = allTerms.join(' ');
+
+    // Check if all words from search term are found in the combined text
+    return words.every(word => searchText.includes(word.toLowerCase()));
   }
 
   getSmartTemplateCodes(template: string): ICD10Code[] {

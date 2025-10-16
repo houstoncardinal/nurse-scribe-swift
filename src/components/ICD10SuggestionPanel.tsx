@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { icd10SuggestionService } from '@/lib/icd10Suggestions';
+import { ICD10HelpPanel } from '@/components/ICD10HelpPanel';
 
 interface ICD10SuggestionPanelProps {
   onCodeSelect: (code: string, description: string) => void;
@@ -243,6 +244,9 @@ export function ICD10SuggestionPanel({
           </div>
         </CardContent>
       )}
+      
+      {/* Help Panel */}
+      <ICD10HelpPanel />
     </Card>
   );
 }

@@ -24,6 +24,8 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { enhancedAIService } from '@/lib/enhancedAIService';
 import { knowledgeBaseService } from '@/lib/knowledgeBase';
+import { ICD10SuggestionPanel } from '@/components/ICD10SuggestionPanel';
+import { icd10SuggestionService } from '@/lib/icd10Suggestions';
 
 interface MVPDraftScreenProps {
   onNavigate: (screen: string) => void;
@@ -47,6 +49,8 @@ export function MVPDraftScreen({
   const [aiGeneratedContent, setAiGeneratedContent] = useState<any>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiInsights, setAiInsights] = useState<any>(null);
+  const [selectedICD10Codes, setSelectedICD10Codes] = useState<Array<{code: string, description: string}>>([]);
+  const [showICD10Panel, setShowICD10Panel] = useState(false);
 
   // Mock AI-generated note based on template
   const generateNoteFromTemplate = (template: string, transcript: string) => {
@@ -116,12 +120,15 @@ export function MVPDraftScreen({
       const generatedNote = await enhancedAIService.generateNote(aiPrompt);
       setAiGeneratedContent(generatedNote);
       
+      // Generate comprehensive ICD-10 suggestions based on content
+      const icd10Suggestions = await generateICD10Suggestions(transcript, selectedTemplate);
+      
       // Get AI insights
       const insights = {
         confidence: generatedNote.overallConfidence,
         quality: generatedNote.qualityScore,
         medicalTerms: analysis.medicalTerms.length,
-        icd10Suggestions: generatedNote.icd10Suggestions,
+        icd10Suggestions: icd10Suggestions,
         suggestions: generatedNote.suggestions
       };
       setAiInsights(insights);
@@ -151,6 +158,76 @@ export function MVPDraftScreen({
       return 'medium';
     }
     return 'low';
+  };
+
+  const generateICD10Suggestions = async (text: string, template: string): Promise<Array<{code: string, description: string}>> => {
+    try {
+      // Extract medical terms and symptoms from the text
+      const medicalTerms = enhancedAIService.analyzeInput(text).medicalTerms;
+      const symptoms = extractSymptoms(text);
+      
+      // Generate suggestions for each symptom/term
+      const suggestions: Array<{code: string, description: string}> = [];
+      
+      // Get suggestions for extracted symptoms
+      symptoms.forEach(symptom => {
+        const symptomSuggestions = icd10SuggestionService.getSuggestions(symptom, template, 3);
+        symptomSuggestions.forEach(suggestion => {
+          if (!suggestions.find(s => s.code === suggestion.code)) {
+            suggestions.push({
+              code: suggestion.code,
+              description: suggestion.description
+            });
+          }
+        });
+      });
+      
+      // Get template-specific codes if available
+      if (template && template !== 'all') {
+        const templateCodes = icd10SuggestionService.getSmartTemplateCodes(template);
+        templateCodes.forEach(code => {
+          if (!suggestions.find(s => s.code === code.code)) {
+            suggestions.push({
+              code: code.code,
+              description: code.description
+            });
+          }
+        });
+      }
+      
+      return suggestions.slice(0, 8); // Limit to 8 suggestions
+    } catch (error) {
+      console.error('ICD-10 suggestion generation failed:', error);
+      return [];
+    }
+  };
+
+  const extractSymptoms = (text: string): string[] => {
+    const commonSymptoms = [
+      'chest pain', 'shortness of breath', 'headache', 'abdominal pain', 'fever',
+      'nausea', 'vomiting', 'dizziness', 'fatigue', 'weakness', 'cough',
+      'sore throat', 'runny nose', 'congestion', 'back pain', 'joint pain',
+      'muscle pain', 'swelling', 'rash', 'itching', 'diarrhea', 'constipation',
+      'urinary frequency', 'dysuria', 'hematuria', 'difficulty sleeping',
+      'anxiety', 'depression', 'confusion', 'memory loss'
+    ];
+    
+    return commonSymptoms.filter(symptom => 
+      text.toLowerCase().includes(symptom)
+    );
+  };
+
+  const handleICD10CodeSelect = (code: string, description: string) => {
+    const newCode = { code, description };
+    setSelectedICD10Codes(prev => {
+      // Remove if already exists, otherwise add
+      const exists = prev.find(c => c.code === code);
+      if (exists) {
+        return prev.filter(c => c.code !== code);
+      } else {
+        return [...prev, newCode];
+      }
+    });
   };
 
   const noteContent = aiGeneratedContent?.sections || generateNoteFromTemplate(selectedTemplate, transcript);
@@ -288,6 +365,89 @@ export function MVPDraftScreen({
               <span className="text-slate-700">ICD-10: {aiInsights.icd10Suggestions?.length || 0}</span>
             </div>
           </div>
+          
+          {/* Quick ICD-10 Actions */}
+          <div className="mt-3 flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowICD10Panel(!showICD10Panel)}
+              className="h-7 text-xs bg-white/80 border-blue-200 text-blue-700 hover:bg-blue-50"
+            >
+              <Target className="h-3 w-3 mr-1" />
+              {showICD10Panel ? 'Hide' : 'View'} ICD-10 Codes
+            </Button>
+            {selectedICD10Codes.length > 0 && (
+              <Badge className="h-7 px-2 bg-green-100 text-green-800 border-green-200">
+                {selectedICD10Codes.length} Selected
+              </Badge>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Mobile ICD-10 Panel */}
+      {showICD10Panel && aiInsights && (
+        <div className="lg:hidden flex-shrink-0 p-3 bg-white border-b border-slate-200 max-h-64 overflow-y-auto">
+          <div className="mb-3">
+            <h3 className="text-sm font-semibold text-slate-900 mb-2">AI-Suggested ICD-10 Codes</h3>
+            <p className="text-xs text-slate-600 mb-3">Tap to select codes for your note</p>
+          </div>
+          
+          {/* Selected Codes */}
+          {selectedICD10Codes.length > 0 && (
+            <div className="mb-3">
+              <h4 className="text-xs font-medium text-green-700 mb-2">Selected Codes:</h4>
+              <div className="flex flex-wrap gap-1">
+                {selectedICD10Codes.map((code) => (
+                  <Badge
+                    key={code.code}
+                    className="bg-green-100 text-green-800 border-green-200 text-xs px-2 py-1"
+                  >
+                    {code.code} - {code.description.substring(0, 30)}...
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Suggested Codes */}
+          <div className="space-y-2">
+            {aiInsights.icd10Suggestions?.slice(0, 5).map((suggestion: any, index: number) => (
+              <div
+                key={index}
+                className={`p-2 rounded-lg border cursor-pointer transition-all ${
+                  selectedICD10Codes.find(c => c.code === suggestion.code)
+                    ? 'bg-green-50 border-green-200 ring-1 ring-green-300'
+                    : 'bg-slate-50 border-slate-200 hover:bg-blue-50 hover:border-blue-200'
+                }`}
+                onClick={() => handleICD10CodeSelect(suggestion.code, suggestion.description)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-mono font-semibold text-blue-600">
+                        {suggestion.code}
+                      </span>
+                      {selectedICD10Codes.find(c => c.code === suggestion.code) && (
+                        <CheckCircle className="h-3 w-3 text-green-600" />
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-700 mt-1 line-clamp-2">
+                      {suggestion.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {aiInsights.icd10Suggestions?.length === 0 && (
+            <div className="text-center py-4">
+              <Target className="h-8 w-8 text-slate-400 mx-auto mb-2" />
+              <p className="text-xs text-slate-500">No ICD-10 suggestions available</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -354,6 +514,89 @@ export function MVPDraftScreen({
               <span className="text-slate-700">ICD-10 Codes: {aiInsights.icd10Suggestions?.length || 0}</span>
             </div>
           </div>
+          
+          {/* Desktop ICD-10 Actions */}
+          <div className="mt-4 flex gap-3">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowICD10Panel(!showICD10Panel)}
+              className="bg-white/80 border-blue-200 text-blue-700 hover:bg-blue-50"
+            >
+              <Target className="h-4 w-4 mr-2" />
+              {showICD10Panel ? 'Hide' : 'View'} ICD-10 Codes
+            </Button>
+            {selectedICD10Codes.length > 0 && (
+              <Badge className="px-3 py-1 bg-green-100 text-green-800 border-green-200">
+                {selectedICD10Codes.length} Codes Selected
+              </Badge>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Desktop ICD-10 Panel */}
+      {showICD10Panel && aiInsights && (
+        <div className="hidden lg:block flex-shrink-0 p-4 bg-white border-b border-slate-200">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">AI-Suggested ICD-10 Codes</h3>
+            <p className="text-sm text-slate-600">Click to select codes for your note documentation</p>
+          </div>
+          
+          {/* Selected Codes */}
+          {selectedICD10Codes.length > 0 && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <h4 className="text-sm font-medium text-green-700 mb-2">Selected Codes:</h4>
+              <div className="flex flex-wrap gap-2">
+                {selectedICD10Codes.map((code) => (
+                  <Badge
+                    key={code.code}
+                    className="bg-green-100 text-green-800 border-green-200 px-3 py-1"
+                  >
+                    {code.code} - {code.description}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Suggested Codes Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            {aiInsights.icd10Suggestions?.slice(0, 8).map((suggestion: any, index: number) => (
+              <div
+                key={index}
+                className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                  selectedICD10Codes.find(c => c.code === suggestion.code)
+                    ? 'bg-green-50 border-green-200 ring-1 ring-green-300'
+                    : 'bg-slate-50 border-slate-200 hover:bg-blue-50 hover:border-blue-200'
+                }`}
+                onClick={() => handleICD10CodeSelect(suggestion.code, suggestion.description)}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-base font-mono font-semibold text-blue-600">
+                        {suggestion.code}
+                      </span>
+                      {selectedICD10Codes.find(c => c.code === suggestion.code) && (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      )}
+                    </div>
+                    <p className="text-sm text-slate-700 leading-relaxed">
+                      {suggestion.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {aiInsights.icd10Suggestions?.length === 0 && (
+            <div className="text-center py-8">
+              <Target className="h-12 w-12 text-slate-400 mx-auto mb-3" />
+              <p className="text-slate-500">No ICD-10 suggestions available</p>
+            </div>
+          )}
         </div>
       )}
 
