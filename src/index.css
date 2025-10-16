@@ -526,7 +526,7 @@
   }
   
   /* Ensure containers don't overflow */
-  .container, .max-w-*, .w-* {
+  .container {
     max-width: 100vw !important;
   }
   
@@ -541,7 +541,7 @@
   }
   
   /* Fix text that might cause overflow */
-  .text-* {
+  p, span, div, h1, h2, h3, h4, h5, h6 {
     word-wrap: break-word;
     overflow-wrap: break-word;
   }

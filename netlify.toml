@@ -5,7 +5,13 @@
 [build.environment]
   SECRETS_SCAN_ENABLED = "false"
 
-# Redirect rules for SPA
+# Redirect rules for SPA - but not for assets
+[[redirects]]
+  from = "/assets/*"
+  to = "/assets/:splat"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -21,7 +27,19 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
-# Cache static assets with versioning
+# Cache static assets with versioning and proper MIME types
+[[headers]]
+  for = "/assets/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Type = "text/css; charset=utf-8"
+
+[[headers]]
+  for = "/assets/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Type = "application/javascript; charset=utf-8"
+
 [[headers]]
   for = "/assets/*"
   [headers.values]

@@ -326,7 +326,7 @@ class EnhancedVoiceRecognitionService {
       'ltach': 'long-term acute care hospital',
       'snf': 'skilled nursing facility',
       'rehab': 'rehabilitation',
-      'pt': 'physical therapy',
+      'pt_therapy': 'physical therapy',
       'ot': 'occupational therapy',
       'st': 'speech therapy',
       'rt': 'respiratory therapy',

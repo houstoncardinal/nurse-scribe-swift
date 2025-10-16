@@ -11,7 +11,7 @@ const STATIC_CACHE = `nursescribe-static-v${VERSION}-${TIMESTAMP}`;
 const DYNAMIC_CACHE = `nursescribe-dynamic-v${VERSION}-${TIMESTAMP}`;
 
 // Force cache invalidation on every update
-const FORCE_CACHE_CLEAR = true;
+const FORCE_CACHE_CLEAR = false;
 
 // Files to cache for offline functionality
 const STATIC_FILES = [
