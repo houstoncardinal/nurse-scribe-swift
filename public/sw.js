@@ -109,7 +109,10 @@ self.addEventListener('fetch', (event) => {
 
 // Background sync for offline data
 self.addEventListener('sync', (event) => {
-  console.log('Background sync triggered:', event.tag);
+  // Only log in development
+  if (ENVIRONMENT === 'development') {
+    console.log('Background sync triggered:', event.tag);
+  }
   
   if (event.tag === 'offline-notes') {
     event.waitUntil(syncOfflineNotes());

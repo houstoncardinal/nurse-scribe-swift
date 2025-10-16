@@ -487,17 +487,42 @@ export function MVPApp() {
 
   // Start recording with real voice recognition
   const handleStartRecording = async () => {
+    console.log('🎤 Starting voice recording...');
+    
     if (!voiceSupported) {
       toast.error('Voice recognition not supported in this browser');
       return;
     }
 
     try {
+      // Request microphone permission first
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log('✅ Microphone permission granted');
+      
+      // Stop the stream as we just needed permission
+      stream.getTracks().forEach(track => track.stop());
+      
+      // Now start voice recognition
       await voiceRecognitionService.startListening();
-      // The callbacks will handle the UI updates
-    } catch (error) {
-      console.error('Failed to start voice recognition:', error);
-      toast.error('Failed to start voice recognition');
+      console.log('✅ Voice recognition started successfully');
+      
+    } catch (error: any) {
+      console.error('❌ Failed to start voice recognition:', error);
+      
+      let errorMessage = 'Failed to start voice recognition';
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        errorMessage = 'Microphone access denied. Please allow microphone access and try again.';
+      } else if (error.name === 'NotFoundError') {
+        errorMessage = 'No microphone found. Please connect a microphone and try again.';
+      } else if (error.name === 'NotReadableError') {
+        errorMessage = 'Microphone is being used by another application. Please close other apps and try again.';
+      } else if (error.name === 'OverconstrainedError') {
+        errorMessage = 'Microphone constraints cannot be satisfied. Please try a different microphone.';
+      }
+      
+      toast.error(errorMessage);
+      setIsRecording(false);
+      setIsProcessing(false);
     }
   };
 

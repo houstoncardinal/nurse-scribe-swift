@@ -38,8 +38,10 @@ export function InputMethodSelector({
   };
 
   const handleMethodSelect = (method: 'voice' | 'manual' | 'paste') => {
+    console.log('🎤 Method selected:', method);
     setSelectedMethod(method);
     if (method === 'voice') {
+      console.log('🎤 Calling onMethodSelect for voice');
       onMethodSelect(method);
     }
   };
@@ -269,7 +271,12 @@ export function InputMethodSelector({
             <Card
               key={method.id}
               className={`p-4 lg:p-6 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border-2 hover:shadow-${method.color.split('-')[1]}-200/50 ${method.bgColor} ${method.borderColor}`}
-              onClick={() => handleMethodSelect(method.id as any)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🎤 Input method card clicked:', method.id);
+                handleMethodSelect(method.id as any);
+              }}
             >
               <div className="space-y-4">
                 <div className="flex items-start gap-4">

@@ -334,15 +334,33 @@ class EnhancedVoiceService {
       return;
     }
 
-    // Choose the best available method
-    if (this.options.useWhisper && whisperWasmService.isReady()) {
-      console.log('🎤 Starting Whisper recording...');
-      await this.startRecording();
-    } else if (this.recognition && this.options.fallbackToBrowser) {
-      console.log('🎤 Starting browser speech recognition...');
-      this.recognition.start();
-    } else {
-      this.handleError('No voice recognition method available');
+    try {
+      // Check microphone permissions first (if supported)
+      if (navigator.permissions) {
+        try {
+          const permissions = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+          if (permissions.state === 'denied') {
+            this.handleError('Microphone access denied');
+            return;
+          }
+        } catch (permError) {
+          console.log('Permissions API not supported, proceeding without permission check');
+        }
+      }
+
+      // Choose the best available method
+      if (this.options.useWhisper && whisperWasmService.isReady()) {
+        console.log('🎤 Starting Whisper recording...');
+        await this.startRecording();
+      } else if (this.recognition && this.options.fallbackToBrowser) {
+        console.log('🎤 Starting browser speech recognition...');
+        this.recognition.start();
+      } else {
+        this.handleError('No voice recognition method available');
+      }
+    } catch (error: any) {
+      console.error('Error starting voice recognition:', error);
+      this.handleError(error.message || 'Failed to start voice recognition');
     }
   }
 
@@ -406,11 +424,30 @@ class EnhancedVoiceService {
    */
   public async requestMicrophonePermissions(): Promise<boolean> {
     try {
+      // Check if mediaDevices is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.warn('MediaDevices API not supported');
+        return false;
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach(track => track.stop());
+      console.log('✅ Microphone permission granted');
       return true;
-    } catch (error) {
-      console.error('Microphone permission denied:', error);
+    } catch (error: any) {
+      console.error('❌ Microphone permission denied:', error);
+      
+      // Log specific error types for debugging
+      if (error.name === 'NotAllowedError') {
+        console.error('User denied microphone access');
+      } else if (error.name === 'NotFoundError') {
+        console.error('No microphone found');
+      } else if (error.name === 'NotReadableError') {
+        console.error('Microphone is being used by another application');
+      } else if (error.name === 'OverconstrainedError') {
+        console.error('Microphone constraints cannot be satisfied');
+      }
+      
       return false;
     }
   }

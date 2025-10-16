@@ -153,9 +153,14 @@ class PWAService {
       const registration = await navigator.serviceWorker.ready;
       // Background sync is optional - check if supported
       if ('sync' in registration) {
-        await (registration as any).sync.register('offline-notes');
-        await (registration as any).sync.register('analytics');
-        await (registration as any).sync.register('education-progress');
+        // Only register background sync once per session
+        const syncRegistered = sessionStorage.getItem('background-sync-registered');
+        if (!syncRegistered) {
+          await (registration as any).sync.register('offline-notes');
+          await (registration as any).sync.register('analytics');
+          await (registration as any).sync.register('education-progress');
+          sessionStorage.setItem('background-sync-registered', 'true');
+        }
       }
     } catch (error) {
       console.error('Background sync registration failed:', error);

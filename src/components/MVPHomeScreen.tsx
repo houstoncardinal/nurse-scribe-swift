@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { InputMethodSelector } from '@/components/InputMethodSelector';
+import { VoiceDebugPanel } from '@/components/VoiceDebugPanel';
 
 interface MVPHomeScreenProps {
   onNavigate: (screen: string) => void;
@@ -43,6 +44,7 @@ export function MVPHomeScreen({
   // Use the prop value directly - no need for local state
   const currentTemplate = selectedTemplate;
   const [showInputSelector, setShowInputSelector] = useState(false);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   const templates = [
     { value: 'SOAP', label: 'SOAP (Subjective, Objective, Assessment, Plan)' },
@@ -159,9 +161,34 @@ export function MVPHomeScreen({
                                 isRecording 
                                   ? 'bg-gradient-to-br from-red-500 via-pink-600 to-red-600 hover:from-red-600 hover:via-pink-700 hover:to-red-700 shadow-red-500/30' 
                                   : 'bg-gradient-to-br from-teal-500 via-blue-600 to-teal-600 hover:from-teal-600 hover:via-blue-700 hover:to-teal-700 shadow-teal-500/30'
-                              } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                              onClick={isRecording ? onStopRecording : onStartRecording}
+                              } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                console.log('🎤 Desktop microphone button clicked, isRecording:', isRecording);
+                                if (isRecording) {
+                                  onStopRecording();
+                                } else {
+                                  onStartRecording();
+                                }
+                              }}
+                              onTouchStart={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                console.log('🎤 Desktop microphone button touch start, isRecording:', isRecording);
+                              }}
+                              onTouchEnd={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                console.log('🎤 Desktop microphone button touch end, isRecording:', isRecording);
+                                if (isRecording) {
+                                  onStopRecording();
+                                } else {
+                                  onStartRecording();
+                                }
+                              }}
                               disabled={isProcessing}
+                              type="button"
                             >
                               {isRecording ? (
                                 <MicOff className="h-28 w-28 text-white drop-shadow-lg" />
@@ -561,14 +588,39 @@ export function MVPHomeScreen({
                       isRecording 
                         ? 'bg-gradient-to-br from-red-500 via-pink-600 to-red-600 hover:from-red-600 hover:via-pink-700 hover:to-red-700 shadow-[0_8px_30px_rgb(239,68,68,0.4)] hover:shadow-[0_12px_40px_rgb(239,68,68,0.5)]' 
                         : 'bg-gradient-to-br from-teal-500 via-blue-600 to-teal-600 hover:from-teal-600 hover:via-blue-700 hover:to-teal-700 shadow-[0_8px_30px_rgb(20,184,166,0.4)] hover:shadow-[0_12px_40px_rgb(20,184,166,0.5)]'
-                    } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''} shadow-lg`}
+                    } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} shadow-lg`}
                     style={{
                       boxShadow: isRecording 
                         ? '0 8px 30px rgba(239, 68, 68, 0.4), 0 2px 8px rgba(239, 68, 68, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
                         : '0 8px 30px rgba(20, 184, 166, 0.4), 0 2px 8px rgba(20, 184, 166, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
                     }}
-                    onClick={isRecording ? onStopRecording : onStartRecording}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('🎤 Microphone button clicked, isRecording:', isRecording);
+                      if (isRecording) {
+                        onStopRecording();
+                      } else {
+                        onStartRecording();
+                      }
+                    }}
+                    onTouchStart={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('🎤 Microphone button touch start, isRecording:', isRecording);
+                    }}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('🎤 Microphone button touch end, isRecording:', isRecording);
+                      if (isRecording) {
+                        onStopRecording();
+                      } else {
+                        onStartRecording();
+                      }
+                    }}
                     disabled={isProcessing}
+                    type="button"
                   >
                     {isRecording ? (
                       <MicOff className="h-12 w-12 sm:h-14 sm:w-14 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
@@ -802,6 +854,23 @@ export function MVPHomeScreen({
           )}
         </div>
       </div>
+
+      {/* Debug Panel */}
+      <VoiceDebugPanel 
+        isVisible={showDebugPanel} 
+        onClose={() => setShowDebugPanel(false)} 
+      />
+      
+      {/* Debug Button (only visible in development) */}
+      {process.env.NODE_ENV === 'development' && (
+        <Button
+          onClick={() => setShowDebugPanel(!showDebugPanel)}
+          className="fixed bottom-4 left-4 z-40 bg-red-500 hover:bg-red-600 text-white shadow-lg"
+          size="sm"
+        >
+          🐛 Debug Voice
+        </Button>
+      )}
     </div>
   );
 }
