@@ -72,51 +72,48 @@ export function MVPHomeScreen({
 
   return (
     <div className="mvp-app bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
-              {/* Desktop Layout */}
-              <div className="hidden lg:flex lg:h-full">
-                <div className="flex-1 p-6">
-                  <div className="max-w-6xl mx-auto h-full">
-      {/* Desktop Header - Compact */}
-      <div className="text-center mb-8 pt-8">
-        <div className="flex items-center justify-center gap-4 mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-xl shadow-teal-500/25">
-                          <Mic className="h-6 w-6 text-white" />
+              {/* Desktop Layout - Powerful Grid Organization */}
+              <div className="hidden lg:flex lg:h-full lg:overflow-hidden w-full">
+                <div className="flex-1 px-6 py-4 overflow-hidden w-full">
+                  <div className="w-full h-full flex flex-col">
+                    {/* Desktop Header - Streamlined */}
+                    <div className="text-center mb-4">
+                      <div className="flex items-center justify-center gap-2.5 mb-2">
+                        <div className="w-9 h-9 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/20">
+                          <Mic className="h-4 w-4 text-white" />
                         </div>
-                        <div>
-                          <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                            Start New Note
-                          </h1>
-                          <p className="text-base text-slate-600 font-medium">Professional AI-powered documentation</p>
-                        </div>
+                        <h1 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                          Start New Note
+                        </h1>
                       </div>
-
-                      {/* Desktop Template Selector - Compact */}
-                      <div className="max-w-xl mx-auto">
-                        <Label className="text-sm font-semibold text-slate-700 mb-2 block">Select Note Template</Label>
-                        <Select value={currentTemplate} onValueChange={(value) => {
-                          onTemplateChange(value);
-                        }}>
-                          <SelectTrigger className="w-full h-12 text-sm bg-white border-2 border-slate-200 hover:border-teal-300 focus:border-teal-500 transition-colors shadow-md">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white border border-slate-200 shadow-2xl">
-                            {templates.map((template) => (
-                              <SelectItem key={template.value} value={template.value} className="hover:bg-teal-50 py-3">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-2 h-2 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full" />
-                                  <span className="font-medium text-sm">{template.label}</span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      <p className="text-xs text-slate-600">Create professional nursing documentation with AI assistance</p>
                     </div>
 
-                    {/* Desktop Main Content - Full Height with Dashboard */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start h-full">
-                      {/* Left Side - Recording Area */}
-                      <div className="lg:col-span-1 space-y-6 flex flex-col justify-center min-h-[500px]">
+                    {/* Template Selector - Centered */}
+                    <div className="max-w-2xl mx-auto w-full mb-4">
+                      <Select value={currentTemplate} onValueChange={(value) => {
+                        onTemplateChange(value);
+                      }}>
+                        <SelectTrigger className="w-full h-10 text-sm bg-white border-2 border-slate-200 hover:border-teal-300 focus:border-teal-500 transition-colors shadow-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border border-slate-200 shadow-xl">
+                          {templates.map((template) => (
+                            <SelectItem key={template.value} value={template.value} className="hover:bg-teal-50 py-2.5">
+                              <div className="flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full" />
+                                <span className="font-medium text-sm">{template.label}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Main Grid Layout - Powerful 3-Column Design */}
+                    <div className="flex-1 grid grid-cols-3 gap-4 overflow-hidden min-h-0">
+                      {/* Left Column - Recording Controls */}
+                      <div className="col-span-1 flex flex-col space-y-3 overflow-y-auto pr-2">
                 {showInputSelector ? (
                   <div className="w-full">
                     <InputMethodSelector
@@ -140,8 +137,9 @@ export function MVPHomeScreen({
                   </div>
                 ) : (
                   <>
-                        {/* Desktop Recording Button - Optimized */}
-                        <div className="relative flex flex-col items-center space-y-4">
+                        {/* Recording Control Card */}
+                        <Card className="flex-shrink-0 flex flex-col items-center justify-center p-5 bg-gradient-to-br from-white to-slate-50/50 border-2 border-slate-200/80 shadow-lg">
+                        <div className="relative flex flex-col items-center space-y-4 w-full">
                           <div className="relative">
                             {/* Multiple Pulse Rings */}
                             {isRecording && (
@@ -152,10 +150,10 @@ export function MVPHomeScreen({
                               </>
                             )}
                             
-                            {/* Desktop Main Button - Larger */}
+                            {/* Main Recording Button */}
                             <Button
                               size="lg"
-                              className={`w-56 h-56 rounded-full shadow-2xl transition-all duration-500 transform hover:scale-105 ${
+                              className={`w-40 h-40 rounded-full shadow-2xl transition-all duration-500 transform hover:scale-105 ${
                                 isRecording 
                                   ? 'bg-gradient-to-br from-red-500 via-pink-600 to-red-600 hover:from-red-600 hover:via-pink-700 hover:to-red-700 shadow-red-500/30' 
                                   : 'bg-gradient-to-br from-teal-500 via-blue-600 to-teal-600 hover:from-teal-600 hover:via-blue-700 hover:to-teal-700 shadow-teal-500/30'
@@ -176,14 +174,14 @@ export function MVPHomeScreen({
                               type="button"
                             >
                               {isRecording ? (
-                                <MicOff className="h-28 w-28 text-white drop-shadow-lg" />
+                                <MicOff className="h-20 w-20 text-white drop-shadow-lg" />
                               ) : (
-                                <Mic className="h-28 w-28 text-white drop-shadow-lg" />
+                                <Mic className="h-20 w-20 text-white drop-shadow-lg" />
                               )}
                             </Button>
                             
                             {/* Status Indicator */}
-                            <div className={`absolute -top-3 -right-3 w-10 h-10 rounded-full border-4 border-white ${
+                            <div className={`absolute -top-2 -right-2 w-8 h-8 rounded-full border-3 border-white ${
                               isRecording ? 'bg-red-500 animate-pulse' : 
                               isProcessing ? 'bg-yellow-500 animate-spin' : 
                               'bg-green-500'
@@ -191,26 +189,26 @@ export function MVPHomeScreen({
                           </div>
                         </div>
 
-                            {/* Desktop Status */}
-                            <div className="text-center space-y-4">
+                            {/* Status Display */}
+                            <div className="text-center space-y-2 w-full max-w-md">
                               {isRecording && (
-                                <div className="space-y-3">
-                                  <div className="flex items-center justify-center gap-3">
-                                    <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50" />
-                                    <span className="text-2xl font-bold text-red-600">Recording...</span>
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-center gap-1.5">
+                                    <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50" />
+                                    <span className="text-lg font-bold text-red-600">Recording...</span>
                                   </div>
-                                  <div className="bg-red-50 border border-red-200 rounded-2xl p-6 max-w-sm mx-auto">
-                                    <div className="text-4xl font-mono font-bold text-red-700">
+                                  <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+                                    <div className="text-2xl font-mono font-bold text-red-700">
                                       {formatTime(recordingTime)}
                                     </div>
-                                    <p className="text-sm text-red-600 mt-2">Click to stop recording</p>
+                                    <p className="text-xs text-red-600 mt-1.5">Click to stop recording</p>
                                   </div>
                                   
-                                  {/* Live Transcript Display */}
+                                  {/* Live Transcript */}
                                   {interimTranscript && (
-                                    <div className="bg-white border border-slate-200 rounded-xl p-4 max-w-md mx-auto shadow-lg">
-                                      <p className="text-sm text-slate-600 mb-2">Live transcription:</p>
-                                      <p className="text-slate-800 font-medium italic">
+                                    <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-md">
+                                      <p className="text-xs text-slate-600 mb-1">Live transcription:</p>
+                                      <p className="text-slate-800 font-medium italic text-sm">
                                         "{interimTranscript}"
                                       </p>
                                     </div>
@@ -218,268 +216,340 @@ export function MVPHomeScreen({
                                 </div>
                               )}
 
-                      {isProcessing && (
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-center gap-3">
-                            <div className="w-4 h-4 bg-yellow-500 rounded-full animate-pulse shadow-lg shadow-yellow-500/50" />
-                            <span className="text-2xl font-bold text-yellow-600">Processing...</span>
-                          </div>
-                          <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 max-w-sm mx-auto">
-                            <Progress value={75} className="w-full h-3 mb-3" />
-                            <p className="text-sm text-yellow-700">AI analyzing speech...</p>
-                          </div>
-                        </div>
-                      )}
+                              {isProcessing && (
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-center gap-1.5">
+                                    <div className="w-2.5 h-2.5 bg-yellow-500 rounded-full animate-pulse shadow-lg shadow-yellow-500/50" />
+                                    <span className="text-lg font-bold text-yellow-600">Processing...</span>
+                                  </div>
+                                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3">
+                                    <Progress value={75} className="w-full h-2 mb-1.5" />
+                                    <p className="text-xs text-yellow-700">AI analyzing speech...</p>
+                                  </div>
+                                </div>
+                              )}
 
-              {!isRecording && !isProcessing && (
-                <div className="bg-white/90 backdrop-blur-sm border border-slate-200 rounded-2xl p-6 max-w-md mx-auto shadow-lg">
-                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Ready to Record</h2>
-                  <p className="text-base text-slate-600 mb-3">
-                    Click the microphone to start AI-powered transcription
-                  </p>
-                  {!voiceSupported && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                      <p className="text-sm text-yellow-800">
-                        ⚠️ Voice recognition not supported. Use manual text input instead.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-                    </div>
+                              {!isRecording && !isProcessing && (
+                                <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 border border-slate-200 rounded-xl p-4 shadow-md">
+                                  <h2 className="text-base font-bold text-slate-900 mb-1">Ready to Record</h2>
+                                  <p className="text-sm text-slate-600 mb-2">
+                                    Click the microphone to start AI-powered transcription
+                                  </p>
+                                  {!voiceSupported && (
+                                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2.5">
+                                      <p className="text-xs text-yellow-800">
+                                        ⚠️ Voice not supported. Use manual input.
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                        </Card>
                   </>
                 )}
-              </div>
 
-                      {/* Middle - Input Options & Actions */}
-                      <div className="lg:col-span-1 space-y-6 flex flex-col justify-center min-h-[500px]">
-                {/* Input Method Options */}
-                {!isRecording && !isProcessing && !transcript && (
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-slate-900 text-center">Or choose another input method:</h3>
-                    <div className="grid grid-cols-1 gap-4">
-                      <Button
-                        variant="outline"
-                        onClick={() => setShowInputSelector(true)}
-                        className="h-16 flex items-center justify-center gap-4 bg-white/95 backdrop-blur-sm border-2 border-slate-200/60 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 rounded-xl group"
-                        style={{
-                          boxShadow: '0 6px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.15), 0 3px 10px rgba(59, 130, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
-                        }}
-                      >
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center group-hover:from-blue-200 group-hover:to-blue-300 transition-all duration-300 shadow-sm">
-                          <Keyboard className="h-5 w-5 text-blue-600 drop-shadow-sm" />
-                        </div>
-                        <div className="text-left">
-                          <div className="font-semibold text-slate-700 group-hover:text-blue-700 transition-colors duration-300">Type or Paste Text</div>
-                          <div className="text-sm text-slate-500">Manual input method</div>
-                        </div>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={onStartRecording}
-                        className="h-16 flex items-center justify-center gap-4 bg-white/95 backdrop-blur-sm border-2 border-slate-200/60 hover:border-teal-400 hover:bg-teal-50 transition-all duration-300 rounded-xl group"
-                        style={{
-                          boxShadow: '0 6px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.boxShadow = '0 8px 25px rgba(20, 184, 166, 0.15), 0 3px 10px rgba(20, 184, 166, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
-                        }}
-                      >
-                        <div className="w-10 h-10 bg-gradient-to-br from-teal-100 to-teal-200 rounded-lg flex items-center justify-center group-hover:from-teal-200 group-hover:to-teal-300 transition-all duration-300 shadow-sm">
-                          <Mic className="h-5 w-5 text-teal-600 drop-shadow-sm" />
-                        </div>
-                        <div className="text-left">
-                          <div className="font-semibold text-slate-700 group-hover:text-teal-700 transition-colors duration-300">Voice Dictation</div>
-                          <div className="text-sm text-slate-500">AI speech recognition</div>
-                        </div>
-                      </Button>
-                    </div>
-                  </div>
-                )}
+                        {/* Input Method Options Card */}
+                        {!isRecording && !isProcessing && !transcript && (
+                          <Card className="flex-shrink-0 p-4 bg-white border-2 border-slate-200/80 shadow-lg">
+                            <h3 className="text-sm font-semibold text-slate-900 mb-2.5 text-center">Or choose another input method:</h3>
+                            <div className="space-y-2.5">
+                              <Button
+                                variant="outline"
+                                onClick={() => setShowInputSelector(true)}
+                                className="h-12 flex items-center gap-2.5 bg-white border-2 border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 rounded-lg group"
+                              >
+                                <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center group-hover:from-blue-200 group-hover:to-blue-300 transition-all">
+                                  <Keyboard className="h-3.5 w-3.5 text-blue-600" />
+                                </div>
+                                <div className="text-left flex-1">
+                                  <div className="font-semibold text-xs text-slate-700 group-hover:text-blue-700 transition-colors">Type or Paste Text</div>
+                                  <div className="text-xs text-slate-500">Manual input method</div>
+                                </div>
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={onStartRecording}
+                                className="h-12 flex items-center gap-2.5 bg-white border-2 border-slate-200 hover:border-teal-400 hover:bg-teal-50 transition-all duration-300 rounded-lg group"
+                              >
+                                <div className="w-8 h-8 bg-gradient-to-br from-teal-100 to-teal-200 rounded-lg flex items-center justify-center group-hover:from-teal-200 group-hover:to-teal-300 transition-all">
+                                  <Mic className="h-3.5 w-3.5 text-teal-600" />
+                                </div>
+                                <div className="text-left flex-1">
+                                  <div className="font-semibold text-xs text-slate-700 group-hover:text-teal-700 transition-colors">Voice Dictation</div>
+                                  <div className="text-xs text-slate-500">AI speech recognition</div>
+                                </div>
+                              </Button>
+                            </div>
+                          </Card>
+                        )}
 
-                {/* Quick Actions */}
-                {transcript && (
-                  <div className="space-y-4">
-                    <Alert className="bg-emerald-50 border-emerald-200 rounded-2xl shadow-lg p-4">
-                      <Shield className="h-5 w-5 text-emerald-600" />
-                      <AlertDescription className="text-emerald-800 font-medium text-base">
-                        Transcript captured! Ready for {selectedTemplate} note.
-                      </AlertDescription>
-                    </Alert>
-                    
-                    <div className="bg-white/90 backdrop-blur-sm border border-slate-200 rounded-2xl p-6 shadow-lg">
-                      <div className="text-center space-y-2">
-                        <div className="flex items-center justify-center gap-2">
-                          <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                          <span className="text-sm font-semibold text-slate-700">Ready to Process</span>
-                        </div>
-                        <p className="text-sm text-slate-600">
-                          {transcript.length} characters • {selectedTemplate} template
-                        </p>
+                        {/* Transcript Ready Card */}
+                        {transcript && (
+                          <Card className="flex-shrink-0 p-4 bg-white border-2 border-emerald-200 shadow-lg">
+                            <Alert className="bg-emerald-50 border-emerald-200 rounded-lg p-2.5 mb-2.5">
+                              <Shield className="h-4 w-4 text-emerald-600" />
+                              <AlertDescription className="text-emerald-800 font-medium text-sm">
+                                Transcript captured! Ready for {selectedTemplate} note.
+                              </AlertDescription>
+                            </Alert>
+                            
+                            <div className="bg-gradient-to-br from-slate-50 to-emerald-50/30 border border-slate-200 rounded-lg p-3 mb-2.5">
+                              <div className="text-center space-y-1.5">
+                                <div className="flex items-center justify-center gap-2">
+                                  <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
+                                  <span className="text-sm font-semibold text-slate-700">Ready to Process</span>
+                                </div>
+                                <p className="text-xs text-slate-600">
+                                  {transcript.length} characters • {selectedTemplate} template
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <Button
+                              size="lg"
+                              className="w-full h-10 text-sm font-bold bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 hover:from-emerald-600 hover:via-teal-700 hover:to-emerald-700 text-white transition-all duration-300 shadow-lg"
+                              onClick={() => onNavigate('draft')}
+                            >
+                              <FileText className="h-4 w-4 mr-2" />
+                              Preview Draft Note
+                            </Button>
+                          </Card>
+                        )}
                       </div>
-                    </div>
-                    
-                    <Button
-                      size="lg"
-                      className="w-full h-14 text-lg font-bold bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 hover:from-emerald-600 hover:via-teal-700 hover:to-emerald-700 text-white transition-all duration-300 transform hover:scale-105"
-                      style={{
-                        boxShadow: '0 8px 25px rgba(16, 185, 129, 0.4), 0 3px 10px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
-                      }}
-                      onClick={() => onNavigate('draft')}
-                    >
-                      <FileText className="h-5 w-5 mr-3 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
-                      Preview Draft Note
-                    </Button>
-                  </div>
-                )}
-              </div>
 
-                      {/* Right Side - Profile Dashboard */}
-                      <div className="lg:col-span-1 space-y-6 flex flex-col justify-start min-h-[500px]">
-                        {/* Your Performance Today */}
-                        <Card className="p-4 bg-gradient-to-br from-white to-slate-50 border border-slate-200 shadow-lg">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
-                              <BarChart3 className="h-4 w-4 text-white" />
+                      {/* Center Column - Performance Metrics */}
+                      <div className="col-span-1 flex flex-col space-y-3 overflow-y-auto px-2">
+                        {/* Performance Today */}
+                        <Card className="p-3 bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200/80 shadow-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-7 h-7 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center shadow-md">
+                              <BarChart3 className="h-3 w-3 text-white" />
                             </div>
-                            <h3 className="font-semibold text-slate-900">Your Performance Today</h3>
+                            <h3 className="font-bold text-xs text-slate-900">Your Performance</h3>
                           </div>
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-100">
+                          <div className="grid grid-cols-1 gap-2">
+                            <button
+                              onClick={() => onNavigate('draft')}
+                              className="flex items-center justify-between p-2.5 bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-lg border border-blue-200/60 hover:from-blue-100 hover:to-blue-200/60 hover:border-blue-300 transition-all cursor-pointer"
+                            >
                               <div className="flex items-center gap-2">
-                                <FileText className="h-4 w-4 text-blue-600" />
-                                <span className="text-sm font-medium text-slate-700">Notes Created</span>
-                              </div>
-                              <div className="text-right">
-                                <span className="text-lg font-bold text-blue-600">{userProfile.notesToday}</span>
-                                <div className="text-xs text-green-600 flex items-center gap-1">
-                                  <TrendingUp className="h-3 w-3" />
-                                  +3 from yesterday
+                                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <FileText className="h-3.5 w-3.5 text-white" />
+                                </div>
+                                <div className="text-left">
+                                  <div className="text-xs font-medium text-slate-700">Notes Created</div>
+                                  <div className="text-xs text-slate-500">Today</div>
                                 </div>
                               </div>
-                            </div>
-                            <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-100">
-                              <div className="flex items-center gap-2">
-                                <Timer className="h-4 w-4 text-emerald-600" />
-                                <span className="text-sm font-medium text-slate-700">Time Saved</span>
-                              </div>
                               <div className="text-right">
-                                <span className="text-lg font-bold text-emerald-600">{userProfile.timeSaved}h</span>
-                                <div className="text-xs text-green-600 flex items-center gap-1">
-                                  <TrendingUp className="h-3 w-3" />
-                                  +47m today
+                                <div className="text-xl font-bold text-blue-600">{userProfile.notesToday}</div>
+                                <div className="text-xs text-green-600 flex items-center gap-0.5">
+                                  <TrendingUp className="h-2.5 w-2.5" />
+                                  +3
                                 </div>
                               </div>
-                            </div>
-                            <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-100">
+                            </button>
+                            <button
+                              onClick={() => onNavigate('draft')}
+                              className="flex items-center justify-between p-2.5 bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-lg border border-emerald-200/60 hover:from-emerald-100 hover:to-emerald-200/60 hover:border-emerald-300 transition-all cursor-pointer"
+                            >
                               <div className="flex items-center gap-2">
-                                <Target className="h-4 w-4 text-purple-600" />
-                                <span className="text-sm font-medium text-slate-700">Accuracy Rate</span>
-                              </div>
-                              <div className="text-right">
-                                <span className="text-lg font-bold text-purple-600">{userProfile.accuracy}%</span>
-                                <div className="text-xs text-green-600 flex items-center gap-1">
-                                  <TrendingUp className="h-3 w-3" />
-                                  +0.5% this week
+                                <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <Timer className="h-3.5 w-3.5 text-white" />
+                                </div>
+                                <div className="text-left">
+                                  <div className="text-xs font-medium text-slate-700">Time Saved</div>
+                                  <div className="text-xs text-slate-500">Today</div>
                                 </div>
                               </div>
-                            </div>
+                              <div className="text-right">
+                                <div className="text-xl font-bold text-emerald-600">{userProfile.timeSaved}h</div>
+                                <div className="text-xs text-green-600 flex items-center gap-0.5">
+                                  <TrendingUp className="h-2.5 w-2.5" />
+                                  +47m
+                                </div>
+                              </div>
+                            </button>
+                            <button
+                              onClick={() => onNavigate('draft')}
+                              className="flex items-center justify-between p-2.5 bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-lg border border-purple-200/60 hover:from-purple-100 hover:to-purple-200/60 hover:border-purple-300 transition-all cursor-pointer"
+                            >
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <Target className="h-3.5 w-3.5 text-white" />
+                                </div>
+                                <div className="text-left">
+                                  <div className="text-xs font-medium text-slate-700">Accuracy Rate</div>
+                                  <div className="text-xs text-slate-500">Average</div>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-xl font-bold text-purple-600">{userProfile.accuracy}%</div>
+                                <div className="text-xs text-green-600 flex items-center gap-0.5">
+                                  <TrendingUp className="h-2.5 w-2.5" />
+                                  +0.5%
+                                </div>
+                              </div>
+                            </button>
                           </div>
                         </Card>
 
                         {/* Recent Notes */}
-                        <Card className="p-4 bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 shadow-lg">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                              <FileText className="h-4 w-4 text-white" />
+                        <Card className="p-3 bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 shadow-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-7 h-7 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                              <FileText className="h-3 w-3 text-white" />
                             </div>
-                            <h3 className="font-semibold text-slate-900">Recent Notes</h3>
+                            <h3 className="font-semibold text-xs text-slate-900">Recent Notes</h3>
                           </div>
-                          <div className="space-y-3">
-                            <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-indigo-100">
-                              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                                <FileText className="h-4 w-4 text-green-600" />
+                          <div className="space-y-2">
+                            <button
+                              onClick={() => onNavigate('draft')}
+                              className="w-full flex items-center gap-2 p-2 bg-white rounded-lg border border-indigo-100 hover:bg-indigo-50 hover:border-indigo-200 transition-all cursor-pointer"
+                            >
+                              <div className="w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <FileText className="h-3.5 w-3.5 text-green-600" />
                               </div>
-                              <div className="flex-1">
-                                <div className="text-sm font-medium text-slate-700">Morning Assessment</div>
-                                <div className="text-xs text-slate-500">SOAP note • 2 hours ago</div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-xs font-medium text-slate-700 truncate">Morning Assessment</div>
+                                <div className="text-xs text-slate-500">SOAP • 2h ago</div>
                               </div>
-                              <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">Complete</Badge>
-                            </div>
-                            <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-indigo-100">
-                              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <FileText className="h-4 w-4 text-blue-600" />
+                              <Badge className="bg-green-100 text-green-700 border-green-200 text-xs flex-shrink-0">Complete</Badge>
+                            </button>
+                            <button
+                              onClick={() => onNavigate('draft')}
+                              className="w-full flex items-center gap-2 p-2 bg-white rounded-lg border border-indigo-100 hover:bg-indigo-50 hover:border-indigo-200 transition-all cursor-pointer"
+                            >
+                              <div className="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <FileText className="h-3.5 w-3.5 text-blue-600" />
                               </div>
-                              <div className="flex-1">
-                                <div className="text-sm font-medium text-slate-700">Patient Transfer</div>
-                                <div className="text-xs text-slate-500">SBAR note • 4 hours ago</div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-xs font-medium text-slate-700 truncate">Patient Transfer</div>
+                                <div className="text-xs text-slate-500">SBAR • 4h ago</div>
                               </div>
-                              <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">Exported</Badge>
-                            </div>
-                            <Button variant="outline" size="sm" className="w-full text-xs">
+                              <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs flex-shrink-0">Exported</Badge>
+                            </button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full text-xs hover:bg-indigo-50 hover:border-indigo-300 transition-colors"
+                              onClick={() => onNavigate('draft')}
+                            >
                               View All Notes
                             </Button>
                           </div>
                         </Card>
+                      </div>
 
-                        {/* Weekly Progress */}
-                        <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-lg">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                              <Target className="h-4 w-4 text-white" />
+                      {/* Right Column - Goals & Actions */}
+                      <div className="col-span-1 flex flex-col space-y-3 overflow-y-auto pl-2">
+                        {/* Weekly Goal Progress */}
+                        <Card className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-7 h-7 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                              <Target className="h-3 w-3 text-white" />
                             </div>
-                            <h3 className="font-semibold text-slate-900">Weekly Goal Progress</h3>
+                            <h3 className="font-semibold text-xs text-slate-900">Weekly Goal</h3>
                           </div>
-                          <div className="space-y-3">
-                            <div className="p-3 bg-white rounded-lg border border-blue-100">
+                          <div className="space-y-2">
+                            <div className="p-2.5 bg-white rounded-lg border border-blue-100">
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium text-slate-700">Notes This Week</span>
+                                <span className="text-xs font-medium text-slate-700">Progress</span>
                                 <span className="text-sm font-bold text-blue-600">{userProfile.notesThisWeek}/{userProfile.weeklyGoal}</span>
                               </div>
-                              <Progress value={(userProfile.notesThisWeek / userProfile.weeklyGoal) * 100} className="h-2" />
-                              <div className="text-xs text-slate-500 mt-1">
-                                {userProfile.weeklyGoal - userProfile.notesThisWeek} more notes to reach goal
+                              <Progress value={(userProfile.notesThisWeek / userProfile.weeklyGoal) * 100} className="h-2 mb-1.5" />
+                              <div className="text-xs text-slate-500">
+                                {userProfile.weeklyGoal - userProfile.notesThisWeek} more to reach goal
                               </div>
                             </div>
-                            <div className="flex items-center gap-3 p-2 bg-white rounded-lg border border-blue-100">
-                              <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center">
-                                <TrendingUp className="h-3 w-3 text-green-600" />
+                            <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                              <div className="w-6 h-6 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <TrendingUp className="h-3 w-3 text-white" />
                               </div>
-                              <span className="text-sm text-slate-700">On track to exceed weekly goal</span>
+                              <div className="flex-1">
+                                <div className="text-xs font-semibold text-green-700">On track!</div>
+                                <div className="text-xs text-green-600">84% of goal completed</div>
+                              </div>
                             </div>
                           </div>
                         </Card>
 
                         {/* Quick Actions */}
-                        <Card className="p-4 bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 shadow-lg">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="w-8 h-8 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center">
-                              <Zap className="h-4 w-4 text-white" />
+                        <Card className="p-3 bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 shadow-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-7 h-7 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center">
+                              <Zap className="h-3 w-3 text-white" />
                             </div>
-                            <h3 className="font-semibold text-slate-900">Quick Actions</h3>
+                            <h3 className="font-semibold text-xs text-slate-900">Quick Actions</h3>
                           </div>
-                          <div className="space-y-2">
-                            <Button variant="outline" size="sm" className="w-full justify-start text-xs">
+                          <div className="space-y-1.5">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full justify-start text-xs h-9 hover:bg-teal-50 hover:border-teal-300 transition-colors"
+                              onClick={() => onNavigate('draft')}
+                            >
                               <FileText className="h-3 w-3 mr-2" />
-                              Review Pending Notes
+                              Review Notes
                             </Button>
-                            <Button variant="outline" size="sm" className="w-full justify-start text-xs">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full justify-start text-xs h-9 hover:bg-teal-50 hover:border-teal-300 transition-colors"
+                              onClick={() => onNavigate('draft')}
+                            >
                               <BarChart3 className="h-3 w-3 mr-2" />
-                              View Weekly Report
+                              View Analytics
                             </Button>
-                            <Button variant="outline" size="sm" className="w-full justify-start text-xs">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full justify-start text-xs h-9 hover:bg-teal-50 hover:border-teal-300 transition-colors"
+                              onClick={() => onNavigate('settings')}
+                            >
                               <Settings className="h-3 w-3 mr-2" />
-                              Update Preferences
+                              Settings
                             </Button>
+                          </div>
+                        </Card>
+
+                        {/* Tips & Insights */}
+                        <Card className="p-3 bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 shadow-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-7 h-7 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center">
+                              <BookOpen className="h-3 w-3 text-white" />
+                            </div>
+                            <h3 className="font-semibold text-xs text-slate-900">Pro Tip</h3>
+                          </div>
+                          <div className="space-y-1.5">
+                            <p className="text-xs text-slate-700 leading-relaxed">
+                              Speak clearly using medical terminology for optimal AI transcription accuracy.
+                            </p>
+                            <div className="flex items-center gap-1.5 text-xs text-orange-600">
+                              <Star className="h-3 w-3 fill-orange-400" />
+                              <span className="font-medium">99.2% average accuracy</span>
+                            </div>
+                          </div>
+                        </Card>
+
+                        {/* Activity Summary */}
+                        <Card className="p-3 bg-gradient-to-br from-slate-50 to-gray-100 border border-slate-200 shadow-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-7 h-7 bg-gradient-to-r from-slate-500 to-gray-600 rounded-lg flex items-center justify-center">
+                              <Activity className="h-3 w-3 text-white" />
+                            </div>
+                            <h3 className="font-semibold text-xs text-slate-900">Activity</h3>
+                          </div>
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between p-1.5 bg-white rounded border border-slate-100">
+                              <span className="text-xs text-slate-600">Pending Reviews</span>
+                              <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">{userProfile.pendingReviews}</Badge>
+                            </div>
+                            <div className="flex items-center justify-between p-1.5 bg-white rounded border border-slate-100">
+                              <span className="text-xs text-slate-600">Upcoming Tasks</span>
+                              <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">{userProfile.upcomingTasks}</Badge>
+                            </div>
                           </div>
                         </Card>
                       </div>

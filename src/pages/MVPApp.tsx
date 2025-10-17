@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mic, FileText, Download, Settings, Stethoscope, Menu, User, BarChart3, BookOpen, Users, Shield } from 'lucide-react';
+import { Mic, FileText, Download, Settings, Stethoscope, Menu, User, BarChart3, BookOpen, Users, Shield, Brain } from 'lucide-react';
 import { MobileHeader } from '@/components/MobileHeader';
 import { MobileBottomToolbar } from '@/components/MobileBottomToolbar';
 import { SimpleMobileHeader } from '@/components/SimpleMobileHeader';
@@ -14,15 +14,20 @@ import { UserProfile } from '@/components/UserProfile';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { enhancedVoiceService as voiceRecognitionService } from '@/lib/enhancedVoiceService';
+import { advancedTranscriptionService } from '@/lib/advancedTranscriptionService';
 import { PowerfulAdminDashboard } from '@/components/PowerfulAdminDashboard';
 import { InstructionsPage } from '@/components/InstructionsPage';
+import { TeamManagementScreen } from '@/components/TeamManagementScreen';
+import { AICopilotScreen } from '@/components/AICopilotScreen';
+import { NoteHistory } from '@/components/NoteHistory';
+import { AnalyticsScreen } from '@/components/AnalyticsScreen';
+import { EducationScreen } from '@/components/EducationScreen';
 import { knowledgeBaseService } from '@/lib/knowledgeBase';
 import { enhancedAIService } from '@/lib/enhancedAIService';
 import { performanceService } from '@/lib/performanceService';
 import { toast } from 'sonner';
 
-type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'history' | 'admin' | 'instructions';
+type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'copilot' | 'history' | 'admin' | 'instructions';
 
 interface NoteContent {
   [key: string]: string;
@@ -154,145 +159,100 @@ export function MVPApp() {
       Promise.resolve(knowledgeBaseService.getKnowledgeStats())
     );
 
-    // Initialize enhanced voice recognition service
-    const initializeVoiceRecognition = async () => {
+    // Initialize advanced transcription service
+    const initializeTranscription = async () => {
       try {
-        // Check available recognition methods
-        const availableMethods = voiceRecognitionService.getAvailableMethods();
-        const isSupported = voiceRecognitionService.getIsSupported();
+        const isSupported = advancedTranscriptionService.isSupported();
         setVoiceSupported(isSupported);
 
         if (isSupported) {
-          // Configure voice service options - use Whisper as primary with browser fallback
-          voiceRecognitionService.setOptions({
-            useWhisper: true, // Re-enable Whisper for production use
-            fallbackToBrowser: true,
+          // Configure for medical transcription
+          advancedTranscriptionService.setConfig({
             language: 'en-US',
-            maxRecordingTime: 60
+            continuous: true,
+            interimResults: true,
+            maxAlternatives: 3,
+            medicalContext: true,
+            autoCorrect: true,
+            punctuate: true
           });
 
-          // Request microphone permissions
-          const hasPermission = await voiceRecognitionService.requestMicrophonePermissions();
-          
-          if (hasPermission) {
-            // Set up voice recognition callbacks
-            voiceRecognitionService.setCallbacks({
-              onResult: (result) => {
-                if (result.isFinal) {
-                  // Optimize transcript using knowledge base
-                  const optimizedTranscript = enhancedAIService.optimizeVoiceInput(result.transcript);
-                  
-                  setFinalTranscript(optimizedTranscript);
-                  setTranscript(optimizedTranscript);
-                  setInterimTranscript('');
-                  
-                  // Stop processing when we get final result
-                  setIsProcessing(false);
-                  
-                  // Analyze the transcript for medical terms
-                  const analysis = enhancedAIService.analyzeInput(optimizedTranscript);
-                  const medicalTermsCount = analysis.medicalTerms.length;
-                  
-                  const sourceText = result.source === 'whisper' ? ' (Whisper AI)' : ' (Browser)';
-                  toast.success('Voice recognition completed!', {
-                    description: `Confidence: ${Math.round(result.confidence * 100)}% | Medical terms: ${medicalTermsCount}${sourceText}`
-                  });
-                } else {
-                  // Update interim transcript with optimization
-                  const optimizedInterim = enhancedAIService.optimizeVoiceInput(result.transcript);
-                  setInterimTranscript(optimizedInterim);
-                  setTranscript(finalTranscript + ' ' + optimizedInterim);
-                }
-              },
-              onError: (error) => {
-                console.error('Voice recognition error:', error);
-                setIsRecording(false);
+          // Set up callbacks
+          advancedTranscriptionService.setCallbacks({
+            onResult: (result) => {
+              if (result.isFinal) {
+                // Final transcription with all enhancements applied
+                setFinalTranscript(result.text);
+                setTranscript(result.text);
+                setInterimTranscript('');
                 setIsProcessing(false);
                 
-                let errorMessage = 'Voice recognition error';
-                switch (error) {
-                  case 'no-speech':
-                    errorMessage = 'No speech detected. Please try again.';
-                    break;
-                  case 'audio-capture':
-                    errorMessage = 'Microphone access denied. Please allow microphone access.';
-                    break;
-                  case 'not-allowed':
-                    errorMessage = 'Microphone access denied. Please allow microphone access.';
-                    break;
-                  case 'network':
-                    errorMessage = 'Network error. Please check your connection.';
-                    break;
-                  default:
-                    errorMessage = `Voice recognition error: ${error}`;
-                }
+                // Analyze the enhanced transcript
+                const analysis = enhancedAIService.analyzeInput(result.text);
+                const medicalTermsCount = analysis.medicalTerms.length;
                 
-                toast.error(errorMessage);
-              },
-              onStart: () => {
-                console.log('Voice recognition started');
-                setIsRecording(true);
-                setRecordingTime(0);
-                setInterimTranscript('');
-                setFinalTranscript('');
-                setTranscript('');
-                
-                // Start recording timer
-                const interval = setInterval(() => {
-                  setRecordingTime(prev => prev + 1);
-                }, 1000);
-                setRecordingInterval(interval);
-                
-                toast.success('Listening...', {
-                  description: 'Speak clearly into your microphone'
+                toast.success('🎯 Advanced Transcription Complete!', {
+                  description: `Confidence: ${Math.round(result.confidence * 100)}% | Medical terms: ${medicalTermsCount} | ${result.words.length} words`
                 });
-              },
-              onEnd: () => {
-                console.log('Voice recognition ended');
-                setIsRecording(false);
-                
-                // Clear recording timer
-                if (recordingInterval) {
-                  clearInterval(recordingInterval);
-                  setRecordingInterval(null);
-                }
-                
-                // Start processing if we have a transcript
-                if (transcript.trim()) {
-                  setIsProcessing(true);
-                }
-              },
-              onProgress: (progress) => {
-                // Show progress for Whisper processing
-                if (progress > 0 && progress < 1) {
-                  toast.info('Processing audio...', {
-                    description: `Whisper AI: ${Math.round(progress * 100)}% complete`
-                  });
-                }
+              } else {
+                // Interim results with real-time corrections
+                setInterimTranscript(result.text);
+                setTranscript(finalTranscript + ' ' + result.text);
               }
-            });
-            
-            // Show available methods
-            const whisperInfo = voiceRecognitionService.getWhisperInfo();
-            if (whisperInfo) {
-              console.log('🎤 Available voice recognition methods:', availableMethods);
-              console.log('🤖 Whisper model loaded:', whisperInfo.name, `(${whisperInfo.size})`);
+            },
+            onError: (error) => {
+              console.error('Transcription error:', error);
+              setIsRecording(false);
+              setIsProcessing(false);
+              toast.error(error);
+            },
+            onStart: () => {
+              console.log('🎤 Advanced transcription started');
+              setIsRecording(true);
+              setRecordingTime(0);
+              setInterimTranscript('');
+              setFinalTranscript('');
+              setTranscript('');
+              
+              // Start recording timer
+              const interval = setInterval(() => {
+                setRecordingTime(prev => prev + 1);
+              }, 1000);
+              setRecordingInterval(interval);
+              
+              toast.success('🎤 Listening with Medical AI...', {
+                description: '6-layer accuracy enhancement active'
+              });
+            },
+            onEnd: () => {
+              console.log('🎤 Advanced transcription ended');
+              setIsRecording(false);
+              
+              // Clear recording timer
+              if (recordingInterval) {
+                clearInterval(recordingInterval);
+                setRecordingInterval(null);
+              }
+              
+              // Start processing if we have a transcript
+              if (transcript.trim()) {
+                setIsProcessing(true);
+              }
             }
-            
-            console.log('Enhanced voice recognition service initialized successfully');
-          } else {
-            toast.error('Microphone access is required for voice recognition');
-          }
+          });
+          
+          console.log('✅ Advanced Transcription Service initialized successfully');
+          console.log('🔬 Features enabled: Medical terminology, Auto-correct, Smart punctuation');
         } else {
           toast.error('Voice recognition not supported in this browser');
         }
       } catch (error) {
-        console.error('Failed to initialize voice recognition:', error);
+        console.error('Failed to initialize advanced transcription:', error);
         toast.error('Failed to initialize voice recognition');
       }
     };
 
-    initializeVoiceRecognition();
+    initializeTranscription();
 
     return () => {
       // Cleanup recording interval
@@ -300,9 +260,9 @@ export function MVPApp() {
         clearInterval(recordingInterval);
       }
       
-      // Stop any ongoing voice recognition
-      if (voiceRecognitionService.getIsListening()) {
-        voiceRecognitionService.stopListening();
+      // Stop any ongoing transcription
+      if (advancedTranscriptionService.getIsListening()) {
+        advancedTranscriptionService.stopListening();
       }
     };
   }, []);
@@ -327,6 +287,10 @@ export function MVPApp() {
     }
     if (screen === 'team') {
       setCurrentScreen('team' as Screen);
+      return;
+    }
+    if (screen === 'copilot') {
+      setCurrentScreen('copilot' as Screen);
       return;
     }
     if (screen === 'admin') {
@@ -508,9 +472,9 @@ export function MVPApp() {
       // Stop the stream as we just needed permission
       stream.getTracks().forEach(track => track.stop());
       
-      // Now start voice recognition
-      await voiceRecognitionService.startListening();
-      console.log('✅ Voice recognition started successfully');
+      // Now start advanced transcription
+      await advancedTranscriptionService.startListening();
+      console.log('✅ Advanced transcription started successfully');
       
     } catch (error: any) {
       console.error('❌ Failed to start voice recognition:', error);
@@ -537,20 +501,20 @@ export function MVPApp() {
     console.log('🎤 Stopping voice recording...');
     
     // Only stop if actually recording or listening
-    if (!isRecording && !voiceRecognitionService.getIsListening()) {
+    if (!isRecording && !advancedTranscriptionService.getIsListening()) {
       console.log('🎤 Not currently recording, ignoring stop request');
       return;
     }
     
-    console.log('🎤 Force stopping voice recognition...');
+    console.log('🎤 Force stopping transcription...');
     
     // Force stop the recording
     setIsRecording(false);
     setIsProcessing(false);
     
-    // Stop the voice recognition service
-    if (voiceRecognitionService.getIsListening()) {
-      voiceRecognitionService.stopListening();
+    // Stop the transcription service
+    if (advancedTranscriptionService.getIsListening()) {
+      advancedTranscriptionService.stopListening();
     }
     
     // Clear any timers
@@ -689,9 +653,9 @@ export function MVPApp() {
     setRecordingTime(0);
     setCurrentScreen('home');
     
-    // Stop any ongoing voice recognition
-    if (voiceRecognitionService.getIsListening()) {
-      voiceRecognitionService.stopListening();
+    // Stop any ongoing transcription
+    if (advancedTranscriptionService.getIsListening()) {
+      advancedTranscriptionService.stopListening();
     }
     
     toast.info('Starting new note');
@@ -798,68 +762,19 @@ export function MVPApp() {
         );
 
       case 'history':
-        return (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">Note History</h2>
-              <p className="text-slate-600 mb-6">View and manage your past notes</p>
-              <div className="bg-white rounded-lg p-8 shadow-lg">
-                <p className="text-slate-500">Feature coming soon!</p>
-                <Button onClick={() => handleNavigate('home')} className="mt-4">
-                  Back to Home
-                </Button>
-              </div>
-            </div>
-          </div>
-        );
+        return <NoteHistory />;
 
       case 'analytics':
-        return (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">Analytics Dashboard</h2>
-              <p className="text-slate-600 mb-6">Track your performance and productivity</p>
-              <div className="bg-white rounded-lg p-8 shadow-lg">
-                <p className="text-slate-500">Feature coming soon!</p>
-                <Button onClick={() => handleNavigate('home')} className="mt-4">
-                  Back to Home
-                </Button>
-              </div>
-            </div>
-          </div>
-        );
+        return <AnalyticsScreen />;
 
       case 'education':
-        return (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">Education Mode</h2>
-              <p className="text-slate-600 mb-6">Practice with synthetic cases and improve your skills</p>
-              <div className="bg-white rounded-lg p-8 shadow-lg">
-                <p className="text-slate-500">Feature coming soon!</p>
-                <Button onClick={() => handleNavigate('home')} className="mt-4">
-                  Back to Home
-                </Button>
-              </div>
-            </div>
-          </div>
-        );
+        return <EducationScreen />;
 
       case 'team':
-        return (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">Team Collaboration</h2>
-              <p className="text-slate-600 mb-6">Share notes and collaborate with your team</p>
-              <div className="bg-white rounded-lg p-8 shadow-lg">
-                <p className="text-slate-500">Feature coming soon!</p>
-                <Button onClick={() => handleNavigate('home')} className="mt-4">
-                  Back to Home
-                </Button>
-              </div>
-            </div>
-          </div>
-        );
+        return <TeamManagementScreen />;
+
+      case 'copilot':
+        return <AICopilotScreen />;
 
       case 'admin':
         return <PowerfulAdminDashboard />;
@@ -1012,6 +927,18 @@ export function MVPApp() {
                         <Users className="h-4 w-4 mr-2" />
                         Team
                       </Button>
+                      <Button
+                        variant={currentScreen === 'copilot' ? 'default' : 'ghost'}
+                        className={`w-full justify-start h-9 text-sm ${
+                          currentScreen === 'copilot' 
+                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
+                            : 'hover:bg-slate-100 text-slate-700'
+                        }`}
+                        onClick={() => handleNavigate('copilot')}
+                      >
+                        <Brain className="h-4 w-4 mr-2" />
+                        AI Copilot
+                      </Button>
                     </div>
                   </div>
 
@@ -1086,6 +1013,7 @@ export function MVPApp() {
                       {currentScreen === 'analytics' && 'Analytics Dashboard'}
                       {currentScreen === 'education' && 'Education Mode'}
                       {currentScreen === 'team' && 'Team Collaboration'}
+                      {currentScreen === 'copilot' && 'AI Nurse Copilot'}
                     </h2>
                     <p className="text-slate-600 mt-1">
                       {currentScreen === 'home' && 'Create professional nursing documentation with AI assistance'}
@@ -1097,6 +1025,7 @@ export function MVPApp() {
                       {currentScreen === 'analytics' && 'Track your performance and productivity metrics'}
                       {currentScreen === 'education' && 'Practice with synthetic cases and improve your skills'}
                       {currentScreen === 'team' && 'Collaborate and share notes with your team'}
+                      {currentScreen === 'copilot' && 'AI-powered care planning, bedside assist, and predictive insights'}
                     </p>
                   </div>
                   <div className="flex items-center gap-4">

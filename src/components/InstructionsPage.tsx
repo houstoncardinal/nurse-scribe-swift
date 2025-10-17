@@ -271,9 +271,9 @@ export function InstructionsPage({ onNavigate }: InstructionsPageProps) {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-3 lg:p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto p-3 lg:p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-4 lg:mb-6 sticky top-0 z-10 bg-white">
             <TabsTrigger value="getting-started" className="text-xs lg:text-sm">Quick Start</TabsTrigger>
             <TabsTrigger value="input-methods" className="text-xs lg:text-sm">Input Methods</TabsTrigger>
             <TabsTrigger value="templates" className="text-xs lg:text-sm">Templates</TabsTrigger>
@@ -281,8 +281,8 @@ export function InstructionsPage({ onNavigate }: InstructionsPageProps) {
           </TabsList>
 
           {/* Quick Start Tab */}
-          <TabsContent value="getting-started" className="space-y-6">
-            <div className="text-center space-y-4">
+          <TabsContent value="getting-started" className="space-y-6 mt-4">
+            <div className="text-center space-y-4 pt-2">
               <h2 className="text-xl lg:text-2xl font-bold text-slate-900">Get Started in 4 Easy Steps</h2>
               <p className="text-sm lg:text-base text-slate-600">Follow these steps to create your first AI-powered nursing note</p>
             </div>
@@ -320,8 +320,8 @@ export function InstructionsPage({ onNavigate }: InstructionsPageProps) {
           </TabsContent>
 
           {/* Input Methods Tab */}
-          <TabsContent value="input-methods" className="space-y-6">
-            <div className="text-center space-y-4">
+          <TabsContent value="input-methods" className="space-y-6 mt-4">
+            <div className="text-center space-y-4 pt-2">
               <h2 className="text-xl lg:text-2xl font-bold text-slate-900">Choose Your Input Method</h2>
               <p className="text-sm lg:text-base text-slate-600">Each method is optimized for different workflows and situations</p>
             </div>
@@ -379,8 +379,8 @@ export function InstructionsPage({ onNavigate }: InstructionsPageProps) {
           </TabsContent>
 
           {/* Templates Tab */}
-          <TabsContent value="templates" className="space-y-6">
-            <div className="text-center space-y-4">
+          <TabsContent value="templates" className="space-y-6 mt-4">
+            <div className="text-center space-y-4 pt-2">
               <h2 className="text-xl lg:text-2xl font-bold text-slate-900">Choose the Right Template</h2>
               <p className="text-sm lg:text-base text-slate-600">Each template is designed for specific nursing situations and documentation needs</p>
             </div>
@@ -431,8 +431,8 @@ export function InstructionsPage({ onNavigate }: InstructionsPageProps) {
           </TabsContent>
 
           {/* Best Practices Tab */}
-          <TabsContent value="best-practices" className="space-y-6">
-            <div className="text-center space-y-4">
+          <TabsContent value="best-practices" className="space-y-6 mt-4">
+            <div className="text-center space-y-4 pt-2">
               <h2 className="text-xl lg:text-2xl font-bold text-slate-900">Best Practices for Success</h2>
               <p className="text-sm lg:text-base text-slate-600">Follow these guidelines to maximize accuracy and efficiency</p>
             </div>

@@ -138,7 +138,7 @@ export function EnhancedMobileHeader({
             {/* New Note Button */}
             <Button
               onClick={onNewNote}
-              className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-lg h-9 px-3 text-xs"
+              className="bg-gradient-to-b from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg shadow-teal-500/30 h-9 px-3 text-xs transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/40"
               size="sm"
             >
               <Mic className="h-4 w-4 mr-1.5" />
@@ -188,7 +188,7 @@ export function EnhancedMobileHeader({
                         <Button 
                           onClick={onSignIn} 
                           size="sm" 
-                          className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-md h-8 px-3 text-xs"
+                          className="bg-gradient-to-b from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-md shadow-teal-500/30 h-8 px-3 text-xs transition-all duration-300"
                         >
                           <LogIn className="h-3 w-3 mr-1" />
                           Sign In
@@ -206,14 +206,14 @@ export function EnhancedMobileHeader({
                         <Button
                           key={item.id}
                           variant="ghost"
-                          className="w-full justify-start h-12 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50/30 text-slate-700 rounded-lg transition-all duration-200"
+                          className="w-full justify-start h-12 hover:bg-teal-50/50 text-slate-700 rounded-xl transition-all duration-300 group"
                           onClick={() => handleNavigation(item.id)}
                         >
-                          <div className="w-7 h-7 bg-gradient-to-br from-slate-100 to-slate-200 rounded-md flex items-center justify-center mr-3">
-                            <Icon className="h-3.5 w-3.5 text-slate-600" />
+                          <div className="w-8 h-8 bg-gradient-to-br from-slate-100 to-slate-200 group-hover:from-teal-100 group-hover:to-teal-200 rounded-lg flex items-center justify-center mr-3 transition-all duration-300">
+                            <Icon className="h-4 w-4 text-slate-600 group-hover:text-teal-600 transition-colors duration-300" />
                           </div>
                           <div className="text-left flex-1">
-                            <div className="text-sm font-medium">{item.label}</div>
+                            <div className="text-sm font-medium group-hover:text-teal-700 transition-colors duration-300">{item.label}</div>
                             <div className="text-xs text-slate-500 truncate">{item.description}</div>
                           </div>
                         </Button>
