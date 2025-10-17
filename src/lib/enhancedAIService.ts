@@ -5,7 +5,7 @@
 
 import { knowledgeBaseService, MedicalTerm, ClinicalGuideline, TemplateGuidance } from './knowledgeBase';
 
-export interface AIPrompt {
+export interface NoteGenerationPrompt {
   template: 'SOAP' | 'SBAR' | 'PIE' | 'DAR';
   input: string;
   context?: {
@@ -16,6 +16,8 @@ export interface AIPrompt {
     currentMedications?: string[];
   };
 }
+
+export interface AIPrompt extends NoteGenerationPrompt {}
 
 export interface AIGeneratedNote {
   template: string;
@@ -30,7 +32,16 @@ export interface AIGeneratedNote {
   overallConfidence: number;
   qualityScore: number;
   suggestions: string[];
-  icd10Suggestions: string[];
+  icd10Suggestions: {
+    suggestions: Array<{
+      code: string;
+      description: string;
+      confidence: number;
+      reasoning?: string;
+      urgency?: string;
+    }>;
+    totalFound: number;
+  };
 }
 
 export interface AIAnalysis {
@@ -534,12 +545,12 @@ Generate comprehensive, professional nursing documentation that demonstrates cli
     return data.choices[0].message.content;
   }
 
-  private processAIGeneratedNote(
+  private async processAIGeneratedNote(
     response: string, 
     template: string, 
     analysis: AIAnalysis,
     clinicalContext: any
-  ): AIGeneratedNote {
+  ): Promise<AIGeneratedNote> {
     // Parse response into sections
     const sections = this.parseNoteSections(response, template);
     
@@ -572,7 +583,7 @@ Generate comprehensive, professional nursing documentation that demonstrates cli
       overallConfidence,
       qualityScore,
       suggestions: this.generateOverallSuggestions(processedSections, analysis),
-      icd10Suggestions: this.getICD10Suggestions(response)
+      icd10Suggestions: await this.getICD10Suggestions(response)
     };
   }
 
@@ -703,7 +714,7 @@ Generate comprehensive, professional nursing documentation that demonstrates cli
     return suggestions;
   }
 
-  private generateFallbackNote(prompt: AIPrompt): AIGeneratedNote {
+  private async generateFallbackNote(prompt: NoteGenerationPrompt): Promise<AIGeneratedNote> {
     const analysis = this.analyzeInput(prompt.input);
     
     return {
@@ -719,7 +730,7 @@ Generate comprehensive, professional nursing documentation that demonstrates cli
       overallConfidence: 0.6,
       qualityScore: 0.6,
       suggestions: ['AI service temporarily unavailable - please review generated content'],
-      icd10Suggestions: this.getICD10Suggestions(prompt.input)
+      icd10Suggestions: await this.getICD10Suggestions(prompt.input)
     };
   }
 

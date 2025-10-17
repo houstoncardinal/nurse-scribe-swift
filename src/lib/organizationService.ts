@@ -624,6 +624,3 @@ class OrganizationService {
 
 // Export singleton instance
 export const organizationService = new OrganizationService();
-
-// Export types
-export type { Organization, User, Team, CollaborationSession, OrganizationInvite, RolePermissions };

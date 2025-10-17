@@ -266,6 +266,8 @@ class PHIProtectionService {
 
     // Log the audit entry
     await this.logAuditEvent({
+      userId: 'system',
+      sessionId: 'phi-detection',
       action: 'phi_detection',
       resource: 'text_content',
       details: {
@@ -306,7 +308,7 @@ class PHIProtectionService {
               type: 'AI Detected PHI',
               value: term.term,
               position: { start: 0, end: term.term.length }, // Simplified for AI detection
-              confidence: term.confidence || 0.8,
+              confidence: 0.8,
               severity: 'medium',
               category: 'medical'
             });
@@ -574,6 +576,3 @@ class PHIProtectionService {
 
 // Export singleton instance
 export const phiProtectionService = new PHIProtectionService();
-
-// Export types
-export type { PHIPattern, PHIDetectionResult, AuditLogEntry, ComplianceReport };

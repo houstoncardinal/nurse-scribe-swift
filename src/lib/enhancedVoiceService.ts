@@ -31,7 +31,11 @@ interface RecordingOptions {
 }
 
 class EnhancedVoiceService {
-  private recognition: SpeechRecognition | null = null;
+  private recognition: any = null;
+  private isRecording: boolean = false;
+  private isProcessing: boolean = false;
+  private whisperService: any = whisperWasmService;
+  private speechRecognition: any = null;
   private isListening: boolean = false;
   private callbacks: VoiceRecognitionCallbacks | null = null;
   private finalTranscript: string = '';
@@ -418,8 +422,7 @@ class EnhancedVoiceService {
     }
 
     // Reset state
-    this.isRecording = false;
-    this.isProcessing = false;
+    this.isListening = false;
     
     console.log('✅ Voice service stopped successfully');
   }

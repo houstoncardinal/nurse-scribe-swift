@@ -21,7 +21,7 @@ interface OpenAITranscriptionOptions {
 }
 
 class EnhancedVoiceRecognitionService {
-  private recognition: SpeechRecognition | null = null;
+  private recognition: any = null;
   private isListening: boolean = false;
   private callbacks: VoiceRecognitionCallbacks | null = null;
   private finalTranscript: string = '';
@@ -49,7 +49,7 @@ class EnhancedVoiceRecognitionService {
       this.recognition.lang = 'en-US';
       this.recognition.maxAlternatives = 3; // Get multiple alternatives for better accuracy
 
-      this.recognition.onresult = (event: SpeechRecognitionEvent) => {
+      this.recognition.onresult = (event: any) => {
         let interimTranscript = '';
         let finalTranscriptSegment = '';
         let confidence = 0;
@@ -89,7 +89,7 @@ class EnhancedVoiceRecognitionService {
         }
       };
 
-      this.recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      this.recognition.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         this.isListening = false;
         this.callbacks?.onError(event.error);

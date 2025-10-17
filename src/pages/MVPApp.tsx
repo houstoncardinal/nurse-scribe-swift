@@ -621,7 +621,7 @@ export function MVPApp() {
 
       // Show success with AI insights
       toast.success('AI-Enhanced Note Generated!', {
-        description: `Confidence: ${Math.round(generatedNote.overallConfidence * 100)}% | ICD-10: ${generatedNote.icd10Suggestions.length} suggestions`
+        description: `Confidence: ${Math.round(generatedNote.overallConfidence * 100)}% | ICD-10: ${generatedNote.icd10Suggestions.suggestions.length} suggestions`
       });
 
       // Navigate to draft screen

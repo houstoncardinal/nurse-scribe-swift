@@ -8,14 +8,8 @@ import { pipeline, env } from '@xenova/transformers';
 // Configure transformers for production-ready Whisper WebAssembly
 env.allowRemoteModels = true;
 env.allowLocalModels = false;
-env.remoteModelURL = 'https://huggingface.co';
-env.remotePathTemplate = '{model}/resolve/main/{filename}';
 env.backends.onnx.wasm.proxy = true;
 env.backends.onnx.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/@xenova/transformers@latest/dist/';
-
-// Production-ready configuration
-env.allowRemoteModels = true;
-env.allowLocalModels = false;
 
 // Use a more reliable model that works with the current transformers.js version
 const WHISPER_MODEL = 'Xenova/whisper-tiny.en';
@@ -84,12 +78,11 @@ class WhisperWasmService {
               console.log(`📈 Whisper loading progress: ${percentage}%`);
               this.onProgress(progress.loaded / progress.total);
             }
-          },
-          // Use explicit model configuration
-          revision: 'main',
-          use_auth_token: false
-        }
-      );
+            },
+            // Use explicit model configuration
+            revision: 'main'
+          }
+        );
       
       this.isInitialized = true;
       console.log('✅ Whisper WebAssembly initialized successfully for production use');
@@ -111,8 +104,7 @@ class WhisperWasmService {
                 this.onProgress(progress.loaded / progress.total);
               }
             },
-            revision: 'main',
-            use_auth_token: false
+            revision: 'main'
           }
         );
         

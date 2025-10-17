@@ -521,9 +521,19 @@ export function PowerfulAdminDashboard() {
       role: 'admin',
       status: 'active',
       organizationId: 'org-1',
-      teamIds: [],
       createdAt: new Date('2023-06-15'),
       updatedAt: new Date(),
+      permissions: [],
+      profile: {
+        timezone: 'America/New_York',
+        language: 'en',
+        preferences: {
+          defaultTemplate: 'SOAP',
+          voiceSpeed: 1,
+          notifications: true,
+          darkMode: false
+        }
+      },
       stats: {
         lastLogin: new Date('2024-01-15T10:30:00Z'),
         notesCreated: 156,
@@ -538,9 +548,19 @@ export function PowerfulAdminDashboard() {
       role: 'nurse',
       status: 'active',
       organizationId: 'org-1',
-      teamIds: [],
       createdAt: new Date('2023-08-22'),
       updatedAt: new Date(),
+      permissions: [],
+      profile: {
+        timezone: 'America/New_York',
+        language: 'en',
+        preferences: {
+          defaultTemplate: 'SOAP',
+          voiceSpeed: 1,
+          notifications: true,
+          darkMode: false
+        }
+      },
       stats: {
         lastLogin: new Date('2024-01-15T09:15:00Z'),
         notesCreated: 89,
@@ -555,9 +575,19 @@ export function PowerfulAdminDashboard() {
       role: 'admin',
       status: 'inactive',
       organizationId: 'org-1',
-      teamIds: [],
       createdAt: new Date('2023-04-10'),
       updatedAt: new Date(),
+      permissions: [],
+      profile: {
+        timezone: 'America/New_York',
+        language: 'en',
+        preferences: {
+          defaultTemplate: 'SOAP',
+          voiceSpeed: 1,
+          notifications: true,
+          darkMode: false
+        }
+      },
       stats: {
         lastLogin: new Date('2024-01-10T16:45:00Z'),
         notesCreated: 203,
@@ -679,7 +709,7 @@ export function PowerfulAdminDashboard() {
   const handleDeleteOrganization = async (org: Organization) => {
     if (confirm(`Are you sure you want to delete ${org.name}? This action cannot be undone.`)) {
       // In a real app, you would call a delete API
-      toast.success(`Organization ${org.name} deleted successfully`);
+      toast({ title: `Organization ${org.name} deleted successfully` });
     }
   };
 
@@ -702,7 +732,7 @@ export function PowerfulAdminDashboard() {
   const handleDeleteTeam = async (team: Team) => {
     if (confirm(`Are you sure you want to delete team ${team.name}?`)) {
       // In a real app, you would call a delete API
-      toast.success(`Team ${team.name} deleted successfully`);
+      toast({ title: `Team ${team.name} deleted successfully` });
     }
   };
 
@@ -722,7 +752,7 @@ export function PowerfulAdminDashboard() {
   // PHI Protection Handlers
   const handleEditPHIPattern = (pattern: any) => {
     // Open edit pattern modal
-    toast.info('Edit pattern functionality coming soon');
+    toast({ title: 'Edit pattern functionality coming soon' });
   };
 
   const handleTestPattern = async (pattern: any) => {
@@ -801,14 +831,16 @@ export function PowerfulAdminDashboard() {
   const handleEditUser = (user: OrganizationUser) => {
     setSelectedUser(user);
     setShowCreateUserModal(true); // Reuse create modal for editing
-    toast.info(`Editing ${user.name}`, {
+    toast({ 
+      title: `Editing ${user.name}`,
       description: 'Update user details in the form'
     });
   };
 
   const handleManageUserPermissions = (user: OrganizationUser) => {
     setSelectedUser(user);
-    toast.success(`Managing permissions for ${user.name}`, {
+    toast({ 
+      title: `Managing permissions for ${user.name}`,
       description: `Current role: ${user.role}. Change role to modify permissions.`
     });
   };
@@ -821,7 +853,8 @@ export function PowerfulAdminDashboard() {
       Sessions This Month: ${user.stats?.sessionsThisMonth || 0}
       Time Saved: ${user.stats?.timeSaved || 0} hours
     `;
-    toast.info(`Activity for ${user.name}`, {
+    toast({ 
+      title: `Activity for ${user.name}`,
       description: activitySummary
     });
   };
@@ -2852,15 +2885,15 @@ export function PowerfulAdminDashboard() {
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-slate-500">Join Date</Label>
-                  <p className="text-sm">{new Date(selectedUser.joinDate).toLocaleDateString()}</p>
+                  <p className="text-sm">{new Date(selectedUser.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-slate-500">Last Login</Label>
-                  <p className="text-sm">{new Date(selectedUser.lastLogin).toLocaleString()}</p>
+                  <p className="text-sm">{new Date(selectedUser.stats?.lastLogin || selectedUser.updatedAt).toLocaleString()}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-slate-500">Notes Created</Label>
-                  <p className="text-sm font-medium">{selectedUser.notesCreated}</p>
+                  <p className="text-sm font-medium">{selectedUser.stats?.notesCreated || 0}</p>
                 </div>
               </div>
             </div>

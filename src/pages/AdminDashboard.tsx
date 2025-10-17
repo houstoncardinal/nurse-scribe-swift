@@ -28,7 +28,6 @@ import {
   Server,
   HardDrive,
   Cpu,
-  Memory,
   Network,
   Bell,
   Mail,
