@@ -31,6 +31,7 @@ interface MVPDraftScreenProps {
   onNavigate: (screen: string) => void;
   transcript: string;
   selectedTemplate: string;
+  noteContent?: { [key: string]: string };
   onEditNote: (section: string, content: string) => void;
   onRegenerateNote: () => void;
   isProcessing?: boolean;
@@ -40,6 +41,7 @@ export function MVPDraftScreen({
   onNavigate,
   transcript,
   selectedTemplate,
+  noteContent: passedNoteContent,
   onEditNote,
   onRegenerateNote,
   isProcessing = false
@@ -266,10 +268,17 @@ export function MVPDraftScreen({
     });
   };
 
-  // Merge AI enhancements with original content
+  // Use passed note content if available, otherwise generate
   const getMergedContent = () => {
+    // PRIORITY 1: Use the note content passed from MVPApp (AI-generated)
+    if (passedNoteContent && Object.keys(passedNoteContent).length > 0) {
+      console.log('Using passed note content from MVPApp:', passedNoteContent);
+      return passedNoteContent;
+    }
+    
+    // PRIORITY 2: Use AI-generated content from this component
     if (aiGeneratedContent?.sections && originalContent) {
-      // Merge AI enhancements with original content
+      console.log('Using AI-generated content from MVPDraftScreen');
       const merged: any = {};
       Object.keys(originalContent).forEach(key => {
         const aiSection = aiGeneratedContent.sections[key];
@@ -281,10 +290,14 @@ export function MVPDraftScreen({
       });
       return merged;
     }
+    
+    // PRIORITY 3: Fallback to demo content (should rarely happen)
+    console.log('Falling back to demo content');
     return originalContent || generateNoteFromTemplate(selectedTemplate, transcript);
   };
 
   const noteContent = getMergedContent();
+  console.log('Final note content being displayed:', noteContent);
   const currentTime = new Date().toLocaleString();
 
   const handleEdit = (section: string, content: string) => {

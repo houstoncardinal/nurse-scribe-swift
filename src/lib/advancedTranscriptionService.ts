@@ -41,6 +41,10 @@ class AdvancedTranscriptionService {
     onStart?: () => void;
     onEnd?: () => void;
   } = {};
+  private silenceTimeout: NodeJS.Timeout | null = null;
+  private autoRestartEnabled = true;
+  private lastSpeechTime = 0;
+  private readonly SILENCE_THRESHOLD = 4000; // 4 seconds of silence before stopping
 
   // Medical terminology corrections database
   private medicalCorrections: Map<string, string> = new Map([
@@ -167,6 +171,15 @@ class AdvancedTranscriptionService {
     };
 
     this.recognition.onresult = (event: any) => {
+      // Update last speech time - user is speaking
+      this.lastSpeechTime = Date.now();
+      
+      // Clear any existing silence timeout
+      if (this.silenceTimeout) {
+        clearTimeout(this.silenceTimeout);
+        this.silenceTimeout = null;
+      }
+      
       let interim = '';
       let final = '';
 
@@ -182,12 +195,16 @@ class AdvancedTranscriptionService {
       }
 
       if (final) {
+        // Accumulate final transcript (keeps all previous speech)
         this.finalTranscript += final;
         const processedFinal = this.enhanceTranscript(final.trim());
         
+        // Send the FULL accumulated transcript, not just the new part
+        const fullTranscript = this.enhanceTranscript(this.finalTranscript.trim());
+        
         if (this.callbacks.onResult) {
           this.callbacks.onResult({
-            text: processedFinal,
+            text: fullTranscript, // Send full accumulated transcript
             confidence: event.results[event.resultIndex][0].confidence || 0.9,
             words: this.extractWords(processedFinal, event.results[event.resultIndex]),
             language: this.config.language,
@@ -195,15 +212,21 @@ class AdvancedTranscriptionService {
             alternatives: this.getAlternatives(event.results[event.resultIndex])
           });
         }
+        
+        // Start silence detection timer
+        this.startSilenceDetection();
       }
 
       if (interim) {
         this.interimTranscript = interim;
         const processedInterim = this.enhanceTranscript(interim.trim());
         
+        // Combine accumulated final + current interim
+        const combinedTranscript = this.finalTranscript + ' ' + processedInterim;
+        
         if (this.callbacks.onResult) {
           this.callbacks.onResult({
-            text: processedInterim,
+            text: this.enhanceTranscript(combinedTranscript.trim()),
             confidence: 0.7,
             words: [],
             language: this.config.language,
@@ -460,6 +483,38 @@ class AdvancedTranscriptionService {
     }
 
     return alternatives;
+  }
+
+  /**
+   * Start silence detection timer
+   * Automatically stops recording after 4 seconds of silence
+   */
+  private startSilenceDetection(): void {
+    // Clear any existing timeout
+    if (this.silenceTimeout) {
+      clearTimeout(this.silenceTimeout);
+    }
+
+    // Set new timeout for 4 seconds
+    this.silenceTimeout = setTimeout(() => {
+      const timeSinceLastSpeech = Date.now() - this.lastSpeechTime;
+      
+      // If it's been 4+ seconds since last speech, stop recording
+      if (timeSinceLastSpeech >= this.SILENCE_THRESHOLD && this.isListening && this.autoRestartEnabled) {
+        console.log('🎤 4 seconds of silence detected, stopping recording');
+        this.stopListening();
+      }
+    }, this.SILENCE_THRESHOLD);
+  }
+
+  /**
+   * Clear silence detection timer
+   */
+  private clearSilenceDetection(): void {
+    if (this.silenceTimeout) {
+      clearTimeout(this.silenceTimeout);
+      this.silenceTimeout = null;
+    }
   }
 
   /**

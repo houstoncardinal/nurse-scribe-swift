@@ -25,6 +25,7 @@ import { EducationScreen } from '@/components/EducationScreen';
 import { knowledgeBaseService } from '@/lib/knowledgeBase';
 import { enhancedAIService } from '@/lib/enhancedAIService';
 import { performanceService } from '@/lib/performanceService';
+import { intelligentNoteDetectionService } from '@/lib/intelligentNoteDetection';
 import { toast } from 'sonner';
 
 type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'copilot' | 'history' | 'admin' | 'instructions';
@@ -526,21 +527,148 @@ export function MVPApp() {
     console.log('✅ Voice recording stopped successfully');
   };
 
-  // Handle manual text input with AI enhancement
+  // Helper function to check if text is already formatted
+  const isPreFormattedNote = (text: string, template: string): boolean => {
+    const lowerText = text.toLowerCase();
+    
+    if (template === 'SOAP') {
+      return (lowerText.includes('s:') || lowerText.includes('subjective:')) &&
+             (lowerText.includes('o:') || lowerText.includes('objective:')) &&
+             (lowerText.includes('a:') || lowerText.includes('assessment:')) &&
+             (lowerText.includes('p:') || lowerText.includes('plan:'));
+    } else if (template === 'SBAR') {
+      return lowerText.includes('situation:') && lowerText.includes('background:') &&
+             lowerText.includes('assessment:') && lowerText.includes('recommendation:');
+    } else if (template === 'PIE') {
+      return lowerText.includes('problem:') && lowerText.includes('intervention:') &&
+             lowerText.includes('evaluation:');
+    } else if (template === 'DAR') {
+      return lowerText.includes('data:') && lowerText.includes('action:') &&
+             lowerText.includes('response:');
+    }
+    
+    return false;
+  };
+
+  // Helper function to parse pre-formatted note
+  const parsePreFormattedNote = (text: string, template: string): NoteContent => {
+    const noteContent: NoteContent = {};
+    
+    if (template === 'SOAP') {
+      // Parse SOAP sections
+      const sMatch = text.match(/(?:S:|Subjective:)\s*([\s\S]*?)(?=\n\s*(?:O:|Objective:)|$)/i);
+      const oMatch = text.match(/(?:O:|Objective:)\s*([\s\S]*?)(?=\n\s*(?:A:|Assessment:)|$)/i);
+      const aMatch = text.match(/(?:A:|Assessment:)\s*([\s\S]*?)(?=\n\s*(?:P:|Plan:)|$)/i);
+      const pMatch = text.match(/(?:P:|Plan:)\s*([\s\S]*?)$/i);
+      
+      if (sMatch) noteContent.Subjective = sMatch[1].trim();
+      if (oMatch) noteContent.Objective = oMatch[1].trim();
+      if (aMatch) noteContent.Assessment = aMatch[1].trim();
+      if (pMatch) noteContent.Plan = pMatch[1].trim();
+    } else if (template === 'SBAR') {
+      const sitMatch = text.match(/Situation:\s*([\s\S]*?)(?=\nBackground:|$)/i);
+      const bgMatch = text.match(/Background:\s*([\s\S]*?)(?=\nAssessment:|$)/i);
+      const assMatch = text.match(/Assessment:\s*([\s\S]*?)(?=\nRecommendation:|$)/i);
+      const recMatch = text.match(/Recommendation:\s*([\s\S]*?)$/i);
+      
+      if (sitMatch) noteContent.Situation = sitMatch[1].trim();
+      if (bgMatch) noteContent.Background = bgMatch[1].trim();
+      if (assMatch) noteContent.Assessment = assMatch[1].trim();
+      if (recMatch) noteContent.Recommendation = recMatch[1].trim();
+    } else if (template === 'PIE') {
+      const probMatch = text.match(/Problem:\s*([\s\S]*?)(?=\nIntervention:|$)/i);
+      const intMatch = text.match(/Intervention:\s*([\s\S]*?)(?=\nEvaluation:|$)/i);
+      const evalMatch = text.match(/Evaluation:\s*([\s\S]*?)$/i);
+      
+      if (probMatch) noteContent.Problem = probMatch[1].trim();
+      if (intMatch) noteContent.Intervention = intMatch[1].trim();
+      if (evalMatch) noteContent.Evaluation = evalMatch[1].trim();
+    } else if (template === 'DAR') {
+      const dataMatch = text.match(/Data:\s*([\s\S]*?)(?=\nAction:|$)/i);
+      const actMatch = text.match(/Action:\s*([\s\S]*?)(?=\nResponse:|$)/i);
+      const respMatch = text.match(/Response:\s*([\s\S]*?)$/i);
+      
+      if (dataMatch) noteContent.Data = dataMatch[1].trim();
+      if (actMatch) noteContent.Action = actMatch[1].trim();
+      if (respMatch) noteContent.Response = respMatch[1].trim();
+    }
+    
+    return noteContent;
+  };
+
+  // Handle manual text input with AI enhancement and intelligent detection
   const handleManualTextSubmit = async (text: string) => {
     setIsProcessing(true);
     
     try {
-      // Optimize voice input using knowledge base
+      // Step 1: Intelligent note type detection
+      const detectedType = intelligentNoteDetectionService.detectNoteType(text);
+      
+      // Auto-select detected template if confidence is high
+      if (detectedType.confidence > 0.6) {
+        setSelectedTemplate(detectedType.template);
+        toast.info(`🤖 Auto-detected ${detectedType.template} format`, {
+          description: detectedType.reasoning
+        });
+      }
+      
+      // Step 2: Check if text is already formatted
+      const isPreFormatted = isPreFormattedNote(text, detectedType.template);
+      
+      if (isPreFormatted) {
+        // Parse pre-formatted note directly
+        console.log('Pre-formatted note detected, parsing directly');
+        const parsedContent = parsePreFormattedNote(text, detectedType.template);
+        
+        // Extract fields for display
+        const extractedFields = intelligentNoteDetectionService.extractFields(text);
+        
+        // Show extracted vitals if found
+        if (Object.keys(extractedFields.vitalSigns).length > 0) {
+          const vitalsCount = Object.keys(extractedFields.vitalSigns).length;
+          toast.success(`📊 Extracted ${vitalsCount} vital signs`, {
+            description: 'Pre-formatted note parsed'
+          });
+        }
+        
+        setTranscript(text);
+        setFinalTranscript(text);
+        setInterimTranscript('');
+        setNoteContent(parsedContent);
+        setEditedNoteContent(parsedContent);
+        
+        console.log('Parsed pre-formatted content:', parsedContent);
+        
+        toast.success('✅ Pre-formatted Note Parsed!', {
+          description: `${detectedType.template} sections extracted successfully`
+        });
+        
+        handleNavigate('draft');
+        return;
+      }
+      
+      // Step 3: Extract and pre-fill fields
+      const extractedFields = intelligentNoteDetectionService.extractFields(text);
+      
+      // Show extracted vitals if found
+      if (Object.keys(extractedFields.vitalSigns).length > 0) {
+        const vitalsCount = Object.keys(extractedFields.vitalSigns).length;
+        toast.success(`📊 Extracted ${vitalsCount} vital signs`, {
+          description: 'Pre-filled in your note'
+        });
+      }
+      
+      // Step 4: Optimize voice input using knowledge base
       const optimizedText = enhancedAIService.optimizeVoiceInput(text);
       
-      // Generate enhanced note using AI service
+      // Step 5: Generate enhanced note using AI service with detected template
       const aiPrompt = {
-        template: selectedTemplate as 'SOAP' | 'SBAR' | 'PIE' | 'DAR',
+        template: detectedType.template,
         input: optimizedText,
         context: {
-          patientAge: userProfile.stats?.totalNotes ? undefined : undefined, // Add context as needed
-          chiefComplaint: optimizedText.substring(0, 100) // Extract from input
+          chiefComplaint: extractedFields.symptoms[0] || optimizedText.substring(0, 100),
+          medicalHistory: extractedFields.medications,
+          currentMedications: extractedFields.medications
         }
       };
 
@@ -553,17 +681,21 @@ export function MVPApp() {
       setFinalTranscript(text);
       setInterimTranscript('');
       
-      // Store AI-generated note content
+      // Store AI-generated note content with proper capitalization for sections
       const noteContent: NoteContent = {};
       Object.entries(generatedNote.sections).forEach(([section, data]) => {
-        noteContent[section.toLowerCase()] = data.content;
+        // Capitalize first letter of section name to match template format
+        const sectionKey = section.charAt(0).toUpperCase() + section.slice(1).toLowerCase();
+        noteContent[sectionKey] = data.content;
       });
+      
+      console.log('Generated note content:', noteContent);
       setNoteContent(noteContent);
       setEditedNoteContent(noteContent);
 
-      // Show success with AI insights
-      toast.success('AI-Enhanced Note Generated!', {
-        description: `Confidence: ${Math.round(generatedNote.overallConfidence * 100)}% | Quality: ${Math.round(generatedNote.qualityScore * 100)}%`
+      // Show comprehensive success message
+      toast.success('🎯 Intelligent Note Generated!', {
+        description: `${detectedType.template} format | ${extractedFields.symptoms.length} symptoms | ${Object.keys(extractedFields.vitalSigns).length} vitals detected`
       });
 
       // Navigate to draft screen
@@ -728,6 +860,7 @@ export function MVPApp() {
             onNavigate={handleNavigate}
             transcript={transcript}
             selectedTemplate={selectedTemplate}
+            noteContent={editedNoteContent}
             onEditNote={handleEditNote}
             onRegenerateNote={handleRegenerateNote}
             isProcessing={isProcessing}
