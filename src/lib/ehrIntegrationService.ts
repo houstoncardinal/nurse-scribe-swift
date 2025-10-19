@@ -179,7 +179,7 @@ class EHRIntegrationService {
       author: [{
         display: `${request.author.name}, ${request.author.credentials}`
       }],
-      description: `${request.template} Note - NurseScribe AI`,
+      description: `${request.template} Note - NovaCare`,
       content: [{
         attachment: {
           contentType: 'text/html',

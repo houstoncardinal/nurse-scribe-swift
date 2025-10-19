@@ -1,4 +1,4 @@
-# 🚀 NurseScribe AI MVP - Complete Setup Guide
+# 🚀 NovaCare MVP - Complete Setup Guide
 
 ## ✅ Your MVP App is Ready!
 
@@ -266,4 +266,4 @@ Your app is perfectly positioned for:
 **✅ Ready for hospital deployment**  
 **✅ Scalable for future phases**  
 
-**Your NurseScribe AI MVP is ready to prove nurses will use it and save time!** 🏥✨
+**Your NovaCare MVP is ready to prove nurses will use it and save time!** 🏥✨

@@ -33,7 +33,7 @@ export function SimpleMobileHeader({
             <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md shadow-teal-500/25">
               <Stethoscope className="h-4 w-4 text-white" />
             </div>
-            <h1 className="text-base font-semibold text-slate-900">NurseScribe AI</h1>
+            <h1 className="text-base font-semibold text-slate-900">NovaCare</h1>
           </div>
 
           {/* Right Side - Status and Actions */}

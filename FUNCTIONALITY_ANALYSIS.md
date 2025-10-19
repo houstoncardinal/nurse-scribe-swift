@@ -1,4 +1,4 @@
-# NurseScribe AI - Complete Functionality Analysis
+# NovaCare - Complete Functionality Analysis
 
 ## 🎯 Executive Summary
 

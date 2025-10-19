@@ -272,7 +272,7 @@ export function UserProfile({ user, onUpdate, onSignOut }: UserProfileProps) {
           <Card>
             <CardHeader>
               <CardTitle>Application Preferences</CardTitle>
-              <CardDescription>Customize your NurseScribe AI experience</CardDescription>
+              <CardDescription>Customize your NovaCare experience</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">

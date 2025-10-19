@@ -455,7 +455,7 @@ class PWAService {
     userAgent: string;
   } {
     return {
-      name: 'NurseScribe AI',
+      name: 'NovaCare',
       version: '2.0.0',
       platform: navigator.platform,
       userAgent: navigator.userAgent,

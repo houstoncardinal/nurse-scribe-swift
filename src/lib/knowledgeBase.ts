@@ -1,5 +1,5 @@
 /**
- * NurseScribe AI Knowledge Base System
+ * NovaCare Knowledge Base System
  * Comprehensive medical knowledge for enhanced AI capabilities
  */
 

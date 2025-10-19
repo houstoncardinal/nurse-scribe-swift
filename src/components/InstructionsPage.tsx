@@ -241,7 +241,7 @@ export function InstructionsPage({ onNavigate }: InstructionsPageProps) {
             </div>
             <div>
               <h1 className="text-lg font-bold text-slate-900">Instructions</h1>
-              <p className="text-xs text-slate-600">Learn to use NurseScribe AI</p>
+              <p className="text-xs text-slate-600">Learn to use NovaCare</p>
             </div>
           </div>
         </div>
@@ -264,7 +264,7 @@ export function InstructionsPage({ onNavigate }: InstructionsPageProps) {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-900">Instructions & Best Practices</h1>
-              <p className="text-sm text-slate-600">Learn how to get the best results from NurseScribe AI</p>
+              <p className="text-sm text-slate-600">Learn how to get the best results from NovaCare</p>
             </div>
           </div>
         </div>
@@ -471,7 +471,7 @@ export function InstructionsPage({ onNavigate }: InstructionsPageProps) {
             <Alert className="border-green-200 bg-green-50">
               <CheckCircle className="h-4 w-4 text-green-600" />
               <AlertDescription className="text-sm text-green-800">
-                <strong>Remember:</strong> NurseScribe AI is designed to enhance your workflow, not replace your clinical judgment. Always review and validate AI-generated content before finalizing notes.
+                <strong>Remember:</strong> NovaCare is designed to enhance your workflow, not replace your clinical judgment. Always review and validate AI-generated content before finalizing notes.
               </AlertDescription>
             </Alert>
           </TabsContent>

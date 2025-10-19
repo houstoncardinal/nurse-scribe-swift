@@ -1,6 +1,6 @@
 /**
  * Voice Commands System for Hands-Free Operation
- * Enables voice control of the NurseScribe AI application
+ * Enables voice control of the NovaCare application
  */
 
 export interface VoiceCommand {

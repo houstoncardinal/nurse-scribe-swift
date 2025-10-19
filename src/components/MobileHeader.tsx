@@ -86,7 +86,7 @@ export function MobileHeader({
                 <Stethoscope className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-slate-900">NurseScribe AI</h1>
+                <h1 className="text-lg font-bold text-slate-900">NovaCare</h1>
                 <p className="text-xs text-slate-500">Professional Documentation</p>
               </div>
             </div>

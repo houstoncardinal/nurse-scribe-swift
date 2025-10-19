@@ -1,4 +1,4 @@
-# NurseScribe AI - Setup Guide
+# NovaCare - Setup Guide
 
 ## 🚀 Quick Start - Making Your App Fully Functional
 
@@ -7,7 +7,7 @@
 Create a `.env` file in your project root with the following content:
 
 ```bash
-# NurseScribe AI - Environment Configuration
+# NovaCare - Environment Configuration
 # Add your actual API keys here
 
 # OpenAI Configuration (Required for AI Composition)
@@ -206,4 +206,4 @@ If you encounter any issues:
 3. Try refreshing the page after adding API keys
 4. Check the browser console for error messages
 
-Your NurseScribe AI app is now ready for professional clinical documentation! 🏥✨
+Your NovaCare app is now ready for professional clinical documentation! 🏥✨

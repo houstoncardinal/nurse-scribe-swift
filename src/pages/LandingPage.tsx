@@ -60,7 +60,7 @@ export function LandingPage() {
     {
       name: 'Dr. Sarah Johnson, RN',
       title: 'Chief Nursing Officer, General Hospital',
-      content: 'NurseScribe AI has reduced our documentation time by 40% while improving note quality. Our nurses love the voice commands and seamless EHR integration.',
+      content: 'NovaCare has reduced our documentation time by 40% while improving note quality. Our nurses love the voice commands and seamless EHR integration.',
       rating: 5,
       hospital: 'General Hospital'
     },
@@ -74,14 +74,14 @@ export function LandingPage() {
     {
       name: 'Lisa Rodriguez, RN',
       title: 'Emergency Department Manager, City Hospital',
-      content: 'HIPAA compliance was our biggest concern, but NurseScribe AI handles everything securely. The redaction features give us complete confidence.',
+      content: 'HIPAA compliance was our biggest concern, but NovaCare handles everything securely. The redaction features give us complete confidence.',
       rating: 5,
       hospital: 'City Hospital'
     }
   ];
 
   const stats = [
-    { number: '15,000+', label: 'Nurses Using NurseScribe AI' },
+    { number: '15,000+', label: 'Nurses Using NovaCare' },
     { number: '2.5M+', label: 'Notes Generated' },
     { number: '40%', label: 'Time Saved on Documentation' },
     { number: '99.9%', label: 'HIPAA Compliance Rate' }
@@ -144,7 +144,7 @@ export function LandingPage() {
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                 <Zap className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold">NurseScribe AI</span>
+              <span className="text-xl font-bold">NovaCare</span>
             </div>
             <div className="flex items-center gap-4">
               <Button variant="ghost">Features</Button>
@@ -217,7 +217,7 @@ export function LandingPage() {
                     <div className="w-3 h-3 bg-destructive rounded-full"></div>
                     <div className="w-3 h-3 bg-warning rounded-full"></div>
                     <div className="w-3 h-3 bg-success rounded-full"></div>
-                    <span className="ml-4 text-sm text-muted-foreground">NurseScribe AI - Active Session</span>
+                    <span className="ml-4 text-sm text-muted-foreground">NovaCare - Active Session</span>
                   </div>
                   
                   <div className="space-y-4">
@@ -281,7 +281,7 @@ export function LandingPage() {
               <span className="text-gradient-primary"> Professional Documentation</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              From voice transcription to EHR integration, NurseScribe AI provides 
+              From voice transcription to EHR integration, NovaCare provides 
               a complete solution for modern healthcare documentation.
             </p>
           </div>
@@ -316,7 +316,7 @@ export function LandingPage() {
               <span className="text-gradient-primary"> Professionals</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              See what nurses, administrators, and educators are saying about NurseScribe AI.
+              See what nurses, administrators, and educators are saying about NovaCare.
             </p>
           </div>
 
@@ -408,7 +408,7 @@ export function LandingPage() {
               </h2>
               <p className="text-xl text-primary-foreground/80">
                 Join thousands of healthcare professionals who have already reduced 
-                their documentation time by 40% with NurseScribe AI.
+                their documentation time by 40% with NovaCare.
               </p>
             </div>
 
@@ -458,7 +458,7 @@ export function LandingPage() {
                 <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                   <Zap className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <span className="text-xl font-bold">NurseScribe AI</span>
+                <span className="text-xl font-bold">NovaCare</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 AI-powered voice documentation for healthcare professionals. 
@@ -501,7 +501,7 @@ export function LandingPage() {
 
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-sm text-muted-foreground">
-              © 2024 NurseScribe AI. All rights reserved.
+              © 2024 NovaCare. All rights reserved.
             </div>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">

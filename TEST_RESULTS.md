@@ -1,4 +1,4 @@
-# NurseScribe AI - Test Results
+# NovaCare - Test Results
 
 ## ✅ System Status: FULLY OPERATIONAL
 

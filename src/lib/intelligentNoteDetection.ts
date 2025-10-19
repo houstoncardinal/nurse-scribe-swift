@@ -225,65 +225,106 @@ class IntelligentNoteDetectionService {
     let detectedTemplate: EpicTemplateType | null = null;
     const indicators: string[] = [];
     
-    // Detect shift assessment
-    const shiftPhase = detectShiftPhase(input);
-    if (shiftPhase) {
-      maxScore += 3;
-      indicators.push(`shift phase: ${shiftPhase}`);
-      detectedTemplate = 'shift-assessment';
+    // Detect ICU - check first as it has very specific keywords
+    const icuKeywords = ['hemodynamic', 'cvp', 'map', 'ventilator', 'peep', 'fio2', 'rass', 'cam-icu', 'titration', 'a-line', 'central line'];
+    const icuScore = icuKeywords.filter(k => lowerInput.includes(k)).length;
+    if (icuScore >= 3) {
+      maxScore = icuScore + 5; // Boost ICU score
+      detectedTemplate = 'icu';
+      indicators.push('ICU-specific keywords (hemodynamics, ventilator, sedation)');
     }
     
-    // Detect MAR
-    const marKeywords = ['medication administration', 'mar', 'administered', 'gave medication', 'med given'];
-    const marScore = marKeywords.filter(k => lowerInput.includes(k)).length;
-    if (marScore > maxScore) {
-      maxScore = marScore;
-      detectedTemplate = 'mar';
-      indicators.push('medication administration keywords');
+    // Detect NICU - very specific keywords
+    const nicuKeywords = ['isolette', 'thermoregulation', 'nicu', 'premature', 'developmental care', 'parental bonding'];
+    const nicuScore = nicuKeywords.filter(k => lowerInput.includes(k)).length;
+    if (nicuScore >= 2 && nicuScore > maxScore) {
+      maxScore = nicuScore + 5;
+      detectedTemplate = 'nicu';
+      indicators.push('NICU-specific keywords');
     }
     
-    // Detect I&O
-    const ioKeywords = ['intake', 'output', 'i&o', 'i/o', 'fluid balance', 'oral intake', 'urine output'];
-    const ioScore = ioKeywords.filter(k => lowerInput.includes(k)).length;
-    if (ioScore > maxScore && ioScore >= 2) {
-      maxScore = ioScore;
-      detectedTemplate = 'io';
-      indicators.push('intake/output keywords');
+    // Detect Mother-Baby - very specific keywords
+    const motherBabyKeywords = ['fundal', 'lochia', 'perineum', 'breastfeeding', 'latch', 'postpartum', 'newborn', 'cord care', 'circumcision'];
+    const motherBabyScore = motherBabyKeywords.filter(k => lowerInput.includes(k)).length;
+    if (motherBabyScore >= 2 && motherBabyScore > maxScore) {
+      maxScore = motherBabyScore + 5;
+      detectedTemplate = 'mother-baby';
+      indicators.push('Mother-Baby specific keywords');
     }
     
     // Detect wound care
-    const woundKeywords = ['wound', 'pressure injury', 'ulcer', 'dressing change', 'wound care'];
+    const woundKeywords = ['wound', 'pressure injury', 'ulcer', 'dressing change', 'wound care', 'stage ii', 'stage iii', 'stage iv', 'granulation', 'slough', 'eschar'];
     const woundScore = woundKeywords.filter(k => lowerInput.includes(k)).length;
-    if (woundScore > maxScore) {
-      maxScore = woundScore;
+    if (woundScore >= 2 && woundScore > maxScore) {
+      maxScore = woundScore + 4;
       detectedTemplate = 'wound-care';
       indicators.push('wound care keywords');
     }
     
     // Detect safety checklist
-    const safetyKeywords = ['fall risk', 'restraints', 'isolation', 'safety', 'code status'];
+    const safetyKeywords = ['fall risk', 'restraints', 'isolation', 'code status', 'patient identification', 'allergies'];
     const safetyScore = safetyKeywords.filter(k => lowerInput.includes(k)).length;
-    if (safetyScore > maxScore && safetyScore >= 2) {
-      maxScore = safetyScore;
+    if (safetyScore >= 3 && safetyScore > maxScore) {
+      maxScore = safetyScore + 4;
       detectedTemplate = 'safety-checklist';
       indicators.push('safety keywords');
     }
     
-    // Detect unit-specific templates
-    const unitType = detectUnitType(input);
-    if (unitType && maxScore < 2) {
-      const unitTemplateMap: { [key in UnitType]: EpicTemplateType } = {
-        'Med-Surg': 'med-surg',
-        'ICU': 'icu',
-        'NICU': 'nicu',
-        'Mother-Baby': 'mother-baby'
-      };
-      detectedTemplate = unitTemplateMap[unitType];
-      maxScore = 2;
-      indicators.push(`unit type: ${unitType}`);
+    // Detect I&O - must have both intake AND output or explicit I&O mention
+    const hasIntake = lowerInput.includes('intake') || lowerInput.includes('oral') || lowerInput.includes('iv fluid');
+    const hasOutput = lowerInput.includes('output') || lowerInput.includes('urine');
+    const hasBalance = lowerInput.includes('balance') || lowerInput.includes('fluid balance');
+    const hasIOExplicit = lowerInput.includes('i&o') || lowerInput.includes('i/o') || lowerInput.match(/intake\s+and\s+output/);
+    
+    if (hasIOExplicit || ((hasIntake && hasOutput) || hasBalance)) {
+      const ioScore = (hasIntake ? 2 : 0) + (hasOutput ? 2 : 0) + (hasBalance ? 3 : 0) + (hasIOExplicit ? 4 : 0);
+      if (ioScore >= 4 && ioScore > maxScore) {
+        maxScore = ioScore + 3;
+        detectedTemplate = 'io';
+        indicators.push('intake/output keywords');
+      }
     }
     
-    const confidence = maxScore > 0 ? Math.min(maxScore / 5, 1) : 0;
+    // Detect MAR - medication-focused with multiple medications
+    const marKeywords = ['medication administration', 'mar', 'administered', 'gave', 'dose', 'route', 'tolerated'];
+    const marScore = marKeywords.filter(k => lowerInput.includes(k)).length;
+    const hasMedRoute = lowerInput.match(/\b(po|iv|im|sq|sl|pr)\b/gi);
+    const medCount = hasMedRoute ? hasMedRoute.length : 0;
+    
+    // Strong MAR detection if multiple medications with routes
+    if (marScore >= 2 && medCount >= 2) {
+      maxScore = marScore + medCount + 5;
+      detectedTemplate = 'mar';
+      indicators.push('medication administration keywords with multiple medications');
+    } else if (marScore >= 3 && medCount >= 1 && marScore > maxScore) {
+      maxScore = marScore + 3;
+      detectedTemplate = 'mar';
+      indicators.push('medication administration keywords');
+    }
+    
+    // Detect Med-Surg
+    const medSurgKeywords = ['patient education', 'discharge', 'mobility', 'ambulated', 'walker', 'discharge planning'];
+    const medSurgScore = medSurgKeywords.filter(k => lowerInput.includes(k)).length;
+    if (medSurgScore >= 2 && medSurgScore > maxScore) {
+      maxScore = medSurgScore + 3;
+      detectedTemplate = 'med-surg';
+      indicators.push('Med-Surg keywords (education, discharge, mobility)');
+    }
+    
+    // Detect shift assessment - check for shift phase AND system assessment
+    const shiftPhase = detectShiftPhase(input);
+    const hasSystemAssessment = ['neuro', 'cardiac', 'respiratory', 'gi', 'gu', 'skin', 'musculoskeletal'].filter(
+      sys => lowerInput.includes(sys)
+    ).length >= 3;
+    
+    if (shiftPhase && hasSystemAssessment) {
+      maxScore = 10; // High priority for shift assessment
+      detectedTemplate = 'shift-assessment';
+      indicators.push(`shift phase: ${shiftPhase}`, 'system-by-system assessment');
+    }
+    
+    // Calculate confidence based on score
+    const confidence = maxScore > 0 ? Math.min(maxScore / 10, 1) : 0;
     
     return {
       template: detectedTemplate || 'SOAP',
@@ -294,7 +335,7 @@ class IntelligentNoteDetectionService {
       indicators,
       epicContext: {
         shiftPhase: shiftPhase || undefined,
-        unitType: unitType || undefined,
+        unitType: detectUnitType(input) || undefined,
         category: detectedTemplate || undefined
       }
     };

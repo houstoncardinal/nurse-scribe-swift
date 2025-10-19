@@ -1,6 +1,6 @@
 {
-  "name": "NurseScribe AI - Voice Documentation for Healthcare",
-  "short_name": "NurseScribe AI",
+  "name": "NovaCare - Voice Documentation for Healthcare",
+  "short_name": "NovaCare",
   "description": "AI-powered voice documentation for nurses and healthcare professionals. HIPAA-compliant, secure, and designed for modern healthcare workflows.",
   "version": "2.0.0",
   "manifest_version": 2,
@@ -19,14 +19,14 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "NurseScribe AI Desktop Interface"
+      "label": "NovaCare Desktop Interface"
     },
     {
       "src": "/screenshots/mobile.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "NurseScribe AI Mobile Interface"
+      "label": "NovaCare Mobile Interface"
     }
   ],
   "icons": [

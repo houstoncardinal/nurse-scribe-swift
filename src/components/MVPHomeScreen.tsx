@@ -619,8 +619,8 @@ export function MVPHomeScreen({
           </div>
         </div>
 
-        {/* Mobile Main Content Area - iPhone 16 Optimized */}
-        <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 space-y-4 overflow-y-auto">
+        {/* Mobile Main Content Area - iPhone 16 Optimized - Fully Scrollable */}
+        <div className="flex-1 px-4 py-6 space-y-4 overflow-y-auto pb-24">
           {showInputSelector ? (
             <div className="w-full max-w-2xl">
               <InputMethodSelector
@@ -759,7 +759,7 @@ export function MVPHomeScreen({
 
               {/* Mobile Input Method Options - iPhone 16 Optimized */}
                 {!isRecording && !isProcessing && !transcript && (
-                  <div className="w-full max-w-xs space-y-2">
+                  <div className="w-full max-w-xs mx-auto space-y-2">
                     <div className="text-center">
                       <p className="text-xs text-slate-600 mb-2">Or choose another method:</p>
                     </div>
@@ -842,11 +842,17 @@ export function MVPHomeScreen({
                 </div>
               )}
 
-              {/* Mobile Profile Widgets - iPhone 16 Optimized */}
-              {!isRecording && !isProcessing && (
-                <div className="w-full max-w-sm space-y-2 mt-4">
-                  {/* Your Numbers Today - Compact */}
-                  <div className="grid grid-cols-3 gap-2">
+              {/* Mobile Profile Widgets - Always Visible & Scrollable */}
+              <div className="w-full max-w-sm mx-auto space-y-3 mt-4">
+                  {/* Performance Metrics - Enhanced */}
+                  <Card className="p-3 bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200 shadow-lg">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-6 h-6 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+                        <BarChart3 className="h-3 w-3 text-white" />
+                      </div>
+                      <h3 className="font-bold text-sm text-slate-900">Your Performance</h3>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
                     <Card className="p-2 bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200/60 shadow-[0_2px_8px_rgba(59,130,246,0.1)] hover:shadow-[0_4px_12px_rgba(59,130,246,0.15)] transition-all duration-300">
                       <div className="text-center">
                         <FileText className="h-4 w-4 text-blue-600 mx-auto mb-1 drop-shadow-sm" />
@@ -880,38 +886,162 @@ export function MVPHomeScreen({
                         </div>
                       </div>
                     </Card>
-                  </div>
-
-                  {/* Quick Tips */}
-                  <Card className="p-3 bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <BookOpen className="h-4 w-4 text-orange-600" />
-                      <span className="text-sm font-semibold text-slate-900">Quick Tips</span>
                     </div>
-                    <p className="text-xs text-slate-700">
-                      Speak clearly and use medical terminology for best AI transcription accuracy.
-                    </p>
                   </Card>
 
-                  {/* Weekly Progress */}
-                  <Card className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200">
+                  {/* Pro Tip */}
+                  <Card className="p-3 bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 shadow-lg">
                     <div className="flex items-center gap-2 mb-2">
-                      <Target className="h-4 w-4 text-blue-600" />
-                      <span className="text-sm font-semibold text-slate-900">Weekly Goal</span>
+                      <div className="w-6 h-6 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center">
+                        <BookOpen className="h-3 w-3 text-white" />
+                      </div>
+                      <h3 className="font-semibold text-sm text-slate-900">Pro Tip</h3>
+                    </div>
+                    <p className="text-xs text-slate-700 leading-relaxed mb-2">
+                      Speak clearly using medical terminology for optimal AI transcription accuracy.
+                    </p>
+                    <div className="flex items-center gap-1.5 text-xs text-orange-600">
+                      <Star className="h-3 w-3 fill-orange-400" />
+                      <span className="font-medium">99.2% average accuracy</span>
+                    </div>
+                  </Card>
+
+                  {/* Weekly Goal Progress */}
+                  <Card className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <Target className="h-3 w-3 text-white" />
+                      </div>
+                      <h3 className="font-semibold text-sm text-slate-900">Weekly Goal</h3>
                     </div>
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-slate-700">Progress</span>
-                        <span className="text-xs font-bold text-blue-600">{userProfile.notesThisWeek}/{userProfile.weeklyGoal}</span>
+                      <div className="p-2 bg-white rounded-lg border border-blue-100">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-medium text-slate-700">Progress</span>
+                          <span className="text-sm font-bold text-blue-600">{userProfile.notesThisWeek}/{userProfile.weeklyGoal}</span>
+                        </div>
+                        <Progress value={(userProfile.notesThisWeek / userProfile.weeklyGoal) * 100} className="h-2 mb-1" />
+                        <div className="text-xs text-slate-500">
+                          {userProfile.weeklyGoal - userProfile.notesThisWeek} more to reach goal
+                        </div>
                       </div>
-                      <Progress value={(userProfile.notesThisWeek / userProfile.weeklyGoal) * 100} className="h-1.5" />
-                      <div className="text-xs text-slate-500">
-                        {userProfile.weeklyGoal - userProfile.notesThisWeek} more to reach goal
+                      <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                        <div className="w-5 h-5 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <TrendingUp className="h-2.5 w-2.5 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-xs font-semibold text-green-700">On track!</div>
+                          <div className="text-xs text-green-600">84% of goal completed</div>
+                        </div>
                       </div>
+                    </div>
+                  </Card>
+
+                  {/* Quick Actions */}
+                  <Card className="p-3 bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 shadow-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-6 h-6 bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center">
+                        <Zap className="h-3 w-3 text-white" />
+                      </div>
+                      <h3 className="font-semibold text-sm text-slate-900">Quick Actions</h3>
+                    </div>
+                    <div className="space-y-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full justify-start text-xs h-9 hover:bg-teal-50 hover:border-teal-300 transition-colors"
+                        onClick={() => onNavigate('history')}
+                      >
+                        <FileText className="h-3 w-3 mr-2" />
+                        View Note History
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full justify-start text-xs h-9 hover:bg-teal-50 hover:border-teal-300 transition-colors"
+                        onClick={() => onNavigate('analytics')}
+                      >
+                        <BarChart3 className="h-3 w-3 mr-2" />
+                        View Analytics
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full justify-start text-xs h-9 hover:bg-teal-50 hover:border-teal-300 transition-colors"
+                        onClick={() => onNavigate('settings')}
+                      >
+                        <Settings className="h-3 w-3 mr-2" />
+                        Settings
+                      </Button>
+                    </div>
+                  </Card>
+
+                  {/* Activity Summary */}
+                  <Card className="p-3 bg-gradient-to-br from-slate-50 to-gray-100 border border-slate-200 shadow-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-6 h-6 bg-gradient-to-r from-slate-500 to-gray-600 rounded-lg flex items-center justify-center">
+                        <Activity className="h-3 w-3 text-white" />
+                      </div>
+                      <h3 className="font-semibold text-sm text-slate-900">Activity</h3>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-100">
+                        <span className="text-xs text-slate-600">Pending Reviews</span>
+                        <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">{userProfile.pendingReviews}</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-100">
+                        <span className="text-xs text-slate-600">Upcoming Tasks</span>
+                        <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">{userProfile.upcomingTasks}</Badge>
+                      </div>
+                    </div>
+                  </Card>
+
+                  {/* Recent Notes */}
+                  <Card className="p-3 bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 shadow-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-6 h-6 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <FileText className="h-3 w-3 text-white" />
+                      </div>
+                      <h3 className="font-semibold text-sm text-slate-900">Recent Notes</h3>
+                    </div>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => onNavigate('history')}
+                        className="w-full flex items-center gap-2 p-2 bg-white rounded-lg border border-indigo-100 hover:bg-indigo-50 hover:border-indigo-200 transition-all"
+                      >
+                        <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <FileText className="h-3 w-3 text-green-600" />
+                        </div>
+                        <div className="flex-1 min-w-0 text-left">
+                          <div className="text-xs font-medium text-slate-700 truncate">Morning Assessment</div>
+                          <div className="text-xs text-slate-500">SOAP • 2h ago</div>
+                        </div>
+                        <Badge className="bg-green-100 text-green-700 border-green-200 text-xs flex-shrink-0">Done</Badge>
+                      </button>
+                      <button
+                        onClick={() => onNavigate('history')}
+                        className="w-full flex items-center gap-2 p-2 bg-white rounded-lg border border-indigo-100 hover:bg-indigo-50 hover:border-indigo-200 transition-all"
+                      >
+                        <div className="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <FileText className="h-3 w-3 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0 text-left">
+                          <div className="text-xs font-medium text-slate-700 truncate">Patient Transfer</div>
+                          <div className="text-xs text-slate-500">SBAR • 4h ago</div>
+                        </div>
+                        <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs flex-shrink-0">Sent</Badge>
+                      </button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full text-xs hover:bg-indigo-50 hover:border-indigo-300 transition-colors"
+                        onClick={() => onNavigate('history')}
+                      >
+                        View All Notes
+                      </Button>
                     </div>
                   </Card>
                 </div>
-              )}
             </>
           )}
         </div>

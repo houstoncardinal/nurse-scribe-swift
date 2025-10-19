@@ -447,7 +447,7 @@ export function MVPApp() {
       
       setUserProfile(newUserProfile);
       setIsSignInModalOpen(false);
-      toast.success('Account created!', { description: `Welcome to NurseScribe AI, ${name}` });
+      toast.success('Account created!', { description: `Welcome to NovaCare, ${name}` });
     } catch (error) {
       setAuthError('Failed to create account. Please try again.');
       toast.error('Sign up failed');
@@ -983,7 +983,7 @@ export function MVPApp() {
                     <Stethoscope className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-lg font-bold text-slate-900">NurseScribe AI</h1>
+                    <h1 className="text-lg font-bold text-slate-900">NovaCare</h1>
                     <p className="text-xs text-slate-600">Professional Documentation</p>
                   </div>
                 </div>

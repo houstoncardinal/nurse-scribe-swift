@@ -2,7 +2,7 @@
 
 ## 🎯 Master-Level AI Generation System
 
-Your NurseScribe AI uses **GPT-4o-mini** with advanced prompt engineering and a comprehensive medical knowledge base to generate professional, clinically accurate nursing documentation.
+Your NovaCare uses **GPT-4o-mini** with advanced prompt engineering and a comprehensive medical knowledge base to generate professional, clinically accurate nursing documentation.
 
 ---
 

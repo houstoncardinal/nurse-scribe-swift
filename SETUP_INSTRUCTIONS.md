@@ -1,4 +1,4 @@
-# NurseScribe AI - Setup Instructions for Real Functionality
+# NovaCare - Setup Instructions for Real Functionality
 
 ## 🚨 CRITICAL: Your App is Currently in DEMO Mode
 
