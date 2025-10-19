@@ -4,9 +4,19 @@
  */
 
 import { knowledgeBaseService, MedicalTerm, ClinicalGuideline, TemplateGuidance } from './knowledgeBase';
+import { EpicTemplateType, ShiftPhase, UnitType } from './epicTemplates';
+import { 
+  detectShiftPhase, 
+  detectUnitType,
+  EPIC_TERMINOLOGY,
+  getRequiredFieldsForShiftPhase,
+  getRequiredFieldsForUnit
+} from './epicKnowledgeBase';
+
+export type TemplateType = 'SOAP' | 'SBAR' | 'PIE' | 'DAR' | EpicTemplateType;
 
 export interface NoteGenerationPrompt {
-  template: 'SOAP' | 'SBAR' | 'PIE' | 'DAR';
+  template: TemplateType;
   input: string;
   context?: {
     patientAge?: number;
@@ -14,6 +24,8 @@ export interface NoteGenerationPrompt {
     chiefComplaint?: string;
     medicalHistory?: string[];
     currentMedications?: string[];
+    shiftPhase?: ShiftPhase;
+    unitType?: UnitType;
   };
 }
 
@@ -69,11 +81,17 @@ class EnhancedAIService {
 
   /**
    * Generate comprehensive nursing note using knowledge base
+   * Enhanced with Epic template support
    */
   public async generateNote(prompt: AIPrompt): Promise<AIGeneratedNote> {
     try {
-      // Get template guidance from knowledge base
-      const templateGuidance = knowledgeBaseService.getTemplateGuidance(prompt.template);
+      // Check if this is an Epic template
+      const isEpicTemplate = this.isEpicTemplate(prompt.template);
+      
+      // Get template guidance from knowledge base (for traditional templates)
+      const templateGuidance = !isEpicTemplate 
+        ? knowledgeBaseService.getTemplateGuidance(prompt.template as 'SOAP' | 'SBAR' | 'PIE' | 'DAR')
+        : null;
       
       // Analyze input for medical terms and clinical context
       const analysis = this.analyzeInput(prompt.input);
@@ -82,7 +100,9 @@ class EnhancedAIService {
       const clinicalContext = this.extractClinicalContext(prompt.input);
       
       // Build enhanced prompt with knowledge base context and clinical reasoning
-      const enhancedPrompt = this.buildEnhancedPrompt(prompt, templateGuidance, analysis, clinicalContext);
+      const enhancedPrompt = isEpicTemplate
+        ? this.buildEpicEnhancedPrompt(prompt, analysis, clinicalContext)
+        : this.buildEnhancedPrompt(prompt, templateGuidance, analysis, clinicalContext);
       
       // Generate note with OpenAI using clinical reasoning
       const response = await this.callOpenAI(enhancedPrompt);
@@ -383,6 +403,187 @@ class EnhancedAIService {
     };
   }
 
+  /**
+   * Check if template is an Epic template
+   */
+  private isEpicTemplate(template: string): boolean {
+    const epicTemplates = [
+      'shift-assessment', 'mar', 'io', 'wound-care', 'safety-checklist',
+      'med-surg', 'icu', 'nicu', 'mother-baby'
+    ];
+    return epicTemplates.includes(template);
+  }
+
+  /**
+   * Build enhanced prompt for Epic templates
+   */
+  private buildEpicEnhancedPrompt(
+    prompt: AIPrompt,
+    analysis: AIAnalysis,
+    clinicalContext: any
+  ): string {
+    let enhancedPrompt = `Generate a professional Epic EMR ${prompt.template} nursing documentation based on the following input:\n\n`;
+    enhancedPrompt += `Input: ${prompt.input}\n\n`;
+
+    // Add Epic-specific context
+    const shiftPhase = prompt.context?.shiftPhase || detectShiftPhase(prompt.input);
+    const unitType = prompt.context?.unitType || detectUnitType(prompt.input);
+
+    if (shiftPhase) {
+      enhancedPrompt += `Shift Phase: ${shiftPhase}\n`;
+      const requiredFields = getRequiredFieldsForShiftPhase(shiftPhase);
+      enhancedPrompt += `Required Fields: ${requiredFields.join(', ')}\n\n`;
+    }
+
+    if (unitType) {
+      enhancedPrompt += `Unit Type: ${unitType}\n`;
+      const requiredFields = getRequiredFieldsForUnit(unitType);
+      enhancedPrompt += `Unit-Specific Requirements: ${requiredFields.join(', ')}\n\n`;
+    }
+
+    // Add Epic template-specific guidance
+    enhancedPrompt += this.getEpicTemplateGuidance(prompt.template as EpicTemplateType);
+
+    // Add clinical context
+    if (clinicalContext) {
+      enhancedPrompt += `\nClinical Context Analysis:\n`;
+      enhancedPrompt += `- Urgency Level: ${clinicalContext.urgency}\n`;
+      enhancedPrompt += `- Complexity: ${clinicalContext.complexity}\n`;
+      if (clinicalContext.chiefComplaint) {
+        enhancedPrompt += `- Chief Complaint: ${clinicalContext.chiefComplaint}\n`;
+      }
+      if (clinicalContext.vitalSigns.length > 0) {
+        enhancedPrompt += `- Vital Signs: ${clinicalContext.vitalSigns.join(', ')}\n`;
+      }
+      if (clinicalContext.symptoms.length > 0) {
+        enhancedPrompt += `- Identified Symptoms: ${clinicalContext.symptoms.join(', ')}\n`;
+      }
+      enhancedPrompt += `\n`;
+    }
+
+    // Add medical context
+    if (analysis.medicalTerms.length > 0) {
+      enhancedPrompt += `Identified Medical Terms:\n`;
+      analysis.medicalTerms.slice(0, 5).forEach(term => {
+        enhancedPrompt += `- ${term.term}: ${term.definition}\n`;
+      });
+      enhancedPrompt += '\n';
+    }
+
+    enhancedPrompt += `Epic Documentation Requirements:\n`;
+    enhancedPrompt += `- Follow Epic EMR standards and terminology\n`;
+    enhancedPrompt += `- Include all required fields for this template\n`;
+    enhancedPrompt += `- Use Epic-standard abbreviations and formats\n`;
+    enhancedPrompt += `- Ensure Joint Commission compliance\n`;
+    enhancedPrompt += `- Include specific measurements, times, and objective data\n`;
+    enhancedPrompt += `- Use professional medical terminology\n`;
+    enhancedPrompt += `- Provide actionable nursing interventions\n\n`;
+    enhancedPrompt += `Please generate comprehensive, Epic-compliant nursing documentation.`;
+
+    return enhancedPrompt;
+  }
+
+  /**
+   * Get Epic template-specific guidance
+   */
+  private getEpicTemplateGuidance(template: EpicTemplateType): string {
+    const guidance: { [key in EpicTemplateType]: string } = {
+      'shift-assessment': `
+Shift Assessment Template Structure:
+- Patient Assessment (system-by-system: neuro, cardiac, respiratory, GI, GU, skin, musculoskeletal)
+- Vital Signs (BP, HR, RR, Temp, SpO2, Pain, Weight)
+- Medication Administration (medications given during shift)
+- Intake & Output (fluid balance)
+- Treatments & Procedures
+- Communication (SBAR format)
+- Safety Checks (fall risk, restraints, isolation, code status)
+- Narrative Notes
+`,
+      'mar': `
+Medication Administration Record (MAR) Template Structure:
+- Medication Name, Dose, Route, Site
+- Time of Administration
+- Pre-Assessment (vital signs, pain level, etc.)
+- Post-Assessment (patient response)
+- Adverse Reactions (if any)
+- PRN Follow-up (if applicable)
+- Co-Signature Required (yes/no)
+`,
+      'io': `
+Intake & Output (I&O) Template Structure:
+- Shift (Day/Evening/Night)
+- Intake: Oral, IV, Enteral, Parenteral, Blood, Other
+- Output: Urine, Stool, Drains, Emesis, NG, Wound, Other
+- Calculate Total Intake, Total Output, and Balance
+- Include notes on fluid restrictions or concerns
+`,
+      'wound-care': `
+Wound Care Template Structure:
+- Location and Stage
+- Size (Length x Width x Depth in cm)
+- Drainage (Type, Amount, Color, Odor)
+- Wound Bed (Tissue type, % Granulation/Slough/Eschar)
+- Periwound Condition
+- Dressing Type and Interventions
+- Patient Response
+- Next Dressing Change Date
+- Photo Documentation (yes/no)
+`,
+      'safety-checklist': `
+Safety Checklist Template Structure:
+- Fall Risk Assessment (Score, Level, Interventions)
+- Restraints (In use, Type, Reason, Monitoring)
+- Isolation Precautions (Type, PPE used)
+- Patient Identification (Verified, Method)
+- Allergies
+- Code Status
+- Safety Notes
+`,
+      'med-surg': `
+Med-Surg Unit Documentation:
+- Patient Education (Topics, Method, Understanding, Barriers)
+- Discharge Readiness (Criteria met, Estimated discharge, Barriers)
+- Pain Management (Location, Quality, Intensity, Interventions, Effectiveness)
+- Mobility (Level, Assistive devices, Ambulation)
+`,
+      'icu': `
+ICU Unit Documentation:
+- Hemodynamic Monitoring (CVP, MAP, CO, SVR, PAP, PCWP)
+- Ventilator Settings (Mode, FiO2, PEEP, TV, RR, PIP, Plateau)
+- Device Checks (A-line, Central line, etc.)
+- Titration Drips (Medication, Rate, Target, Actual, Adjustment)
+- Sedation Score (RASS/SAS/Ramsay)
+- Delirium Assessment (CAM-ICU/ICDSC)
+`,
+      'nicu': `
+NICU Unit Documentation:
+- Thermoregulation (Environment, Temperatures)
+- Feeding Tolerance (Type, Amount, Frequency, Tolerance)
+- Parental Bonding (Skin-to-skin, Breastfeeding, Visits)
+- Daily Weight (Weight, Change, % Change)
+- Developmental Care (Positioning, Stimulation, Sleep)
+- Respiratory Support (Type, Settings, FiO2)
+`,
+      'mother-baby': `
+Mother-Baby Unit Documentation:
+Maternal:
+- Fundal Check (Position, Firmness, Height)
+- Lochia (Amount, Color, Odor, Clots)
+- Perineum (Condition, Healing)
+- Breasts (Condition, Nipples, Breastfeeding)
+
+Newborn:
+- Feeding (Type, Frequency, Duration/Amount, Latch, Tolerance)
+- Bonding (Skin-to-skin, Eye contact, Responsiveness)
+- Safe Sleep Education (Provided, Topics, Understanding)
+- Circumcision Care (if applicable)
+- Cord Care (Condition, Care provided)
+`
+    };
+
+    return guidance[template] || '';
+  }
+
   // Private helper methods
   private buildEnhancedPrompt(
     prompt: AIPrompt, 
@@ -591,14 +792,23 @@ Generate comprehensive, professional nursing documentation that demonstrates cli
     const sections: { [key: string]: string } = {};
     
     // Define section headers for each template
-    const sectionHeaders = {
+    const sectionHeaders: { [key: string]: string[] } = {
       'SOAP': ['Subjective', 'Objective', 'Assessment', 'Plan'],
       'SBAR': ['Situation', 'Background', 'Assessment', 'Recommendation'],
       'PIE': ['Problem', 'Intervention', 'Evaluation'],
-      'DAR': ['Data', 'Action', 'Response']
+      'DAR': ['Data', 'Action', 'Response'],
+      'shift-assessment': ['Patient Assessment', 'Vital Signs', 'Medications', 'Intake & Output', 'Treatments', 'Communication', 'Safety', 'Narrative'],
+      'mar': ['Medication Information', 'Administration Details', 'Assessment', 'Response'],
+      'io': ['Intake', 'Output', 'Balance', 'Notes'],
+      'wound-care': ['Location & Stage', 'Size & Drainage', 'Wound Bed', 'Interventions', 'Response'],
+      'safety-checklist': ['Fall Risk', 'Restraints', 'Isolation', 'Patient ID', 'Code Status'],
+      'med-surg': ['Patient Education', 'Discharge Readiness', 'Pain Management', 'Mobility'],
+      'icu': ['Hemodynamics', 'Ventilator', 'Devices', 'Drips', 'Sedation'],
+      'nicu': ['Thermoregulation', 'Feeding', 'Bonding', 'Weight', 'Development'],
+      'mother-baby': ['Maternal Assessment', 'Newborn Assessment', 'Feeding', 'Education']
     };
 
-    const headers = sectionHeaders[template as keyof typeof sectionHeaders] || [];
+    const headers = sectionHeaders[template] || [];
     
     headers.forEach(header => {
       const regex = new RegExp(`${header}:\\s*([\\s\\S]*?)(?=${headers.join('|')}:|$)`, 'i');

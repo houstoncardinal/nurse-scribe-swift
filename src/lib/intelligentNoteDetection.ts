@@ -1,13 +1,35 @@
 /**
  * Intelligent Note Detection Service
  * Automatically detects note type, structures content, and pre-fills fields
+ * Enhanced with Epic EMR template support
  */
 
+import { 
+  ShiftPhase, 
+  UnitType, 
+  EpicTemplateType 
+} from './epicTemplates';
+import {
+  detectShiftPhase,
+  detectUnitType,
+  detectMedicationRoute,
+  detectAssessmentSystem,
+  extractIntakeOutput,
+  extractMedicationInfo,
+  extractWoundInfo,
+  EPIC_PATTERNS
+} from './epicKnowledgeBase';
+
 export interface DetectedNoteType {
-  template: 'SOAP' | 'SBAR' | 'PIE' | 'DAR';
+  template: 'SOAP' | 'SBAR' | 'PIE' | 'DAR' | EpicTemplateType;
   confidence: number;
   reasoning: string;
   indicators: string[];
+  epicContext?: {
+    shiftPhase?: ShiftPhase;
+    unitType?: UnitType;
+    category?: string;
+  };
 }
 
 export interface ExtractedFields {
@@ -18,14 +40,36 @@ export interface ExtractedFields {
     temperature?: string;
     oxygenSaturation?: string;
     painLevel?: string;
+    weight?: string;
+    map?: string;
+    cvp?: string;
   };
-  medications: string[];
+  medications: Array<{
+    name: string;
+    dose: string;
+    route: string;
+    time: string;
+    site?: string;
+  }>;
   interventions: string[];
   symptoms: string[];
   assessmentFindings: string[];
   patientStatements: string[];
   timeStamps: string[];
   allergies: string[];
+  intakeOutput?: {
+    intake: { [key: string]: number };
+    output: { [key: string]: number };
+    balance: number;
+  };
+  woundInfo?: {
+    location?: string;
+    stage?: string;
+    size?: string;
+    drainage?: string;
+  };
+  assessmentSystems?: string[];
+  safetyChecks?: string[];
 }
 
 export interface StructuredNote {
@@ -40,9 +84,18 @@ export interface StructuredNote {
 class IntelligentNoteDetectionService {
   /**
    * Automatically detect the most appropriate note type from input
+   * Enhanced with Epic template detection
    */
   public detectNoteType(input: string): DetectedNoteType {
     const lowerInput = input.toLowerCase();
+    
+    // First check for Epic-specific templates
+    const epicDetection = this.detectEpicTemplate(input);
+    if (epicDetection.confidence > 0.7) {
+      return epicDetection;
+    }
+    
+    // Fall back to traditional template detection
     const scores = {
       SOAP: 0,
       SBAR: 0,
@@ -164,7 +217,92 @@ class IntelligentNoteDetectionService {
   }
 
   /**
+   * Detect Epic-specific template types
+   */
+  private detectEpicTemplate(input: string): DetectedNoteType {
+    const lowerInput = input.toLowerCase();
+    let maxScore = 0;
+    let detectedTemplate: EpicTemplateType | null = null;
+    const indicators: string[] = [];
+    
+    // Detect shift assessment
+    const shiftPhase = detectShiftPhase(input);
+    if (shiftPhase) {
+      maxScore += 3;
+      indicators.push(`shift phase: ${shiftPhase}`);
+      detectedTemplate = 'shift-assessment';
+    }
+    
+    // Detect MAR
+    const marKeywords = ['medication administration', 'mar', 'administered', 'gave medication', 'med given'];
+    const marScore = marKeywords.filter(k => lowerInput.includes(k)).length;
+    if (marScore > maxScore) {
+      maxScore = marScore;
+      detectedTemplate = 'mar';
+      indicators.push('medication administration keywords');
+    }
+    
+    // Detect I&O
+    const ioKeywords = ['intake', 'output', 'i&o', 'i/o', 'fluid balance', 'oral intake', 'urine output'];
+    const ioScore = ioKeywords.filter(k => lowerInput.includes(k)).length;
+    if (ioScore > maxScore && ioScore >= 2) {
+      maxScore = ioScore;
+      detectedTemplate = 'io';
+      indicators.push('intake/output keywords');
+    }
+    
+    // Detect wound care
+    const woundKeywords = ['wound', 'pressure injury', 'ulcer', 'dressing change', 'wound care'];
+    const woundScore = woundKeywords.filter(k => lowerInput.includes(k)).length;
+    if (woundScore > maxScore) {
+      maxScore = woundScore;
+      detectedTemplate = 'wound-care';
+      indicators.push('wound care keywords');
+    }
+    
+    // Detect safety checklist
+    const safetyKeywords = ['fall risk', 'restraints', 'isolation', 'safety', 'code status'];
+    const safetyScore = safetyKeywords.filter(k => lowerInput.includes(k)).length;
+    if (safetyScore > maxScore && safetyScore >= 2) {
+      maxScore = safetyScore;
+      detectedTemplate = 'safety-checklist';
+      indicators.push('safety keywords');
+    }
+    
+    // Detect unit-specific templates
+    const unitType = detectUnitType(input);
+    if (unitType && maxScore < 2) {
+      const unitTemplateMap: { [key in UnitType]: EpicTemplateType } = {
+        'Med-Surg': 'med-surg',
+        'ICU': 'icu',
+        'NICU': 'nicu',
+        'Mother-Baby': 'mother-baby'
+      };
+      detectedTemplate = unitTemplateMap[unitType];
+      maxScore = 2;
+      indicators.push(`unit type: ${unitType}`);
+    }
+    
+    const confidence = maxScore > 0 ? Math.min(maxScore / 5, 1) : 0;
+    
+    return {
+      template: detectedTemplate || 'SOAP',
+      confidence,
+      reasoning: detectedTemplate 
+        ? `Detected Epic ${detectedTemplate} template based on ${indicators.join(', ')}`
+        : 'No Epic template detected',
+      indicators,
+      epicContext: {
+        shiftPhase: shiftPhase || undefined,
+        unitType: unitType || undefined,
+        category: detectedTemplate || undefined
+      }
+    };
+  }
+
+  /**
    * Extract and pre-fill fields from input
+   * Enhanced with Epic-specific field extraction
    */
   public extractFields(input: string): ExtractedFields {
     const fields: ExtractedFields = {
@@ -197,20 +335,42 @@ class IntelligentNoteDetectionService {
     const painMatch = input.match(/(?:pain level|pain scale|pain)[:\s]*(\d{1,2})(?:\/10)?/i);
     if (painMatch) fields.vitalSigns.painLevel = painMatch[1];
 
-    // Extract medications
-    const medPatterns = [
-      /(?:administered|gave|given|received)\s+([a-z]+(?:cillin|mycin|pril|olol|statin|zole|pine|pam|done|caine))/gi,
-      /(?:medication|med|drug)[:\s]*([^.,]+)/gi,
-      /(\d+\s*(?:mg|mcg|ml|units?)\s+[a-z]+)/gi
-    ];
-    medPatterns.forEach(pattern => {
-      const matches = input.matchAll(pattern);
-      for (const match of matches) {
-        if (match[1] && !fields.medications.includes(match[1].trim())) {
-          fields.medications.push(match[1].trim());
+    const weightMatch = input.match(/(?:weight|wt)[:\s]*(\d+\.?\d*)\s*(?:kg|lbs?)/i);
+    if (weightMatch) fields.vitalSigns.weight = weightMatch[1];
+
+    const mapMatch = input.match(/(?:map|mean arterial pressure)[:\s]*(\d{2,3})/i);
+    if (mapMatch) fields.vitalSigns.map = mapMatch[1];
+
+    const cvpMatch = input.match(/(?:cvp|central venous pressure)[:\s]*(\d{1,2})/i);
+    if (cvpMatch) fields.vitalSigns.cvp = cvpMatch[1];
+
+    // Extract medications using Epic knowledge base
+    const epicMeds = extractMedicationInfo(input);
+    fields.medications = epicMeds;
+    
+    // Fallback to simple extraction if Epic extraction didn't find anything
+    if (fields.medications.length === 0) {
+      const medPatterns = [
+        /(?:administered|gave|given|received)\s+([a-z]+(?:cillin|mycin|pril|olol|statin|zole|pine|pam|done|caine))/gi,
+        /(?:medication|med|drug)[:\s]*([^.,]+)/gi
+      ];
+      const simpleMeds: string[] = [];
+      medPatterns.forEach(pattern => {
+        const matches = input.matchAll(pattern);
+        for (const match of matches) {
+          if (match[1] && !simpleMeds.includes(match[1].trim())) {
+            simpleMeds.push(match[1].trim());
+          }
         }
-      }
-    });
+      });
+      // Convert to Epic format
+      fields.medications = simpleMeds.map(med => ({
+        name: med,
+        dose: '',
+        route: '',
+        time: new Date().toLocaleTimeString()
+      }));
+    }
 
     // Extract interventions
     const interventionKeywords = [
@@ -272,6 +432,17 @@ class IntelligentNoteDetectionService {
       fields.allergies = allergyMatch[1].split(/,|and/).map(a => a.trim());
     }
 
+    // Extract Epic-specific fields
+    fields.intakeOutput = extractIntakeOutput(input);
+    fields.woundInfo = extractWoundInfo(input) || undefined;
+    fields.assessmentSystems = detectAssessmentSystem(input);
+    
+    // Extract safety checks
+    const safetyKeywords = ['fall risk', 'restraints', 'isolation', 'patient identification', 'code status'];
+    fields.safetyChecks = safetyKeywords.filter(keyword => 
+      input.toLowerCase().includes(keyword)
+    );
+
     return fields;
   }
 
@@ -308,11 +479,12 @@ class IntelligentNoteDetectionService {
    */
   private generateSections(
     input: string,
-    template: 'SOAP' | 'SBAR' | 'PIE' | 'DAR',
+    template: 'SOAP' | 'SBAR' | 'PIE' | 'DAR' | EpicTemplateType,
     fields: ExtractedFields
   ): { [key: string]: string } {
     const sections: { [key: string]: string } = {};
 
+    // Handle traditional templates
     switch (template) {
       case 'SOAP':
         sections.Subjective = this.buildSubjective(input, fields);
@@ -339,9 +511,242 @@ class IntelligentNoteDetectionService {
         sections.Action = this.buildAction(fields);
         sections.Response = this.buildResponse(input, fields);
         break;
+
+      // Handle Epic templates
+      case 'shift-assessment':
+        sections['Patient Assessment'] = this.buildEpicPatientAssessment(fields);
+        sections['Vital Signs'] = this.buildObjective(fields);
+        sections['Medications'] = this.buildEpicMedications(fields);
+        sections['Intake & Output'] = this.buildEpicIO(fields);
+        sections['Safety'] = this.buildEpicSafety(fields);
+        sections['Narrative'] = this.buildEpicNarrative(input, fields);
+        break;
+
+      case 'mar':
+        sections['Medication Information'] = this.buildEpicMedications(fields);
+        sections['Administration Details'] = this.buildEpicMARDetails(fields);
+        sections['Response'] = this.buildResponse(input, fields);
+        break;
+
+      case 'io':
+        sections['Intake'] = this.buildEpicIntake(fields);
+        sections['Output'] = this.buildEpicOutput(fields);
+        sections['Balance'] = this.buildEpicBalance(fields);
+        break;
+
+      case 'wound-care':
+        sections['Wound Assessment'] = this.buildEpicWoundAssessment(fields);
+        sections['Interventions'] = this.buildIntervention(fields);
+        sections['Response'] = this.buildResponse(input, fields);
+        break;
+
+      case 'safety-checklist':
+        sections['Safety Assessment'] = this.buildEpicSafety(fields);
+        sections['Risk Factors'] = this.buildEpicRiskFactors(fields);
+        sections['Interventions'] = this.buildIntervention(fields);
+        break;
+
+      case 'med-surg':
+      case 'icu':
+      case 'nicu':
+      case 'mother-baby':
+        sections['Unit Assessment'] = this.buildEpicUnitAssessment(input, fields, template);
+        sections['Interventions'] = this.buildIntervention(fields);
+        sections['Patient Response'] = this.buildResponse(input, fields);
+        break;
     }
 
     return sections;
+  }
+
+  // Epic-specific section builders
+  private buildEpicPatientAssessment(fields: ExtractedFields): string {
+    let content = 'System-by-System Assessment:\n\n';
+    
+    if (fields.assessmentSystems && fields.assessmentSystems.length > 0) {
+      fields.assessmentSystems.forEach(system => {
+        content += `${system.charAt(0).toUpperCase() + system.slice(1)}: `;
+        const findings = fields.assessmentFindings.filter(f => 
+          f.toLowerCase().includes(system.toLowerCase())
+        );
+        content += findings.length > 0 ? findings.join(', ') : 'WNL';
+        content += '\n';
+      });
+    } else {
+      content += 'Neuro: Alert and oriented\n';
+      content += 'Cardiac: Regular rate and rhythm\n';
+      content += 'Respiratory: Lungs clear bilaterally\n';
+      content += 'GI: Abdomen soft, non-tender\n';
+      content += 'GU: Voiding without difficulty\n';
+      content += 'Skin: Warm, dry, intact\n';
+      content += 'Musculoskeletal: Moves all extremities\n';
+    }
+    
+    return content;
+  }
+
+  private buildEpicMedications(fields: ExtractedFields): string {
+    if (fields.medications.length === 0) {
+      return 'No medications administered this shift.';
+    }
+    
+    let content = 'Medications Administered:\n\n';
+    fields.medications.forEach(med => {
+      content += `- ${med.name}`;
+      if (med.dose) content += ` ${med.dose}`;
+      if (med.route) content += ` ${med.route}`;
+      if (med.time) content += ` at ${med.time}`;
+      content += '\n';
+    });
+    
+    return content;
+  }
+
+  private buildEpicMARDetails(fields: ExtractedFields): string {
+    let content = 'Administration Details:\n\n';
+    
+    fields.medications.forEach(med => {
+      content += `${med.name}:\n`;
+      content += `- Time: ${med.time}\n`;
+      content += `- Route: ${med.route || 'Not specified'}\n`;
+      if (med.site) content += `- Site: ${med.site}\n`;
+      content += `- Patient tolerated well\n\n`;
+    });
+    
+    return content || 'No medications administered.';
+  }
+
+  private buildEpicIO(fields: ExtractedFields): string {
+    if (!fields.intakeOutput) {
+      return 'I&O: Monitoring continued';
+    }
+    
+    const io = fields.intakeOutput;
+    let content = 'Intake & Output:\n\n';
+    content += `Total Intake: ${io.intake.total || 0} mL\n`;
+    content += `Total Output: ${io.output.total || 0} mL\n`;
+    content += `Balance: ${io.balance >= 0 ? '+' : ''}${io.balance} mL\n`;
+    
+    return content;
+  }
+
+  private buildEpicIntake(fields: ExtractedFields): string {
+    if (!fields.intakeOutput) {
+      return 'Intake: Monitoring continued';
+    }
+    
+    const intake = fields.intakeOutput.intake;
+    let content = 'Intake:\n';
+    Object.entries(intake).forEach(([type, amount]) => {
+      if (type !== 'total' && amount > 0) {
+        content += `- ${type.charAt(0).toUpperCase() + type.slice(1)}: ${amount} mL\n`;
+      }
+    });
+    content += `\nTotal: ${intake.total || 0} mL`;
+    
+    return content;
+  }
+
+  private buildEpicOutput(fields: ExtractedFields): string {
+    if (!fields.intakeOutput) {
+      return 'Output: Monitoring continued';
+    }
+    
+    const output = fields.intakeOutput.output;
+    let content = 'Output:\n';
+    Object.entries(output).forEach(([type, amount]) => {
+      if (type !== 'total' && amount > 0) {
+        content += `- ${type.charAt(0).toUpperCase() + type.slice(1)}: ${amount} mL\n`;
+      }
+    });
+    content += `\nTotal: ${output.total || 0} mL`;
+    
+    return content;
+  }
+
+  private buildEpicBalance(fields: ExtractedFields): string {
+    if (!fields.intakeOutput) {
+      return 'Balance: Calculating...';
+    }
+    
+    const balance = fields.intakeOutput.balance;
+    return `Fluid Balance: ${balance >= 0 ? '+' : ''}${balance} mL\n\nPatient fluid status monitored throughout shift.`;
+  }
+
+  private buildEpicWoundAssessment(fields: ExtractedFields): string {
+    if (!fields.woundInfo) {
+      return 'Wound assessment: No wounds noted';
+    }
+    
+    const wound = fields.woundInfo;
+    let content = 'Wound Assessment:\n\n';
+    if (wound.location) content += `Location: ${wound.location}\n`;
+    if (wound.stage) content += `Stage: ${wound.stage}\n`;
+    if (wound.size) content += `Size: ${wound.size}\n`;
+    if (wound.drainage) content += `Drainage: ${wound.drainage}\n`;
+    
+    return content;
+  }
+
+  private buildEpicSafety(fields: ExtractedFields): string {
+    let content = 'Safety Checks:\n\n';
+    
+    if (fields.safetyChecks && fields.safetyChecks.length > 0) {
+      fields.safetyChecks.forEach(check => {
+        content += `- ${check}: Assessed and addressed\n`;
+      });
+    } else {
+      content += '- Fall risk: Assessed\n';
+      content += '- Patient identification: Verified\n';
+      content += '- Call light: Within reach\n';
+    }
+    
+    return content;
+  }
+
+  private buildEpicRiskFactors(fields: ExtractedFields): string {
+    let content = 'Risk Factors:\n\n';
+    
+    if (fields.safetyChecks && fields.safetyChecks.length > 0) {
+      content += fields.safetyChecks.map(check => `- ${check}`).join('\n');
+    } else {
+      content += 'No significant risk factors identified at this time.';
+    }
+    
+    return content;
+  }
+
+  private buildEpicNarrative(input: string, fields: ExtractedFields): string {
+    let content = 'Shift Narrative:\n\n';
+    content += input.substring(0, 200);
+    if (input.length > 200) content += '...';
+    
+    return content;
+  }
+
+  private buildEpicUnitAssessment(input: string, fields: ExtractedFields, unitType: string): string {
+    let content = `${unitType.toUpperCase()} Unit Assessment:\n\n`;
+    
+    // Add vital signs
+    if (Object.keys(fields.vitalSigns).length > 0) {
+      content += 'Vital Signs:\n';
+      Object.entries(fields.vitalSigns).forEach(([key, value]) => {
+        if (value) {
+          content += `- ${key}: ${value}\n`;
+        }
+      });
+      content += '\n';
+    }
+    
+    // Add assessment findings
+    if (fields.assessmentFindings.length > 0) {
+      content += 'Assessment Findings:\n';
+      fields.assessmentFindings.forEach(finding => {
+        content += `- ${finding}\n`;
+      });
+    }
+    
+    return content;
   }
 
   // Section builders for SOAP

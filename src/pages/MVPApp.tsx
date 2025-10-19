@@ -225,7 +225,7 @@ export function MVPApp() {
                 description: '6-layer accuracy enhancement active'
               });
             },
-            onEnd: () => {
+            onEnd: async () => {
               console.log('🎤 Advanced transcription ended');
               setIsRecording(false);
               
@@ -235,9 +235,57 @@ export function MVPApp() {
                 setRecordingInterval(null);
               }
               
-              // Start processing if we have a transcript
-              if (transcript.trim()) {
+              // Auto-generate note if we have a transcript
+              if (finalTranscript.trim()) {
+                console.log('🤖 Auto-generating note from transcript:', finalTranscript);
+                console.log('🤖 Selected template:', selectedTemplate);
                 setIsProcessing(true);
+                
+                try {
+                  // Generate AI note automatically
+                  const aiPrompt = {
+                    template: selectedTemplate as any,
+                    input: finalTranscript,
+                    context: {
+                      chiefComplaint: finalTranscript.substring(0, 100)
+                    }
+                  };
+
+                  console.log('🤖 Calling AI service with prompt:', aiPrompt);
+                  const generatedNote = await enhancedAIService.generateNote(aiPrompt);
+                  console.log('🤖 AI service returned:', generatedNote);
+                  
+                  // Store AI-generated note content
+                  const noteContent: NoteContent = {};
+                  Object.entries(generatedNote.sections).forEach(([section, data]) => {
+                    const sectionKey = section.charAt(0).toUpperCase() + section.slice(1).toLowerCase();
+                    noteContent[sectionKey] = data.content;
+                    console.log(`🤖 Section ${sectionKey}:`, data.content.substring(0, 100));
+                  });
+                  
+                  console.log('✅ Final note content to store:', noteContent);
+                  console.log('✅ Number of sections:', Object.keys(noteContent).length);
+                  
+                  setNoteContent(noteContent);
+                  setEditedNoteContent(noteContent);
+                  
+                  toast.success('🎯 Note Generated!', {
+                    description: `${selectedTemplate} note with ${Object.keys(noteContent).length} sections`
+                  });
+                  
+                  // Auto-navigate to draft
+                  setTimeout(() => {
+                    console.log('🤖 Navigating to draft with content:', noteContent);
+                    handleNavigate('draft');
+                  }, 500);
+                  
+                } catch (error: any) {
+                  console.error('❌ AI generation failed:', error);
+                  console.error('❌ Error details:', error.message, error.stack);
+                  toast.error('Failed to generate note: ' + (error.message || 'Unknown error'));
+                } finally {
+                  setIsProcessing(false);
+                }
               }
             }
           });
@@ -663,12 +711,12 @@ export function MVPApp() {
       
       // Step 5: Generate enhanced note using AI service with detected template
       const aiPrompt = {
-        template: detectedType.template,
+        template: selectedTemplate as any,
         input: optimizedText,
         context: {
           chiefComplaint: extractedFields.symptoms[0] || optimizedText.substring(0, 100),
-          medicalHistory: extractedFields.medications,
-          currentMedications: extractedFields.medications
+          medicalHistory: extractedFields.medications.map((m: any) => typeof m === 'string' ? m : m.name || m.medicationName || ''),
+          currentMedications: extractedFields.medications.map((m: any) => typeof m === 'string' ? m : m.name || m.medicationName || '')
         }
       };
 
@@ -860,7 +908,7 @@ export function MVPApp() {
             onNavigate={handleNavigate}
             transcript={transcript}
             selectedTemplate={selectedTemplate}
-            noteContent={editedNoteContent}
+            noteContent={noteContent}
             onEditNote={handleEditNote}
             onRegenerateNote={handleRegenerateNote}
             isProcessing={isProcessing}

@@ -45,10 +45,24 @@ export function MVPHomeScreen({
   const [showInputSelector, setShowInputSelector] = useState(false);
 
   const templates = [
-    { value: 'SOAP', label: 'SOAP (Subjective, Objective, Assessment, Plan)' },
-    { value: 'SBAR', label: 'SBAR (Situation, Background, Assessment, Recommendation)' },
-    { value: 'PIE', label: 'PIE (Problem, Intervention, Evaluation)' },
-    { value: 'DAR', label: 'DAR (Data, Action, Response)' },
+    // Traditional Templates
+    { value: 'SOAP', label: 'SOAP (Subjective, Objective, Assessment, Plan)', category: 'Traditional' },
+    { value: 'SBAR', label: 'SBAR (Situation, Background, Assessment, Recommendation)', category: 'Traditional' },
+    { value: 'PIE', label: 'PIE (Problem, Intervention, Evaluation)', category: 'Traditional' },
+    { value: 'DAR', label: 'DAR (Data, Action, Response)', category: 'Traditional' },
+    
+    // Epic EMR Templates
+    { value: 'shift-assessment', label: 'Epic: Shift Assessment', category: 'Epic EMR' },
+    { value: 'mar', label: 'Epic: Medication Administration (MAR)', category: 'Epic EMR' },
+    { value: 'io', label: 'Epic: Intake & Output (I&O)', category: 'Epic EMR' },
+    { value: 'wound-care', label: 'Epic: Wound Care Documentation', category: 'Epic EMR' },
+    { value: 'safety-checklist', label: 'Epic: Safety Checklist', category: 'Epic EMR' },
+    
+    // Unit-Specific Epic Templates
+    { value: 'med-surg', label: 'Epic: Med-Surg Unit', category: 'Unit-Specific' },
+    { value: 'icu', label: 'Epic: ICU Unit', category: 'Unit-Specific' },
+    { value: 'nicu', label: 'Epic: NICU Unit', category: 'Unit-Specific' },
+    { value: 'mother-baby', label: 'Epic: Mother-Baby Unit', category: 'Unit-Specific' },
   ];
 
   const formatTime = (seconds: number) => {

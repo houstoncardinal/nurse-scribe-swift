@@ -268,36 +268,13 @@ export function MVPDraftScreen({
     });
   };
 
-  // Use passed note content if available, otherwise generate
-  const getMergedContent = () => {
-    // PRIORITY 1: Use the note content passed from MVPApp (AI-generated)
-    if (passedNoteContent && Object.keys(passedNoteContent).length > 0) {
-      console.log('Using passed note content from MVPApp:', passedNoteContent);
-      return passedNoteContent;
-    }
-    
-    // PRIORITY 2: Use AI-generated content from this component
-    if (aiGeneratedContent?.sections && originalContent) {
-      console.log('Using AI-generated content from MVPDraftScreen');
-      const merged: any = {};
-      Object.keys(originalContent).forEach(key => {
-        const aiSection = aiGeneratedContent.sections[key];
-        if (aiSection) {
-          merged[key] = aiSection.content || originalContent[key];
-        } else {
-          merged[key] = originalContent[key];
-        }
-      });
-      return merged;
-    }
-    
-    // PRIORITY 3: Fallback to demo content (should rarely happen)
-    console.log('Falling back to demo content');
-    return originalContent || generateNoteFromTemplate(selectedTemplate, transcript);
-  };
-
-  const noteContent = getMergedContent();
-  console.log('Final note content being displayed:', noteContent);
+  // Use passed note content - this is the AI-generated content from MVPApp
+  const noteContent = passedNoteContent && Object.keys(passedNoteContent).length > 0 
+    ? passedNoteContent 
+    : {};
+  
+  console.log('Note content being displayed:', noteContent);
+  console.log('Passed note content:', passedNoteContent);
   const currentTime = new Date().toLocaleString();
 
   const handleEdit = (section: string, content: string) => {
@@ -650,38 +627,69 @@ export function MVPDraftScreen({
       {/* Note Content - Optimized for Desktop & Mobile */}
       <div className="flex-1 overflow-y-auto px-3 py-2 lg:px-6 lg:py-3 space-y-3 lg:space-y-3 min-h-0">
         {/* Template-specific sections */}
-        {selectedTemplate === 'SOAP' && (
+        {selectedTemplate === 'SOAP' && noteContent && (
           <>
-            {renderSection('Subjective', noteContent.subjective, <User className="h-4 w-4 text-blue-600" />)}
-            {renderSection('Objective', noteContent.objective, <Target className="h-4 w-4 text-green-600" />)}
-            {renderSection('Assessment', noteContent.assessment, <CheckCircle className="h-4 w-4 text-teal-600" />)}
-            {renderSection('Plan', noteContent.plan, <FileText className="h-4 w-4 text-purple-600" />)}
+            {renderSection('Subjective', noteContent.Subjective || noteContent.subjective || '', <User className="h-4 w-4 text-blue-600" />)}
+            {renderSection('Objective', noteContent.Objective || noteContent.objective || '', <Target className="h-4 w-4 text-green-600" />)}
+            {renderSection('Assessment', noteContent.Assessment || noteContent.assessment || '', <CheckCircle className="h-4 w-4 text-teal-600" />)}
+            {renderSection('Plan', noteContent.Plan || noteContent.plan || '', <FileText className="h-4 w-4 text-purple-600" />)}
           </>
         )}
 
-        {selectedTemplate === 'SBAR' && (
+        {selectedTemplate === 'SBAR' && noteContent && (
           <>
-            {renderSection('Situation', noteContent.situation, <AlertTriangle className="h-4 w-4 text-red-600" />)}
-            {renderSection('Background', noteContent.background, <Clock className="h-4 w-4 text-blue-600" />)}
-            {renderSection('Assessment', noteContent.assessment, <CheckCircle className="h-4 w-4 text-teal-600" />)}
-            {renderSection('Recommendation', noteContent.recommendation, <ArrowRight className="h-4 w-4 text-purple-600" />)}
+            {renderSection('Situation', noteContent.Situation || noteContent.situation || '', <AlertTriangle className="h-4 w-4 text-red-600" />)}
+            {renderSection('Background', noteContent.Background || noteContent.background || '', <Clock className="h-4 w-4 text-blue-600" />)}
+            {renderSection('Assessment', noteContent.Assessment || noteContent.assessment || '', <CheckCircle className="h-4 w-4 text-teal-600" />)}
+            {renderSection('Recommendation', noteContent.Recommendation || noteContent.recommendation || '', <ArrowRight className="h-4 w-4 text-purple-600" />)}
           </>
         )}
 
-        {selectedTemplate === 'PIE' && (
+        {selectedTemplate === 'PIE' && noteContent && (
           <>
-            {renderSection('Problem', noteContent.problem, <AlertTriangle className="h-4 w-4 text-red-600" />)}
-            {renderSection('Intervention', noteContent.intervention, <ArrowRight className="h-4 w-4 text-blue-600" />)}
-            {renderSection('Evaluation', noteContent.evaluation, <CheckCircle className="h-4 w-4 text-green-600" />)}
+            {renderSection('Problem', noteContent.Problem || noteContent.problem || '', <AlertTriangle className="h-4 w-4 text-red-600" />)}
+            {renderSection('Intervention', noteContent.Intervention || noteContent.intervention || '', <ArrowRight className="h-4 w-4 text-blue-600" />)}
+            {renderSection('Evaluation', noteContent.Evaluation || noteContent.evaluation || '', <CheckCircle className="h-4 w-4 text-green-600" />)}
           </>
         )}
 
-        {selectedTemplate === 'DAR' && (
+        {selectedTemplate === 'DAR' && noteContent && (
           <>
-            {renderSection('Data', noteContent.data, <FileText className="h-4 w-4 text-blue-600" />)}
-            {renderSection('Action', noteContent.action, <ArrowRight className="h-4 w-4 text-green-600" />)}
-            {renderSection('Response', noteContent.response, <CheckCircle className="h-4 w-4 text-teal-600" />)}
+            {renderSection('Data', noteContent.Data || noteContent.data || '', <FileText className="h-4 w-4 text-blue-600" />)}
+            {renderSection('Action', noteContent.Action || noteContent.action || '', <ArrowRight className="h-4 w-4 text-green-600" />)}
+            {renderSection('Response', noteContent.Response || noteContent.response || '', <CheckCircle className="h-4 w-4 text-teal-600" />)}
           </>
+        )}
+
+        {/* Epic Templates - Dynamic rendering for all sections */}
+        {!['SOAP', 'SBAR', 'PIE', 'DAR'].includes(selectedTemplate) && noteContent && (
+          <>
+            {Object.entries(noteContent).map(([sectionName, content]) => {
+              if (typeof content === 'string' && content.trim()) {
+                return renderSection(
+                  sectionName,
+                  content,
+                  <FileText className="h-4 w-4 text-teal-600" />
+                );
+              }
+              return null;
+            })}
+          </>
+        )}
+
+        {/* No content fallback */}
+        {(!noteContent || Object.keys(noteContent).length === 0) && (
+          <Card className="p-6 text-center">
+            <AlertCircle className="h-12 w-12 text-slate-400 mx-auto mb-3" />
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">No Content Generated</h3>
+            <p className="text-sm text-slate-600 mb-4">
+              The AI couldn't generate content for this template. Please try recording or typing your note again.
+            </p>
+            <Button onClick={() => onNavigate('home')} variant="outline">
+              <ArrowRight className="h-4 w-4 mr-2 rotate-180" />
+              Back to Home
+            </Button>
+          </Card>
         )}
       </div>
 

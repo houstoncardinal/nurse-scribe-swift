@@ -69,6 +69,7 @@ export function MVPExportScreen({
       return `[Content not available for ${key}]`;
     };
     
+    // Traditional templates
     if (selectedTemplate === 'SOAP') {
       formattedContent += `SUBJECTIVE:\n${getContent('Subjective')}\n\n`;
       formattedContent += `OBJECTIVE:\n${getContent('Objective')}\n\n`;
@@ -87,9 +88,16 @@ export function MVPExportScreen({
       formattedContent += `DATA:\n${getContent('Data')}\n\n`;
       formattedContent += `ACTION:\n${getContent('Action')}\n\n`;
       formattedContent += `RESPONSE:\n${getContent('Response')}`;
+    } else {
+      // Epic templates and any other templates - format all sections dynamically
+      Object.entries(noteContent).forEach(([sectionName, content]) => {
+        if (content && typeof content === 'string') {
+          formattedContent += `${sectionName.toUpperCase()}:\n${content}\n\n`;
+        }
+      });
     }
     
-    return formattedContent;
+    return formattedContent.trim();
   };
 
   const handleCopyToClipboard = async () => {
