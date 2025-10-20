@@ -98,15 +98,39 @@ export function MVPDraftScreen({
 
   // Generate intelligent, situation-specific content using AI
   useEffect(() => {
-    if (transcript && selectedTemplate) {
+    // Only generate if we don't have passed note content
+    if (transcript && selectedTemplate && (!passedNoteContent || Object.keys(passedNoteContent).length === 0)) {
+      console.log('🔄 No passed content, generating from transcript...');
       // First, generate the original content
       const original = generateNoteFromTemplate(selectedTemplate, transcript);
       setOriginalContent(original);
       
       // Then enhance it with AI
       generateIntelligentContent();
+    } else if (passedNoteContent && Object.keys(passedNoteContent).length > 0) {
+      console.log('✅ Using passed note content:', passedNoteContent);
+      // Use the passed content directly - it's already AI-generated
+      setAiGeneratedContent(passedNoteContent);
+      setOriginalContent(passedNoteContent);
+      
+      // Still generate ICD-10 suggestions based on the content
+      const generateICD10Only = async () => {
+        try {
+          const icd10Suggestions = await generateICD10Suggestions(transcript, selectedTemplate);
+          setAiInsights({
+            confidence: 0.95,
+            quality: 0.9,
+            medicalTerms: 0,
+            icd10Suggestions: icd10Suggestions,
+            suggestions: []
+          });
+        } catch (error) {
+          console.error('Failed to generate ICD-10 suggestions:', error);
+        }
+      };
+      generateICD10Only();
     }
-  }, [transcript, selectedTemplate]);
+  }, [transcript, selectedTemplate, passedNoteContent]);
 
   const generateIntelligentContent = async () => {
     setIsGenerating(true);
