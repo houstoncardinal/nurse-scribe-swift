@@ -27,6 +27,10 @@ import { knowledgeBaseService } from '@/lib/knowledgeBase';
 import { ICD10SuggestionPanel } from '@/components/ICD10SuggestionPanel';
 import { icd10SuggestionService } from '@/lib/icd10Suggestions';
 
+interface NoteContent {
+  [key: string]: string;
+}
+
 interface MVPDraftScreenProps {
   onNavigate: (screen: string) => void;
   transcript: string;
@@ -292,13 +296,38 @@ export function MVPDraftScreen({
     });
   };
 
-  // Use passed note content - this is the AI-generated content from MVPApp
-  const noteContent = passedNoteContent && Object.keys(passedNoteContent).length > 0 
-    ? passedNoteContent 
-    : {};
+  // Use passed note content OR AI-generated content - this is the AI-generated content from MVPApp
+  let noteContent: NoteContent = {};
+  
+  if (passedNoteContent && Object.keys(passedNoteContent).length > 0) {
+    noteContent = passedNoteContent;
+  } else if (aiGeneratedContent && Object.keys(aiGeneratedContent).length > 0) {
+    // Check if aiGeneratedContent has a sections property (from enhancedAIService)
+    if (aiGeneratedContent.sections) {
+      // Extract content from sections
+      Object.entries(aiGeneratedContent.sections).forEach(([section, data]: [string, any]) => {
+        const sectionKey = section.charAt(0).toUpperCase() + section.slice(1).toLowerCase();
+        const content = data.content || data;
+        
+        // Only add non-empty content
+        if (content && typeof content === 'string' && content.trim()) {
+          noteContent[sectionKey] = content;
+        } else {
+          console.warn(`Section ${sectionKey} has empty or invalid content:`, data);
+          // Provide a fallback message
+          noteContent[sectionKey] = `${sectionKey} section is being generated. Please review and complete.`;
+        }
+      });
+    } else {
+      // Use aiGeneratedContent directly if it doesn't have sections
+      noteContent = aiGeneratedContent;
+    }
+  }
   
   console.log('Note content being displayed:', noteContent);
   console.log('Passed note content:', passedNoteContent);
+  console.log('AI generated content:', aiGeneratedContent);
+  console.log('AI generated sections:', aiGeneratedContent?.sections);
   const currentTime = new Date().toLocaleString();
 
   const handleEdit = (section: string, content: string) => {
