@@ -235,19 +235,25 @@ export function MVPApp() {
                 setRecordingInterval(null);
               }
               
+              // Get the current transcript value (use state or check both sources)
+              const currentTranscript = finalTranscript || transcript;
+              console.log('📝 Current transcript on end:', currentTranscript);
+              console.log('📝 finalTranscript:', finalTranscript);
+              console.log('📝 transcript:', transcript);
+              
               // Auto-generate note if we have a transcript
-              if (finalTranscript.trim()) {
-                console.log('🤖 Auto-generating note from transcript:', finalTranscript);
+              if (currentTranscript && currentTranscript.trim()) {
+                console.log('🤖 Auto-generating note from transcript:', currentTranscript);
                 console.log('🤖 Selected template:', selectedTemplate);
                 setIsProcessing(true);
                 
                 try {
-                  // Generate AI note automatically
+                  // Generate AI note automatically using the current transcript
                   const aiPrompt = {
                     template: selectedTemplate as any,
-                    input: finalTranscript,
+                    input: currentTranscript,
                     context: {
-                      chiefComplaint: finalTranscript.substring(0, 100)
+                      chiefComplaint: currentTranscript.substring(0, 100)
                     }
                   };
 
@@ -266,24 +272,24 @@ export function MVPApp() {
                       console.log(`🤖 Section ${sectionKey}:`, data.content.substring(0, 100));
                     });
                   } else {
-                    // Fallback: Create basic note structure
+                    // Fallback: Create basic note structure using currentTranscript
                     console.warn('⚠️ No sections in generated note, using fallback');
                     if (selectedTemplate === 'SOAP') {
-                      noteContent.Subjective = `Patient reports: ${finalTranscript}`;
+                      noteContent.Subjective = `Patient reports: ${currentTranscript}`;
                       noteContent.Objective = 'Vital signs stable, patient alert and oriented.';
                       noteContent.Assessment = 'Patient condition stable, no acute distress noted.';
                       noteContent.Plan = 'Continue current care plan, monitor for changes, patient education provided.';
                     } else if (selectedTemplate === 'SBAR') {
-                      noteContent.Situation = `Patient presents with: ${finalTranscript}`;
+                      noteContent.Situation = `Patient presents with: ${currentTranscript}`;
                       noteContent.Background = 'Patient history reviewed, current medications noted.';
                       noteContent.Assessment = 'Patient stable, vital signs within normal limits.';
                       noteContent.Recommendation = 'Continue monitoring, maintain current treatment plan.';
                     } else if (selectedTemplate === 'PIE') {
-                      noteContent.Problem = `Identified issue: ${finalTranscript}`;
+                      noteContent.Problem = `Identified issue: ${currentTranscript}`;
                       noteContent.Intervention = 'Appropriate nursing interventions implemented.';
                       noteContent.Evaluation = 'Patient responded well to interventions, condition stable.';
                     } else if (selectedTemplate === 'DAR') {
-                      noteContent.Data = `Assessment data: ${finalTranscript}`;
+                      noteContent.Data = `Assessment data: ${currentTranscript}`;
                       noteContent.Action = 'Nursing actions taken as per protocol.';
                       noteContent.Response = 'Patient response positive, no adverse effects noted.';
                     }
@@ -313,24 +319,24 @@ export function MVPApp() {
                   console.error('❌ AI generation failed:', error);
                   console.error('❌ Error details:', error.message, error.stack);
                   
-                  // Create fallback content even on error
+                  // Create fallback content even on error using currentTranscript
                   const fallbackContent: NoteContent = {};
                   if (selectedTemplate === 'SOAP') {
-                    fallbackContent.Subjective = `Patient reports: ${finalTranscript}`;
+                    fallbackContent.Subjective = `Patient reports: ${currentTranscript}`;
                     fallbackContent.Objective = 'Vital signs stable, patient alert and oriented.';
                     fallbackContent.Assessment = 'Patient condition stable, no acute distress noted.';
                     fallbackContent.Plan = 'Continue current care plan, monitor for changes, patient education provided.';
                   } else if (selectedTemplate === 'SBAR') {
-                    fallbackContent.Situation = `Patient presents with: ${finalTranscript}`;
+                    fallbackContent.Situation = `Patient presents with: ${currentTranscript}`;
                     fallbackContent.Background = 'Patient history reviewed, current medications noted.';
                     fallbackContent.Assessment = 'Patient stable, vital signs within normal limits.';
                     fallbackContent.Recommendation = 'Continue monitoring, maintain current treatment plan.';
                   } else if (selectedTemplate === 'PIE') {
-                    fallbackContent.Problem = `Identified issue: ${finalTranscript}`;
+                    fallbackContent.Problem = `Identified issue: ${currentTranscript}`;
                     fallbackContent.Intervention = 'Appropriate nursing interventions implemented.';
                     fallbackContent.Evaluation = 'Patient responded well to interventions, condition stable.';
                   } else if (selectedTemplate === 'DAR') {
-                    fallbackContent.Data = `Assessment data: ${finalTranscript}`;
+                    fallbackContent.Data = `Assessment data: ${currentTranscript}`;
                     fallbackContent.Action = 'Nursing actions taken as per protocol.';
                     fallbackContent.Response = 'Patient response positive, no adverse effects noted.';
                   }
