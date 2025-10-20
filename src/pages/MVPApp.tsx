@@ -791,11 +791,17 @@ export function MVPApp() {
       setFinalTranscript(text);
       setInterimTranscript('');
       
-      // Store AI-generated note content
+      // Store AI-generated note content with proper capitalization
       const noteContent: NoteContent = {};
       Object.entries(generatedNote.sections).forEach(([section, data]) => {
-        noteContent[section.toLowerCase()] = data.content;
+        // Capitalize first letter of section name to match template format
+        const sectionKey = section.charAt(0).toUpperCase() + section.slice(1).toLowerCase();
+        noteContent[sectionKey] = data.content;
       });
+      
+      console.log('Generated note content from paste:', noteContent);
+      console.log('Number of sections:', Object.keys(noteContent).length);
+      
       setNoteContent(noteContent);
       setEditedNoteContent(noteContent);
 
