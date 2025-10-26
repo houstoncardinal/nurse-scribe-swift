@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Mic, FileText, Download, Settings, Stethoscope, Menu, User, BarChart3, BookOpen, Users, Shield, Brain } from 'lucide-react';
+import { Mic, FileText, Download, Settings, Stethoscope, Menu, User, BarChart3, BookOpen, Users, Shield, Brain, MessageSquare, Sparkles } from 'lucide-react';
+import { SimpleThemeToggle } from '@/components/ThemeToggle';
+import { SyntheticAI } from '@/components/SyntheticAI';
 import { MobileHeader } from '@/components/MobileHeader';
 import { MobileBottomToolbar } from '@/components/MobileBottomToolbar';
 import { SimpleMobileHeader } from '@/components/SimpleMobileHeader';
@@ -76,6 +78,10 @@ export function MVPApp() {
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [authError, setAuthError] = useState('');
+  
+  // AI Assistant state
+  const [showAI, setShowAI] = useState(true); // Start visible
+  const [aiMinimized, setAiMinimized] = useState(false);
   
   // User profile state
   const [userProfile, setUserProfile] = useState<UserProfileData>({
@@ -1195,6 +1201,21 @@ export function MVPApp() {
                         <Brain className="h-4 w-4 mr-2" />
                         AI Copilot
                       </Button>
+                      <Button
+                        variant="ghost"
+                        className={`w-full justify-start h-9 text-sm relative ${
+                          showAI 
+                            ? 'bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 hover:from-purple-100 hover:to-pink-100' 
+                            : 'hover:bg-slate-100 text-slate-700'
+                        }`}
+                        onClick={() => setShowAI(!showAI)}
+                      >
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        AI Assistant
+                        {showAI && (
+                          <div className="absolute right-2 w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+                        )}
+                      </Button>
                     </div>
                   </div>
 
@@ -1352,6 +1373,60 @@ export function MVPApp() {
           </div>
         </div>
       </div>
+
+      {/* Synthetic AI Assistant */}
+      {showAI && (
+        <SyntheticAI
+          isMinimized={aiMinimized}
+          onToggleMinimize={() => setAiMinimized(!aiMinimized)}
+          onClose={() => setShowAI(false)}
+          currentContext={{
+            screen: currentScreen,
+            template: selectedTemplate,
+            hasTranscript: !!transcript,
+            hasNote: Object.keys(noteContent).length > 0
+          }}
+          onAction={(action, data) => {
+            // Handle AI actions
+            switch(action) {
+              case 'selectTemplate':
+                setSelectedTemplate(data.template || data);
+                toast.success(`Template changed to ${data.template || data}`);
+                break;
+              case 'startVoiceRecording':
+                handleStartRecording();
+                break;
+              case 'stopVoiceRecording':
+                handleStopRecording();
+                break;
+              case 'generateNote':
+                if (transcript) {
+                  handleNavigate('draft');
+                } else {
+                  toast.info('Please record or enter text first');
+                }
+                break;
+              case 'export':
+                handleNavigate('export');
+                break;
+              case 'checkCompliance':
+                toast.info('Compliance check: All required fields present ✓');
+                break;
+              case 'clearNote':
+                handleNewNote();
+                break;
+              case 'openICD10Search':
+                toast.info('ICD-10 search feature coming soon!');
+                break;
+              case 'openVitalSigns':
+                toast.info('Vital signs form coming soon!');
+                break;
+              default:
+                console.warn('Unknown AI action:', action);
+            }
+          }}
+        />
+      )}
 
       {/* Sign In Modal */}
       <SignInModal

@@ -746,37 +746,56 @@ export function MVPDraftScreen({
         )}
       </div>
 
-      {/* Mobile-Optimized Action Buttons - Ultra Compact */}
-      <div className="lg:hidden flex-shrink-0 p-1.5 pb-24 bg-white/95 backdrop-blur-sm border-t border-slate-200">
-        {/* Ultra compact action buttons - no status text */}
-        <div className="flex gap-1 mb-1">
+      {/* Mobile-Optimized Action Buttons - PROMINENT & EASY TO SEE */}
+      <div className="lg:hidden flex-shrink-0 p-4 pb-24 bg-white/95 backdrop-blur-sm border-t-2 border-teal-200 shadow-lg">
+        {/* Status Indicator */}
+        <div className="flex items-center justify-center gap-2 mb-3 px-4 py-2 bg-green-50 border-2 border-green-300 rounded-xl">
+          <CheckCircle className="h-5 w-5 text-green-600" />
+          <span className="text-sm font-bold text-green-700">Note Ready to Export!</span>
+        </div>
+
+        {/* Large Primary Export Button */}
+        <Button
+          size="lg"
+          onClick={() => onNavigate('export')}
+          className="w-full h-14 text-base font-bold bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 hover:from-emerald-600 hover:via-teal-700 hover:to-emerald-700 text-white shadow-xl shadow-emerald-500/40 border-2 border-emerald-400 mb-3"
+        >
+          <FileText className="h-5 w-5 mr-2" />
+          Export Note & Continue
+          <ArrowRight className="h-5 w-5 ml-2" />
+        </Button>
+
+        {/* Secondary Actions */}
+        <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={onRegenerateNote}
             disabled={isProcessing}
-            className="flex-1 h-7 text-xs px-1"
+            className="flex-1 h-10 text-sm border-2 border-orange-300 hover:bg-orange-50"
           >
-            <RotateCcw className="h-3 w-3" />
+            <RotateCcw className="h-4 w-4 mr-1" />
+            Regenerate
           </Button>
           
           <Button
-            size="sm"
-            onClick={() => onNavigate('export')}
-            className="flex-1 h-7 text-xs px-1 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700"
-          >
-            <ArrowRight className="h-3 w-3" />
-          </Button>
-          
-          <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={() => onNavigate('home')}
-            className="h-7 px-1 text-slate-500 hover:text-slate-700"
+            className="flex-1 h-10 text-sm border-2 border-slate-300 hover:bg-slate-50"
           >
-            <ArrowRight className="h-3 w-3 rotate-180" />
+            <ArrowRight className="h-4 w-4 mr-1 rotate-180" />
+            Back
           </Button>
         </div>
+
+        {/* ICD-10 Summary */}
+        {selectedICD10Codes.length > 0 && (
+          <div className="flex items-center justify-center gap-2 mt-3 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+            <Target className="h-4 w-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-700">{selectedICD10Codes.length} ICD-10 Codes Selected</span>
+          </div>
+        )}
       </div>
 
       {/* Desktop Action Buttons - Prominent & Clear */}
