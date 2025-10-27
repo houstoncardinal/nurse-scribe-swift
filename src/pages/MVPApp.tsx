@@ -80,8 +80,8 @@ export function MVPApp() {
   const [authError, setAuthError] = useState('');
   
   // AI Assistant state
-  const [showAI, setShowAI] = useState(true); // Start visible
-  const [aiMinimized, setAiMinimized] = useState(false);
+  const [showAI, setShowAI] = useState(false); // Start hidden - only show when clicked
+  const [aiMinimized, setAiMinimized] = useState(true); // Start minimized when shown
   
   // User profile state
   const [userProfile, setUserProfile] = useState<UserProfileData>({
@@ -1208,10 +1208,15 @@ export function MVPApp() {
                             ? 'bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 hover:from-purple-100 hover:to-pink-100' 
                             : 'hover:bg-slate-100 text-slate-700'
                         }`}
-                        onClick={() => setShowAI(!showAI)}
+                        onClick={() => {
+                          setShowAI(!showAI);
+                          if (!showAI) {
+                            setAiMinimized(true); // Start minimized when opening
+                          }
+                        }}
                       >
                         <Sparkles className="h-4 w-4 mr-2" />
-                        AI Assistant
+                        NovaCare AI
                         {showAI && (
                           <div className="absolute right-2 w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
                         )}
@@ -1369,6 +1374,7 @@ export function MVPApp() {
               onNavigate={handleNavigate}
               isRecording={isRecording}
               isProcessing={isProcessing}
+              isAIWidgetMinimized={aiMinimized}
             />
           </div>
         </div>

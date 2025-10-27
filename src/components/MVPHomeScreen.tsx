@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mic, MicOff, Clock, Zap, Shield, Keyboard, Upload, FileText, TrendingUp, Target, Award, Activity, BarChart3, CheckCircle, Star, Timer, Users, BookOpen, AlertTriangle, Bell, Calendar, TrendingDown, Settings } from 'lucide-react';
+import { Mic, MicOff, Clock, Zap, Shield, Keyboard, Upload, FileText, TrendingUp, Target, Award, Activity, BarChart3, CheckCircle, Star, Timer, Users, BookOpen, AlertTriangle, Bell, Calendar, TrendingDown, Settings, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { InputMethodSelector } from '@/components/InputMethodSelector';
+import { SyntheticAI } from '@/components/SyntheticAI';
 
 interface MVPHomeScreenProps {
   onNavigate: (screen: string) => void;
@@ -43,6 +44,8 @@ export function MVPHomeScreen({
   // Use the prop value directly - no need for local state
   const currentTemplate = selectedTemplate;
   const [showInputSelector, setShowInputSelector] = useState(false);
+  const [aiWidgetMinimized, setAiWidgetMinimized] = useState(true);
+  const [aiWidgetClosed, setAiWidgetClosed] = useState(false);
 
   const templates = [
     // Traditional Templates
@@ -573,12 +576,12 @@ export function MVPHomeScreen({
               </div>
 
       {/* Mobile/Tablet Layout */}
-      <div className="lg:hidden mvp-screen">
+      <div className="lg:hidden mvp-screen w-full">
         {/* Mobile Header - iPhone 16 Optimized */}
-        <div className="flex-shrink-0 px-4 pt-4 pb-2 safe-area-top">
+        <div className="flex-shrink-0 px-4 pt-4 pb-2 safe-area-top w-full">
           <div className="text-center space-y-3">
             {/* Mobile Hero - Compact for iPhone */}
-            <div className="space-y-2 pt-2">
+            <div className="space-y-3 pt-4">
               <div className="flex items-center justify-center gap-2">
                 <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
                   <Mic className="h-4 w-4 text-white" />
@@ -620,7 +623,8 @@ export function MVPHomeScreen({
         </div>
 
         {/* Mobile Main Content Area - iPhone 16 Optimized - Fully Scrollable */}
-        <div className="flex-1 px-4 py-6 space-y-4 overflow-y-auto pb-24">
+        <div className="flex-1 w-full py-6 space-y-4 overflow-y-auto pb-24">
+          <div className="px-4 space-y-4 w-full">
           {showInputSelector ? (
             <div className="w-full max-w-2xl">
               <InputMethodSelector
@@ -843,7 +847,7 @@ export function MVPHomeScreen({
               )}
 
               {/* Mobile Profile Widgets - Always Visible & Scrollable */}
-              <div className="w-full max-w-sm mx-auto space-y-3 mt-4">
+              <div className="w-full space-y-3 mt-4">
                   {/* Performance Metrics - Enhanced */}
                   <Card className="p-3 bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200 shadow-lg">
                     <div className="flex items-center gap-2 mb-3">
@@ -1044,8 +1048,44 @@ export function MVPHomeScreen({
                 </div>
             </>
           )}
+          </div>
         </div>
       </div>
+
+      {/* NovaCare AI Widget - Always Visible */}
+      {!aiWidgetClosed && (
+        <SyntheticAI
+          isMinimized={aiWidgetMinimized}
+          onToggleMinimize={() => setAiWidgetMinimized(!aiWidgetMinimized)}
+          onClose={() => setAiWidgetClosed(true)}
+          onAction={(action, data) => {
+            console.log('AI Action:', action, data);
+            // Handle AI actions here
+            switch (action) {
+              case 'start-recording':
+                onStartRecording();
+                break;
+              case 'stop-recording':
+                onStopRecording();
+                break;
+              case 'navigate':
+                onNavigate(data.screen);
+                break;
+              case 'change-template':
+                onTemplateChange(data.template);
+                break;
+              default:
+                console.log('Unhandled AI action:', action);
+            }
+          }}
+          currentContext={{
+            screen: 'home',
+            template: selectedTemplate,
+            hasTranscript: !!transcript,
+            hasNote: false
+          }}
+        />
+      )}
 
     </div>
   );

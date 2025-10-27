@@ -41,6 +41,17 @@ export function SyntheticAI({
   currentContext = {}
 }: SyntheticAIProps) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -326,11 +337,70 @@ export function SyntheticAI({
   };
 
   if (isMinimized) {
+    // Mobile: vertical right side widget
+    if (isMobile) {
+      return (
+        <div className="fixed right-0 top-1/2 -translate-y-1/2 z-[9999]">
+          <div className="relative">
+            {/* Close button */}
+            <Button
+              onClick={onClose}
+              className="absolute -top-3 -left-3 h-8 w-8 rounded-full bg-white border-2 border-slate-200 shadow-lg hover:bg-red-50 hover:border-red-200 transition-all duration-200 z-10"
+            >
+              <X className="h-4 w-4 text-slate-600 hover:text-red-600" />
+            </Button>
+
+            {/* Main widget button */}
+            <Button
+              onClick={onToggleMinimize}
+              className="relative h-36 w-14 rounded-l-2xl overflow-hidden group flex flex-col items-center justify-center gap-2 shadow-2xl transition-all duration-300 hover:scale-105"
+              style={{
+                background: 'linear-gradient(180deg, #14b8a6 0%, #0891b2 50%, #06b6d4 100%)',
+                boxShadow: '-6px 0 25px rgba(20, 184, 166, 0.5), 0 4px 20px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              {/* Subtle animated background */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent animate-pulse" />
+              </div>
+
+              {/* Center icon with glow */}
+              <div className="relative">
+                <Brain className="h-7 w-7 text-white animate-pulse" />
+                <div className="absolute inset-0 bg-white/20 rounded-full blur-sm animate-pulse" />
+              </div>
+
+              {/* Clean vertical text */}
+              <div className="text-white text-xs font-semibold tracking-wide text-center leading-tight">
+                <div>Nova</div>
+                <div>Care</div>
+                <div>AI</div>
+              </div>
+
+              {/* Status indicator */}
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-green-400 rounded-full shadow-lg">
+                <div className="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-75" />
+              </div>
+
+              {/* Activity indicator */}
+              {isProcessing && (
+                <div className="absolute inset-0 bg-white/10 animate-pulse rounded-l-2xl" />
+              )}
+
+              {/* Hover effect */}
+              <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-l-2xl" />
+            </Button>
+          </div>
+        </div>
+      );
+    }
+    
+    // Desktop: smaller bottom-right button
     return (
       <div className="fixed bottom-6 right-6 z-[9999]">
         <Button
           onClick={onToggleMinimize}
-          className="relative h-20 w-20 rounded-full overflow-hidden group"
+          className="relative h-14 w-14 rounded-full overflow-hidden group"
           style={{
             background: 'linear-gradient(135deg, #14b8a6 0%, #0891b2 50%, #06b6d4 100%)',
             boxShadow: '0 0 40px rgba(20, 184, 166, 0.6), 0 0 80px rgba(8, 145, 178, 0.4)'
@@ -353,10 +423,10 @@ export function SyntheticAI({
           </div>
           
           {/* Center icon */}
-          <Brain className="relative h-8 w-8 text-white animate-pulse" />
+          <Brain className="relative h-6 w-6 text-white animate-pulse" />
           
           {/* Status indicator */}
-          <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white shadow-lg">
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white shadow-lg">
             <div className="absolute inset-0 bg-green-400 rounded-full animate-ping" />
           </div>
           
@@ -370,7 +440,12 @@ export function SyntheticAI({
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] w-[480px] max-w-[calc(100vw-3rem)]">
+    <div className={cn(
+      "fixed z-[9999]",
+      isMobile 
+        ? "inset-x-4 bottom-20 top-20" 
+        : "bottom-6 right-6 w-[480px] max-w-[calc(100vw-3rem)]"
+    )}>
       <div 
         className="relative rounded-3xl overflow-hidden"
         style={{
@@ -435,7 +510,7 @@ export function SyntheticAI({
               
               <div>
                 <h3 className="text-slate-900 font-bold text-xl flex items-center gap-2">
-                  Synthetic AI
+                  NovaCare AI
                   <Activity className="h-4 w-4 text-teal-500 animate-pulse" />
                 </h3>
                 <div className="flex items-center gap-2 mt-1">

@@ -8,35 +8,41 @@ interface MobileBottomToolbarProps {
   onNavigate: (screen: string) => void;
   isRecording?: boolean;
   isProcessing?: boolean;
+  onToggleAIWidget?: () => void;
+  isAIWidgetMinimized?: boolean;
 }
 
 export function MobileBottomToolbar({
   currentScreen,
   onNavigate,
   isRecording = false,
-  isProcessing = false
+  isProcessing = false,
+  onToggleAIWidget,
+  isAIWidgetMinimized = true
 }: MobileBottomToolbarProps) {
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
 
   const mainNavigationItems = [
-    { 
-      id: 'home', 
-      label: 'New Note', 
-      icon: Mic, 
+    {
+      id: 'home',
+      label: 'New Note',
+      icon: Mic,
       active: currentScreen === 'home',
       badge: isRecording ? 'recording' : isProcessing ? 'processing' : null
     },
-    { 
-      id: 'draft', 
-      label: 'Draft', 
-      icon: FileText, 
-      active: currentScreen === 'draft' 
+    {
+      id: 'draft',
+      label: 'Draft',
+      icon: FileText,
+      active: currentScreen === 'draft'
     },
-    { 
-      id: 'copilot', 
-      label: 'AI Copilot', 
-      icon: Brain, 
-      active: currentScreen === 'copilot' 
+    {
+      id: 'ai-widget',
+      label: 'NovaCare AI',
+      icon: Brain,
+      active: false,
+      badge: !isAIWidgetMinimized ? 'active' : null,
+      isAI: true
     },
   ];
 
@@ -86,7 +92,11 @@ export function MobileBottomToolbar({
   ];
 
   const handleNavigate = (screen: string) => {
-    onNavigate(screen);
+    if (screen === 'ai-widget' && onToggleAIWidget) {
+      onToggleAIWidget();
+    } else {
+      onNavigate(screen);
+    }
     setIsMoreMenuOpen(false);
   };
 

@@ -70,13 +70,10 @@ export interface AIAnalysis {
 }
 
 class EnhancedAIService {
-  private readonly OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-  private readonly MODEL = 'gpt-4o-mini';
+  private readonly API_ENDPOINT = '/.netlify/functions/generate-note';
 
   constructor() {
-    if (!this.OPENAI_API_KEY) {
-      console.warn('OpenAI API key not found. AI features will be limited.');
-    }
+    console.log('✅ Enhanced AI Service initialized - using secure serverless function');
   }
 
   /**
@@ -678,81 +675,26 @@ Newborn:
   }
 
   private async callOpenAI(prompt: string): Promise<string> {
-    if (!this.OPENAI_API_KEY) {
-      throw new Error('OpenAI API key not configured');
+    try {
+      const response = await fetch(this.API_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`API error: ${response.status} ${response.statusText} - ${errorData.error || errorData.message || 'Unknown error'}`);
+      }
+
+      const data = await response.json();
+      return data.content;
+    } catch (error) {
+      console.error('Error calling serverless function:', error);
+      throw error;
     }
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: this.MODEL,
-        messages: [
-          {
-            role: 'system',
-            content: `You are an expert nursing documentation specialist with extensive knowledge of clinical documentation standards, medical terminology, and nursing best practices. 
-
-CORE CAPABILITIES:
-- Generate professional, accurate, and comprehensive nursing notes
-- Follow established templates (SOAP, SBAR, PIE, DAR, Epic EMR) with precision
-- Use proper medical terminology and nursing language
-- Include specific measurements, times, and objective data
-- Provide actionable nursing interventions and assessments
-- Ensure HIPAA compliance and patient safety focus
-- Generate situation-specific content based on input context
-- Create detailed, clinically relevant documentation
-
-MEDICAL EXPERTISE:
-- Advanced knowledge of pathophysiology and nursing care
-- Understanding of medication administration and monitoring
-- Expertise in assessment techniques and clinical reasoning
-- Knowledge of evidence-based nursing practices
-- Familiarity with healthcare regulations and standards
-
-OUTPUT FORMAT REQUIREMENTS (CRITICAL):
-- ALWAYS format your response with clear section headers followed by colons
-- Example for SOAP: "Subjective: [content]" then "Objective: [content]" etc.
-- Example for SBAR: "Situation: [content]" then "Background: [content]" etc.
-- Each section header must be on its own line followed by a colon
-- Do NOT use markdown formatting (**, ##) for section headers
-- Use plain text with section headers like "Section Name: content here"
-- Separate sections with blank lines for clarity
-
-CONTENT REQUIREMENTS:
-- Use professional medical terminology
-- Include specific measurements and vital signs
-- Provide detailed nursing assessments
-- Suggest appropriate interventions
-- Include patient education components
-- Ensure clinical accuracy and relevance
-- Follow proper documentation format
-- Maintain professional tone throughout
-
-Generate comprehensive, professional nursing documentation that demonstrates clinical expertise and follows best practices. ALWAYS use the exact section header format specified above.`
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.2, // Lower temperature for more consistent, professional output
-        max_tokens: 3000, // Increased for more comprehensive notes
-        top_p: 0.9,
-        frequency_penalty: 0.1,
-        presence_penalty: 0.1,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`OpenAI API error: ${response.status} ${response.statusText} - ${errorData.error?.message || 'Unknown error'}`);
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
   }
 
   private async processAIGeneratedNote(
