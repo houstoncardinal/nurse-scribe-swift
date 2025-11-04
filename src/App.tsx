@@ -2,9 +2,9 @@
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import Index from "./pages/Index";
-import { MVPApp } from "./pages/MVPApp";
+// import { MVPApp } from "./pages/MVPApp";
 import { LandingPage } from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
@@ -16,6 +16,7 @@ import { supabaseService } from "@/lib/supabase";
 
 const queryClient = new QueryClient();
 
+const MVPAppLazy = lazy(() => import('./pages/MVPApp').then(m => ({ default: m.MVPApp })));
 
 const App = () => {
   console.log('App rendering...');
@@ -192,7 +193,7 @@ const App = () => {
       <BrowserRouter>
         <Sonner />
         <Routes>
-          <Route path="/" element={<MVPApp />} />
+          <Route path="/" element={<Suspense fallback={null}><MVPAppLazy /></Suspense>} />
           <Route path="/full" element={<Index />} />
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/admin" element={<AdminDashboardPage />} />
