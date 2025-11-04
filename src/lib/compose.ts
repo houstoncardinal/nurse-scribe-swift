@@ -56,8 +56,11 @@ async function composeWithOpenAI(
         { role: 'system', content: templateConfig.systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      temperature: 0.7,
-      max_tokens: 1000,
+      temperature: 0.3,
+      max_tokens: 4000,
+      top_p: 0.95,
+      frequency_penalty: 0.15,
+      presence_penalty: 0.1,
     }),
   });
 
