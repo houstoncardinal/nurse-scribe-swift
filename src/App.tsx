@@ -1,6 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-// import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -189,19 +188,17 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <>
+      <BrowserRouter>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<MVPApp />} />
-            <Route path="/full" element={<Index />} />
-            <Route path="/landing" element={<LandingPage />} />
-            <Route path="/admin" element={<AdminDashboardPage />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <Routes>
+          <Route path="/" element={<MVPApp />} />
+          <Route path="/full" element={<Index />} />
+          <Route path="/landing" element={<LandingPage />} />
+          <Route path="/admin" element={<AdminDashboardPage />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
         
         {/* Global Modals */}
         <AnalyticsDashboard 
@@ -216,7 +213,7 @@ const App = () => {
           isOpen={showAdmin} 
           onClose={() => setShowAdmin(false)} 
         />
-      </>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 };
