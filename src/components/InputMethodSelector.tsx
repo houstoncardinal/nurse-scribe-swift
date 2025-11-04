@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Mic, Keyboard, FileText, Upload, Zap, Shield, Clock } from 'lucide-react';
+import { Mic, Keyboard, FileText, Upload, Zap, Shield, Clock, Lightbulb, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { getTemplatePlaceholder, getTemplateExample, getTemplateTooltip } from '@/lib/templatePlaceholders';
 import { Separator } from '@/components/ui/separator';
 
 interface InputMethodSelectorProps {
@@ -26,15 +28,13 @@ export function InputMethodSelector({
   const [manualText, setManualText] = useState('');
   const [pasteText, setPasteText] = useState('');
 
-  // Get template-specific placeholder text
-  const getTemplatePlaceholder = (template: string) => {
-    const placeholders = {
-      'SOAP': `Subjective: Patient reports...\n\nObjective: Vital signs, physical exam findings...\n\nAssessment: Clinical impression, diagnosis...\n\nPlan: Treatment, medications, follow-up...\n\nExample:\nPatient presents with chest pain, vital signs stable. Pain level 6/10, no shortness of breath. Patient reports pain started this morning...`,
-      'SBAR': `Situation: Current problem or concern...\n\nBackground: Relevant patient history...\n\nAssessment: Clinical assessment and findings...\n\nRecommendation: Suggested actions or interventions...\n\nExample:\nPatient experiencing chest pain with pain level 6/10. Patient has history of hypertension. Vital signs stable, pain controlled...`,
-      'PIE': `Problem: Nursing diagnosis or patient issue...\n\nIntervention: Actions taken by the nurse...\n\nEvaluation: Patient's response to interventions...\n\nExample:\nAcute chest pain. Pain assessment performed, vital signs monitored, medication administered. Patient reports improved comfort...`,
-      'DAR': `Data: Subjective and objective information...\n\nAction: Nursing interventions performed...\n\nResponse: Patient's response to interventions...\n\nExample:\nPatient reports chest pain 6/10, vital signs: BP 118/76, HR 88. Pain medication administered, comfort measures provided. Patient reports improved comfort...`
-    };
-    return placeholders[template as keyof typeof placeholders] || placeholders['SOAP'];
+  const handleFillExample = () => {
+    const example = getTemplateExample(selectedTemplate);
+    if (selectedMethod === 'manual') {
+      setManualText(example);
+    } else if (selectedMethod === 'paste') {
+      setPasteText(example);
+    }
   };
 
   const handleMethodSelect = (method: 'voice' | 'manual' | 'paste') => {
@@ -115,35 +115,57 @@ export function InputMethodSelector({
 
   if (selectedMethod === 'manual') {
     return (
-      <Card className="p-6 border-0 shadow-2xl bg-gradient-to-br from-white via-slate-50 to-white dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
-              <Keyboard className="h-5 w-5 text-white" />
+      <TooltipProvider>
+        <Card className="p-6 border-0 shadow-2xl bg-gradient-to-br from-white via-slate-50 to-white dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
+                <Keyboard className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold">Manual Typing</h3>
+                <p className="text-sm text-muted-foreground">Type your nursing notes directly</p>
+              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Info className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="text-sm">{getTemplateTooltip(selectedTemplate)}</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold">Manual Typing</h3>
-              <p className="text-sm text-muted-foreground">Type your nursing notes directly</p>
-            </div>
-          </div>
 
-          <div className="space-y-4">
-            <Label htmlFor="manual-text" className="text-sm font-medium">
-              Enter your notes below:
-            </Label>
-            <Textarea
-              id="manual-text"
-              value={manualText}
-              onChange={(e) => setManualText(e.target.value)}
-              placeholder={getTemplatePlaceholder(selectedTemplate)}
-              className="min-h-[200px] resize-none border-2 focus:border-emerald-300 dark:focus:border-emerald-600"
-            />
-            
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{manualText.length} characters</span>
-              <span>{manualText.split(' ').filter(w => w.length > 0).length} words</span>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="manual-text" className="text-sm font-medium">
+                  Enter your notes below:
+                </Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleFillExample}
+                  className="h-8 text-xs gap-1.5"
+                >
+                  <Lightbulb className="h-3.5 w-3.5" />
+                  🧠 Example
+                </Button>
+              </div>
+              <Textarea
+                id="manual-text"
+                value={manualText}
+                onChange={(e) => setManualText(e.target.value)}
+                placeholder={getTemplatePlaceholder(selectedTemplate)}
+                className="min-h-[200px] resize-none border-2 focus:border-emerald-300 dark:focus:border-emerald-600 font-mono text-sm"
+              />
+              
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>{manualText.length} characters</span>
+                <span>{manualText.split(' ').filter(w => w.length > 0).length} words</span>
+              </div>
             </div>
-          </div>
 
           <div className="flex gap-3">
             <Button
@@ -171,51 +193,74 @@ export function InputMethodSelector({
               )}
             </Button>
           </div>
-        </div>
-      </Card>
+          </div>
+        </Card>
+      </TooltipProvider>
     );
   }
 
   if (selectedMethod === 'paste') {
     return (
-      <Card className="p-6 border-0 shadow-2xl bg-gradient-to-br from-white via-slate-50 to-white dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-violet-500 rounded-xl flex items-center justify-center shadow-lg">
-              <FileText className="h-5 w-5 text-white" />
+      <TooltipProvider>
+        <Card className="p-6 border-0 shadow-2xl bg-gradient-to-br from-white via-slate-50 to-white dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-violet-500 rounded-xl flex items-center justify-center shadow-lg">
+                <FileText className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold">Paste from EHR</h3>
+                <p className="text-sm text-muted-foreground">Import existing notes for formatting</p>
+              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Info className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="text-sm">{getTemplateTooltip(selectedTemplate)}</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold">Paste from EHR</h3>
-              <p className="text-sm text-muted-foreground">Import existing notes for formatting</p>
-            </div>
-          </div>
 
-          <div className="space-y-4">
-            <Label htmlFor="paste-text" className="text-sm font-medium">
-              Paste your notes below:
-            </Label>
-            <Textarea
-              id="paste-text"
-              value={pasteText}
-              onChange={(e) => setPasteText(e.target.value)}
-              placeholder="Paste notes from Epic, Cerner, or other EHR systems...&#10;&#10;Example:&#10;Patient: John Doe, DOB: 01/15/1980&#10;Chief Complaint: Chest pain&#10;Assessment: Patient alert, vital signs stable..."
-              className="min-h-[200px] resize-none border-2 focus:border-purple-300 dark:focus:border-purple-600"
-            />
-            
-            <Button
-              variant="outline"
-              onClick={handlePasteFromClipboard}
-              className="w-full"
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              Paste from Clipboard
-            </Button>
-            
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{pasteText.length} characters</span>
-              <span>{pasteText.split(' ').filter(w => w.length > 0).length} words</span>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="paste-text" className="text-sm font-medium">
+                  Paste your notes below:
+                </Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleFillExample}
+                  className="h-8 text-xs gap-1.5"
+                >
+                  <Lightbulb className="h-3.5 w-3.5" />
+                  🧠 Example
+                </Button>
+              </div>
+              <Textarea
+                id="paste-text"
+                value={pasteText}
+                onChange={(e) => setPasteText(e.target.value)}
+                placeholder={getTemplatePlaceholder(selectedTemplate)}
+                className="min-h-[200px] resize-none border-2 focus:border-purple-300 dark:focus:border-purple-600 font-mono text-sm"
+              />
+              
+              <Button
+                variant="outline"
+                onClick={handlePasteFromClipboard}
+                className="w-full"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Paste from Clipboard
+              </Button>
+              
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>{pasteText.length} characters</span>
+                <span>{pasteText.split(' ').filter(w => w.length > 0).length} words</span>
+              </div>
             </div>
-          </div>
 
           <div className="flex gap-3">
             <Button
@@ -243,8 +288,9 @@ export function InputMethodSelector({
               )}
             </Button>
           </div>
-        </div>
-      </Card>
+          </div>
+        </Card>
+      </TooltipProvider>
     );
   }
 
