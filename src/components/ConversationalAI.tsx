@@ -35,7 +35,7 @@ export function ConversationalAI({
     {
       id: '1',
       role: 'system',
-      content: "Hi! I'm your NovaCare AI Assistant. I can help you with:\n\n• Creating and editing notes\n• Voice transcription\n• Template selection\n• ICD-10 code suggestions\n• Epic documentation\n• Compliance checking\n• And much more!\n\nWhat would you like to do?",
+      content: "Hi! I'm your Raha AI Assistant. I can help you with:\n\n• Creating and editing notes\n• Voice transcription\n• Template selection\n• ICD-10 code suggestions\n• Epic documentation\n• Compliance checking\n• And much more!\n\nWhat would you like to do?",
       timestamp: new Date()
     }
   ]);

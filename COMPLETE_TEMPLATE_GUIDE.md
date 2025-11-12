@@ -2,7 +2,7 @@
 
 ## Overview
 
-This comprehensive guide shows **expected input and professional output** for all 13 templates in NovaCareAI.
+This comprehensive guide shows **expected input and professional output** for all 13 templates in RahaAI.
 
 **What You'll Find:**
 - ✅ **Expected Input Format** - What you speak or type (casual clinical language)

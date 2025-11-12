@@ -38,7 +38,7 @@ export function MobileBottomToolbar({
     },
     {
       id: 'ai-widget',
-      label: 'NovaCare AI',
+      label: 'Raha AI',
       icon: Brain,
       active: false,
       badge: !isAIWidgetMinimized ? 'active' : null,

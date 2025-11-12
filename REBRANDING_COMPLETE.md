@@ -1,10 +1,10 @@
-# 🎨 Rebranding Complete: NurseScribe AI → NovaCare
+# 🎨 Rebranding Complete: NurseScribe AI → Raha
 
 ## Rebranding Summary
 
 **Date**: January 19, 2025
 **Previous Name**: NurseScribe AI
-**New Name**: NovaCare
+**New Name**: Raha
 **Status**: ✅ COMPLETE
 
 ---
@@ -12,7 +12,7 @@
 ## Changes Applied
 
 ### 1. Application Name
-- ✅ Changed from "NurseScribe AI" to "NovaCare"
+- ✅ Changed from "NurseScribe AI" to "Raha"
 - ✅ Updated across all user-facing components
 - ✅ Updated in all documentation
 
@@ -104,9 +104,9 @@
 
 ## Brand Identity
 
-### New Brand: NovaCare
+### New Brand: Raha
 
-**Tagline**: "Professional Documentation"
+**Tagline**: "Tihkn Breathing Space"
 
 **Brand Values**:
 - Innovation (Nova = New)
@@ -116,9 +116,9 @@
 - HIPAA Compliant
 
 **Visual Identity**:
-- Logo: Stethoscope icon
-- Colors: Teal (#14b8a6) to Blue (#2563eb) gradient
-- Typography: Modern, clean, professional
+- Logo: Soft-round medallion form inspired by gentle concentric waves
+- Colors: Warm neutrals with a soft teal accent to mirror the new palette
+- Typography: Modern, clean, professional with generous breathing space
 
 ---
 
@@ -128,13 +128,13 @@
 ```bash
 find . -type f \( -name "*.tsx" -o -name "*.ts" -o -name "*.md" -o -name "*.json" -o -name "*.html" \) \
   -not -path "./node_modules/*" -not -path "./.git/*" \
-  -exec sed -i '' 's/NurseScribe AI/NovaCare/g' {} + && \
-  sed -i '' 's/NurseScribe/NovaCare/g' public/manifest.json index.html
+  -exec sed -i '' 's/NurseScribe AI/Raha/g' {} + && \
+  sed -i '' 's/NurseScribe/Raha/g' public/manifest.json index.html
 ```
 
 ### Files Affected
 - **89 files** containing "NurseScribe" references
-- All updated to "NovaCare"
+- All updated to "Raha"
 - No breaking changes to functionality
 
 ---
@@ -142,7 +142,7 @@ find . -type f \( -name "*.tsx" -o -name "*.ts" -o -name "*.md" -o -name "*.json
 ## Testing Recommendations
 
 ### Before Deployment
-1. ✅ Verify all UI components display "NovaCare"
+1. ✅ Verify all UI components display "Raha"
 2. ✅ Test sign-in/sign-up flows
 3. ✅ Check export functionality
 4. ✅ Verify PWA manifest
@@ -236,13 +236,13 @@ Text: #1e293b (Dark Gray)
 ## Support & Maintenance
 
 ### Contact Information
-- **Product Name**: NovaCare
+- **Product Name**: Raha
 - **Support**: (To be configured)
 - **Documentation**: Available in repository
 - **Version**: 2.0.0 (with rebrand)
 
 ### Future Updates
-- All future releases will use "NovaCare" branding
+- All future releases will use "Raha" branding
 - Legacy "NurseScribe" references removed
 - Consistent branding across all platforms
 
@@ -273,7 +273,7 @@ Text: #1e293b (Dark Gray)
 2. Run reverse command:
    ```bash
    find . -type f \( -name "*.tsx" -o -name "*.ts" -o -name "*.md" \) \
-     -exec sed -i '' 's/NovaCare/NurseScribe AI/g' {} +
+     -exec sed -i '' 's/Raha/NurseScribe AI/g' {} +
    ```
 3. Rebuild and redeploy
 4. Notify users if necessary
@@ -287,7 +287,7 @@ Text: #1e293b (Dark Gray)
 
 ## Conclusion
 
-✅ **Rebranding from NurseScribe AI to NovaCare is COMPLETE**
+✅ **Rebranding from NurseScribe AI to Raha is COMPLETE**
 
 ### Summary
 - **89 files** updated successfully
@@ -311,4 +311,4 @@ Text: #1e293b (Dark Gray)
 **Quality**: 100% Complete
 **Functionality**: Fully Preserved
 
-🎉 **Welcome to NovaCare!**
+🎉 **Welcome to Raha!**

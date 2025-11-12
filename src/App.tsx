@@ -10,7 +10,7 @@ import NotFound from "./pages/NotFound";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
 import { EducationMode } from "@/components/EducationMode";
 import { AdminDashboard } from "@/components/AdminDashboard";
-import { PowerfulAdminDashboard as AdminDashboardPage } from "@/components/PowerfulAdminDashboard";
+import { EnhancedAdminDashboard as AdminDashboardPage } from "@/components/EnhancedAdminDashboard";
 import { pwaService } from "@/lib/pwa";
 import { supabaseService } from "@/lib/supabase";
 

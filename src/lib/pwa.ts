@@ -455,7 +455,7 @@ class PWAService {
     userAgent: string;
   } {
     return {
-      name: 'NovaCare',
+      name: 'Raha',
       version: '2.0.0',
       platform: navigator.platform,
       userAgent: navigator.userAgent,

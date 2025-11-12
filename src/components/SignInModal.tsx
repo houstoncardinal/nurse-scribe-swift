@@ -65,7 +65,7 @@ export function SignInModal({
           </DialogTitle>
           <DialogDescription className="text-slate-600">
             {isSignUp 
-              ? 'Join NovaCare to streamline your clinical documentation'
+              ? 'Join Raha to streamline your clinical documentation'
               : 'Sign in to access your personalized dashboard and notes'
             }
           </DialogDescription>

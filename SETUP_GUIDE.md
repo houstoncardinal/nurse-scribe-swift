@@ -1,4 +1,4 @@
-# 🚀 Quick Setup Guide for NovaCareAI
+# 🚀 Quick Setup Guide for RahaAI
 
 ## Prerequisites
 - Node.js 18+ installed
@@ -14,7 +14,7 @@
 1. **Go to OpenAI Platform**: https://platform.openai.com/api-keys
 2. **Sign in** or create a free account
 3. **Click** "Create new secret key"
-4. **Name it**: "NovaCareAI Local Dev"
+4. **Name it**: "RahaAI Local Dev"
 5. **Copy the key** (starts with `sk-...`) - you won't see it again!
 6. **Set usage limits** (recommended):
    - Go to: https://platform.openai.com/account/billing/limits

@@ -1,6 +1,6 @@
 {
-  "name": "NovaCare - Voice Documentation for Healthcare",
-  "short_name": "NovaCare",
+  "name": "Raha - Voice Documentation for Healthcare",
+  "short_name": "Raha",
   "description": "AI-powered voice documentation for nurses and healthcare professionals. HIPAA-compliant, secure, and designed for modern healthcare workflows.",
   "version": "2.0.0",
   "manifest_version": 2,
@@ -19,14 +19,14 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "NovaCare Desktop Interface"
+      "label": "Raha Desktop Interface"
     },
     {
       "src": "/screenshots/mobile.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "NovaCare Mobile Interface"
+      "label": "Raha Mobile Interface"
     }
   ],
   "icons": [

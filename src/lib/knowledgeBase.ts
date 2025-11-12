@@ -1,5 +1,5 @@
 /**
- * NovaCare Knowledge Base System
+ * Raha Knowledge Base System
  * Comprehensive medical knowledge for enhanced AI capabilities
  */
 

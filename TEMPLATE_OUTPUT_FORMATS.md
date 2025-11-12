@@ -324,4 +324,4 @@ When generating clinical notes, the AI MUST:
 
 ---
 
-*This document serves as the authoritative specification for all AI-generated clinical nursing documentation within the NovaCare system.*
+*This document serves as the authoritative specification for all AI-generated clinical nursing documentation within the Raha system.*

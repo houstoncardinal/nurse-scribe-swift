@@ -510,7 +510,7 @@ export function SyntheticAI({
               
               <div>
                 <h3 className="text-slate-900 font-bold text-xl flex items-center gap-2">
-                  NovaCare AI
+                  Raha AI
                   <Activity className="h-4 w-4 text-teal-500 animate-pulse" />
                 </h3>
                 <div className="flex items-center gap-2 mt-1">

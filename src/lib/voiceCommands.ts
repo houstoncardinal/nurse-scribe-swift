@@ -1,6 +1,6 @@
 /**
  * Voice Commands System for Hands-Free Operation
- * Enables voice control of the NovaCare application
+ * Enables voice control of the Raha application
  */
 
 export interface VoiceCommand {

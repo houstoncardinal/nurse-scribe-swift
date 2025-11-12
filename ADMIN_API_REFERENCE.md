@@ -1,6 +1,6 @@
 # 🔌 Admin API Reference
 
-Complete API documentation for NovaCare Admin Dashboard backend services.
+Complete API documentation for Raha Admin Dashboard backend services.
 
 ---
 
@@ -878,7 +878,7 @@ GET /api/v1/admin/settings
   "success": true,
   "data": {
     "general": {
-      "app_name": "NovaCareAI",
+      "app_name": "RahaAI",
       "timezone": "America/New_York",
       "maintenance_mode": false
     },
@@ -912,7 +912,7 @@ PATCH /api/v1/admin/settings
 ```json
 {
   "general": {
-    "app_name": "NovaCare - City Medical"
+    "app_name": "Raha - City Medical"
   },
   "notifications": {
     "email_enabled": false
@@ -1020,4 +1020,4 @@ POST /api/v1/admin/webhooks
 
 *Last Updated: November 6, 2025*
 *API Version: v1*
-*© 2025 NovaCare AI*
+*© 2025 Raha AI*

@@ -60,7 +60,7 @@ export function LandingPage() {
     {
       name: 'Dr. Sarah Johnson, RN',
       title: 'Chief Nursing Officer, General Hospital',
-      content: 'NovaCare has reduced our documentation time by 40% while improving note quality. Our nurses love the voice commands and seamless EHR integration.',
+      content: 'Raha has reduced our documentation time by 40% while improving note quality. Our nurses love the voice commands and seamless EHR integration.',
       rating: 5,
       hospital: 'General Hospital'
     },
@@ -74,14 +74,14 @@ export function LandingPage() {
     {
       name: 'Lisa Rodriguez, RN',
       title: 'Emergency Department Manager, City Hospital',
-      content: 'HIPAA compliance was our biggest concern, but NovaCare handles everything securely. The redaction features give us complete confidence.',
+      content: 'HIPAA compliance was our biggest concern, but Raha handles everything securely. The redaction features give us complete confidence.',
       rating: 5,
       hospital: 'City Hospital'
     }
   ];
 
   const stats = [
-    { number: '15,000+', label: 'Nurses Using NovaCare' },
+    { number: '15,000+', label: 'Nurses Using Raha' },
     { number: '2.5M+', label: 'Notes Generated' },
     { number: '40%', label: 'Time Saved on Documentation' },
     { number: '99.9%', label: 'HIPAA Compliance Rate' }
@@ -144,7 +144,10 @@ export function LandingPage() {
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                 <Zap className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold">NovaCare</span>
+              <div>
+                <span className="text-xl font-bold">Raha</span>
+                <p className="text-xs text-muted-foreground leading-none">Tihkn Breathing Space</p>
+              </div>
             </div>
             <div className="flex items-center gap-4">
               <Button variant="ghost">Features</Button>
@@ -217,7 +220,7 @@ export function LandingPage() {
                     <div className="w-3 h-3 bg-destructive rounded-full"></div>
                     <div className="w-3 h-3 bg-warning rounded-full"></div>
                     <div className="w-3 h-3 bg-success rounded-full"></div>
-                    <span className="ml-4 text-sm text-muted-foreground">NovaCare - Active Session</span>
+                    <span className="ml-4 text-sm text-muted-foreground">Raha - Active Session</span>
                   </div>
                   
                   <div className="space-y-4">
@@ -278,10 +281,10 @@ export function LandingPage() {
           <div className="text-center space-y-4 mb-16">
             <h2 className="text-3xl md:text-4xl font-bold">
               Everything You Need for
-              <span className="text-gradient-primary"> Professional Documentation</span>
+              <span className="text-gradient-primary"> Tihkn Breathing Space</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              From voice transcription to EHR integration, NovaCare provides 
+              From voice transcription to EHR integration, Raha provides 
               a complete solution for modern healthcare documentation.
             </p>
           </div>
@@ -316,7 +319,7 @@ export function LandingPage() {
               <span className="text-gradient-primary"> Professionals</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              See what nurses, administrators, and educators are saying about NovaCare.
+              See what nurses, administrators, and educators are saying about Raha.
             </p>
           </div>
 
@@ -408,7 +411,7 @@ export function LandingPage() {
               </h2>
               <p className="text-xl text-primary-foreground/80">
                 Join thousands of healthcare professionals who have already reduced 
-                their documentation time by 40% with NovaCare.
+                their documentation time by 40% with Raha.
               </p>
             </div>
 
@@ -458,7 +461,7 @@ export function LandingPage() {
                 <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                   <Zap className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <span className="text-xl font-bold">NovaCare</span>
+                <span className="text-xl font-bold">Raha</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 AI-powered voice documentation for healthcare professionals. 
@@ -501,7 +504,7 @@ export function LandingPage() {
 
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-sm text-muted-foreground">
-              © 2024 NovaCare. All rights reserved.
+              © 2024 Raha. All rights reserved.
             </div>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">

@@ -1,4 +1,4 @@
-# NovaCare - Setup Instructions for Real Functionality
+# Raha - Setup Instructions for Real Functionality
 
 ## 🚨 CRITICAL: Your App is Currently in DEMO Mode
 

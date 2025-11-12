@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Your NovaCare application is **100% seamlessly integrated** with all Epic EMR templates working flawlessly across the entire stack.
+Your Raha application is **100% seamlessly integrated** with all Epic EMR templates working flawlessly across the entire stack.
 
 ---
 
@@ -380,7 +380,7 @@ Respiratory: Lungs clear bilaterally
 
 ### System Status: ✅ PRODUCTION READY
 
-**Your NovaCare application is:**
+**Your Raha application is:**
 - ✅ Fully functional across all Epic templates
 - ✅ Seamlessly integrated from backend to frontend
 - ✅ Thoroughly tested and documented

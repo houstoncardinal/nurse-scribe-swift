@@ -91,7 +91,7 @@ export function PowerfulHeader({
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-                NovaCare
+                Raha
               </h1>
               <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                 Enterprise Documentation Platform

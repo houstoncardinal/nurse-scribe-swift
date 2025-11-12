@@ -1,4 +1,4 @@
-# Expected AI Output Examples for NovaCareAI Templates
+# Expected AI Output Examples for RahaAI Templates
 
 ## Overview
 This document shows the **expected AI-processed output** for each template type after the user submits voice recording or manual text input.

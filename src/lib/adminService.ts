@@ -1,10 +1,59 @@
 /**
- * Admin Service - Real Database Integration
- * Handles all admin dashboard operations with Supabase
+ * Admin Service - Supabase backed administration utilities
  */
 
-import { supabaseService, NoteMetadata, AnalyticsEvent, AuditLog } from './supabase';
+import {
+  supabaseService,
+  type Organization as SupOrganization,
+  type UserProfile,
+  type Department,
+  type NoteMetadata,
+  type AnalyticsEvent,
+  type AuditLog
+} from './supabase';
 import { organizationService } from './organizationService';
+
+export interface AdminOrganizationSummary {
+  id: string;
+  name: string;
+  type: string;
+  hipaaCompliant: boolean;
+  settings: Record<string, any>;
+}
+
+export type AdminUserRole = 'Administrator' | 'Clinician' | 'Educator' | 'Auditor';
+export type AdminUserStatus = 'active' | 'invited' | 'suspended';
+
+export interface AdminDashboardUser {
+  id: string;
+  name: string;
+  email: string;
+  role: AdminUserRole;
+  status: AdminUserStatus;
+  lastActiveISO: string;
+  notesThisWeek: number;
+  teamIds: string[];
+  teamNames: string[];
+}
+
+export interface AdminTeamOverview {
+  id: string;
+  name: string;
+  code: string;
+  hipaaLevel: Department['hipaa_level'];
+  memberCount: number;
+}
+
+export interface AdminAuditLogEntry {
+  id: string;
+  event: string;
+  actor: string;
+  role: AdminUserRole | 'Service Account';
+  severity: 'low' | 'medium' | 'high';
+  timestampISO: string;
+  details: string;
+  resolved: boolean;
+}
 
 export interface AdminStats {
   totalUsers: number;
@@ -38,415 +87,601 @@ export interface AnalyticsChartData {
   timeSaved: number;
 }
 
+export interface AdminDashboardData {
+  organization: AdminOrganizationSummary | null;
+  stats: AdminStats | null;
+  analytics: AnalyticsChartData[];
+  notes: NoteRecord[];
+  auditLogs: AdminAuditLogEntry[];
+  users: AdminDashboardUser[];
+  teams: AdminTeamOverview[];
+}
+
+const ROLE_MAP: Record<UserProfile['role'], AdminUserRole> = {
+  admin: 'Administrator',
+  nurse: 'Clinician',
+  instructor: 'Educator',
+  student: 'Clinician',
+  auditor: 'Auditor'
+};
+
+const STATUS_MAP: Record<UserProfile['status'], AdminUserStatus> = {
+  active: 'active',
+  inactive: 'invited',
+  suspended: 'suspended'
+};
+
+const ROLE_REVERSE_MAP: Record<AdminUserRole, UserProfile['role']> = {
+  Administrator: 'admin',
+  Clinician: 'nurse',
+  Educator: 'instructor',
+  Auditor: 'auditor'
+};
+
+const STATUS_REVERSE_MAP: Record<AdminUserStatus, UserProfile['status']> = {
+  active: 'active',
+  invited: 'inactive',
+  suspended: 'suspended'
+};
+
 class AdminService {
-  /**
-   * Get real-time dashboard statistics
-   */
-  async getDashboardStats(organizationId: string): Promise<AdminStats> {
-    try {
-      // Get all users from organization
-      const users = organizationService.getUsersByOrganization(organizationId);
-      const orgStats = organizationService.getOrganizationStats(organizationId);
-      
-      // Get notes metadata from Supabase
-      const allNotes: NoteMetadata[] = [];
-      for (const user of users) {
-        const userNotes = await supabaseService.getUserNoteMetadata(user.id, 1000);
-        allNotes.push(...userNotes);
+  async listOrganizations(): Promise<AdminOrganizationSummary[]> {
+    if (supabaseService.isAvailable()) {
+      const orgs = await supabaseService.getOrganizations();
+      if (orgs.length > 0) {
+        return orgs.map(org => this.mapSupOrganization(org));
       }
-      
-      // Calculate active users (last 24 hours)
-      const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-      const activeUsers = users.filter(user => {
-        const lastLogin = user.stats?.lastLogin || new Date(0);
-        return new Date(lastLogin) > dayAgo;
-      }).length;
-      
-      // Calculate notes today
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const notesToday = allNotes.filter(note => 
-        new Date(note.created_at) >= today
-      ).length;
-      
-      // Calculate average accuracy
-      const avgAccuracy = allNotes.length > 0
-        ? allNotes.reduce((sum, note) => sum + (note.confidence_score || 0), 0) / allNotes.length * 100
-        : 99.2;
-      
-      // Calculate total time saved
-      const timeSaved = allNotes.reduce((sum, note) => sum + (note.time_saved_minutes || 0), 0) / 60;
-      
-      return {
-        totalUsers: users.length,
-        activeUsers,
-        totalNotes: allNotes.length,
-        notesToday,
-        avgAccuracy: Math.round(avgAccuracy * 10) / 10,
-        timeSaved: Math.round(timeSaved * 10) / 10,
-        systemHealth: 98.5,
-        storageUsed: 2.4,
-        storageLimit: 10
-      };
-    } catch (error) {
-      console.error('Failed to get dashboard stats:', error);
-      
-      // Return default stats if database unavailable
-      const orgStats = organizationService.getOrganizationStats(organizationId);
-      return {
-        totalUsers: orgStats.totalUsers,
-        activeUsers: Math.floor(orgStats.totalUsers * 0.7),
-        totalNotes: orgStats.totalNotes,
-        notesToday: 127,
-        avgAccuracy: 99.2,
-        timeSaved: 1247.5,
-        systemHealth: 98.5,
-        storageUsed: 2.4,
-        storageLimit: 10
-      };
     }
+
+    return organizationService.getOrganizations().map(org => ({
+      id: org.id,
+      name: org.name,
+      type: org.type,
+      hipaaCompliant: org.settings.hipaaCompliant,
+      settings: org.settings
+    }));
   }
-  
-  /**
-   * Get all notes for organization with real database data
-   */
+
+  async getDashboardData(organizationId: string, analyticsRange: number): Promise<AdminDashboardData> {
+    const [organization, stats, analytics, notes, usersAndTeams, auditLogs] = await Promise.all([
+      this.getOrganizationSummary(organizationId),
+      this.getDashboardStats(organizationId),
+      this.getAnalyticsData(organizationId, analyticsRange),
+      this.getOrganizationNotes(organizationId, 200),
+      this.getOrganizationUsersAndTeams(organizationId),
+      this.getAuditLogs(organizationId, 60)
+    ]);
+
+    const userLookup = new Map(usersAndTeams.users.map(user => [user.id, user]));
+    const mappedAuditLogs = this.mapAuditLogs(auditLogs.raw, userLookup);
+
+    return {
+      organization,
+      stats,
+      analytics,
+      notes,
+      auditLogs: mappedAuditLogs,
+      users: usersAndTeams.users,
+      teams: usersAndTeams.teams
+    };
+  }
+
+  async getDashboardStats(organizationId: string): Promise<AdminStats | null> {
+    if (supabaseService.isAvailable()) {
+      try {
+        const [profiles, notes, health] = await Promise.all([
+          supabaseService.getUserProfilesByOrganization(organizationId),
+          supabaseService.getOrganizationNoteMetadata(organizationId, 500),
+          supabaseService.healthCheck().catch(() => ({ status: 'healthy' as const, latency: 0 }))
+        ]);
+
+        const totalUsers = profiles.length;
+        const now = Date.now();
+        const activeUsers = profiles.filter(profile => {
+          const lastLogin = profile.last_login ? new Date(profile.last_login) : null;
+          return lastLogin ? now - lastLogin.getTime() <= 24 * 60 * 60 * 1000 : false;
+        }).length;
+
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+
+        const notesToday = notes.filter(note => new Date(note.created_at) >= startOfToday).length;
+        const totalNotes = notes.length;
+        const avgAccuracy =
+          notes.length > 0
+            ? Math.round(
+                (notes.reduce((sum, note) => sum + Number(note.confidence_score ?? 0), 0) / notes.length) *
+                  10000
+              ) / 100
+            : 99.0;
+        const timeSaved =
+          Math.round(
+            (notes.reduce((sum, note) => sum + Number(note.time_saved_minutes ?? 0), 0) / 60) * 10
+          ) / 10;
+
+        const systemHealth = health.status === 'healthy' ? 99 - Math.min(health.latency / 10, 5) : 95;
+        const storageUsed = Math.round(notes.length * 0.02 * 10) / 10;
+
+        return {
+          totalUsers,
+          activeUsers,
+          totalNotes,
+          notesToday,
+          avgAccuracy,
+          timeSaved,
+          systemHealth,
+          storageUsed,
+          storageLimit: 10
+        };
+      } catch (error) {
+        console.error('Failed to compute Supabase dashboard stats:', error);
+      }
+    }
+
+    const orgStats = organizationService.getOrganizationStats(organizationId);
+    return {
+      totalUsers: orgStats.totalUsers,
+      activeUsers: Math.floor(orgStats.totalUsers * 0.7),
+      totalNotes: orgStats.totalNotes,
+      notesToday: Math.floor(orgStats.totalNotes * 0.05),
+      avgAccuracy: 99.2,
+      timeSaved: Math.round(orgStats.totalNotes * 0.25 * 10) / 10,
+      systemHealth: 98.5,
+      storageUsed: Math.round(orgStats.totalNotes * 0.015 * 10) / 10,
+      storageLimit: 10
+    };
+  }
+
   async getOrganizationNotes(organizationId: string, limit: number = 100): Promise<NoteRecord[]> {
-    try {
-      const users = organizationService.getUsersByOrganization(organizationId);
-      const allNotes: NoteRecord[] = [];
-      
-      for (const user of users) {
-        const metadata = await supabaseService.getUserNoteMetadata(user.id, limit);
-        
-        metadata.forEach(meta => {
-          allNotes.push({
-            id: meta.id,
-            patient: 'Patient Data',
-            mrn: 'MRN-' + meta.id.slice(-6),
-            template: meta.template,
-            author: user.name,
-            status: this.determineNoteStatus(meta),
-            createdAt: new Date(meta.created_at),
-            content: 'Note content stored securely',
-            metadata: meta
+    if (supabaseService.isAvailable()) {
+      try {
+        const [notes, users] = await Promise.all([
+          supabaseService.getOrganizationNoteMetadata(organizationId, limit),
+          supabaseService.getUserProfilesByOrganization(organizationId)
+        ]);
+
+        const userLookup = new Map(users.map(user => [user.id, user.name]));
+
+        return notes.map(note => ({
+          id: note.id,
+          patient: 'Protected Health Information',
+          mrn: `MRN-${note.id.slice(0, 6).toUpperCase()}`,
+          template: note.template,
+          author: userLookup.get(note.user_id) ?? 'Unknown',
+          status: this.determineNoteStatus(note),
+          createdAt: new Date(note.created_at),
+          content: 'Note content stored securely in Supabase.',
+          metadata: note
+        }));
+      } catch (error) {
+        console.error('Failed to load Supabase note metadata:', error);
+      }
+    }
+
+    const sampleNotes = organizationService.getUsersByOrganization(organizationId).flatMap(user =>
+      Array.from({ length: 3 }).map((_, index) => ({
+        id: `${user.id}-note-${index}`,
+        patient: 'Sample Patient',
+        mrn: `MRN-${index}`,
+        template: 'SOAP',
+        author: user.name,
+        status: 'completed' as const,
+        createdAt: new Date(Date.now() - index * 3600 * 1000),
+        content: 'Sample note content',
+        metadata: undefined
+      }))
+    );
+    return sampleNotes.slice(0, limit);
+  }
+
+  async getAnalyticsData(organizationId: string, days: number): Promise<AnalyticsChartData[]> {
+    if (supabaseService.isAvailable()) {
+      try {
+        const [notes, events] = await Promise.all([
+          supabaseService.getOrganizationNoteMetadata(organizationId, 1000),
+          supabaseService.getAnalyticsEventsByOrganization(
+            organizationId,
+            new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+          )
+        ]);
+
+        const chartData: AnalyticsChartData[] = [];
+        const today = new Date();
+
+        for (let i = days - 1; i >= 0; i--) {
+          const dayStart = new Date(today);
+          dayStart.setHours(0, 0, 0, 0);
+          dayStart.setDate(dayStart.getDate() - i);
+          const dayEnd = new Date(dayStart);
+          dayEnd.setHours(23, 59, 59, 999);
+
+          const dayNotes = notes.filter(meta => {
+            const created = new Date(meta.created_at);
+            return created >= dayStart && created <= dayEnd;
           });
-        });
+
+          const dayEvents = events.filter(event => {
+            const eventDate = new Date(event.timestamp);
+            return eventDate >= dayStart && eventDate <= dayEnd;
+          });
+
+          const uniqueUsers = new Set(dayEvents.map(event => event.user_id)).size;
+          const avgAccuracy =
+            dayNotes.length > 0
+              ? Math.round(
+                  (dayNotes.reduce((sum, note) => sum + Number(note.confidence_score ?? 0), 0) / dayNotes.length) *
+                    10000
+                ) / 100
+              : 99.0;
+          const timeSaved =
+            Math.round(
+              (dayNotes.reduce((sum, note) => sum + Number(note.time_saved_minutes ?? 0), 0) / 60) * 10
+            ) / 10;
+
+          chartData.push({
+            date: dayStart.toISOString().split('T')[0],
+            notesCreated: dayNotes.length,
+            usersActive: uniqueUsers,
+            accuracyRate: avgAccuracy,
+            timeSaved
+          });
+        }
+
+        return chartData;
+      } catch (error) {
+        console.error('Failed to compute Supabase analytics:', error);
       }
-      
-      return allNotes.sort((a, b) => 
-        b.createdAt.getTime() - a.createdAt.getTime()
-      ).slice(0, limit);
-    } catch (error) {
-      console.error('Failed to get organization notes:', error);
-      return this.getMockNotes();
     }
+
+    return this.getMockAnalyticsData(days);
   }
-  
-  /**
-   * Get analytics data for charts
-   */
-  async getAnalyticsData(organizationId: string, days: number = 7): Promise<AnalyticsChartData[]> {
-    try {
-      const users = organizationService.getUsersByOrganization(organizationId);
-      const chartData: AnalyticsChartData[] = [];
-      
-      // Get date range
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - days);
-      
-      // Get all events for the period
-      const allEvents: AnalyticsEvent[] = [];
-      for (const user of users) {
-        const events = await supabaseService.getUserAnalyticsEvents(user.id, days);
-        allEvents.push(...events);
+
+  async getAuditLogs(organizationId: string, limit: number = 50): Promise<{ raw: AuditLog[] }> {
+    if (supabaseService.isAvailable()) {
+      try {
+        const logs = await supabaseService.getOrganizationAuditLogs(organizationId, limit);
+        return { raw: logs };
+      } catch (error) {
+        console.error('Failed to load Supabase audit logs:', error);
       }
-      
-      // Get all notes for the period
-      const allNotes: NoteMetadata[] = [];
-      for (const user of users) {
-        const notes = await supabaseService.getUserNoteMetadata(user.id, 1000);
-        allNotes.push(...notes.filter(note => 
-          new Date(note.created_at) >= startDate
-        ));
-      }
-      
-      // Build chart data for each day
-      for (let i = 0; i < days; i++) {
-        const date = new Date(startDate);
-        date.setDate(date.getDate() + i);
-        const dateStr = date.toISOString().split('T')[0];
-        
-        const dayStart = new Date(date);
-        dayStart.setHours(0, 0, 0, 0);
-        const dayEnd = new Date(date);
-        dayEnd.setHours(23, 59, 59, 999);
-        
-        // Notes created this day
-        const dayNotes = allNotes.filter(note => {
-          const noteDate = new Date(note.created_at);
-          return noteDate >= dayStart && noteDate <= dayEnd;
-        });
-        
-        // Active users this day
-        const dayEvents = allEvents.filter(event => {
-          const eventDate = new Date(event.timestamp);
-          return eventDate >= dayStart && eventDate <= dayEnd;
-        });
-        
-        const uniqueUsers = new Set(dayEvents.map(e => e.user_id)).size;
-        
-        // Calculate metrics
-        const avgAccuracy = dayNotes.length > 0
-          ? dayNotes.reduce((sum, note) => sum + (note.confidence_score || 0), 0) / dayNotes.length * 100
-          : 99.0;
-        
-        const timeSaved = dayNotes.reduce((sum, note) => sum + (note.time_saved_minutes || 0), 0) / 60;
-        
-        chartData.push({
-          date: dateStr,
-          notesCreated: dayNotes.length,
-          usersActive: uniqueUsers,
-          accuracyRate: Math.round(avgAccuracy * 10) / 10,
-          timeSaved: Math.round(timeSaved * 10) / 10
-        });
-      }
-      
-      return chartData;
-    } catch (error) {
-      console.error('Failed to get analytics data:', error);
-      return this.getMockAnalyticsData(days);
     }
+
+    const sampleLogs = organizationService
+      .getUsersByOrganization(organizationId)
+      .slice(0, limit)
+      .map((user, index) => ({
+        id: `audit-${index}`,
+        user_id: user.id,
+        organization_id: organizationId,
+        action: 'sample_event',
+        resource: 'sample_resource',
+        ip_address: null,
+        user_agent: 'Web',
+        success: true,
+        details: { message: 'Sample audit event' },
+        risk_level: 'low' as const,
+        timestamp: new Date(Date.now() - index * 15 * 60 * 1000).toISOString()
+      }));
+
+    return { raw: sampleLogs };
   }
-  
-  /**
-   * Delete note from database
-   */
-  async deleteNote(noteId: string): Promise<boolean> {
-    try {
-      // In production, this would delete from Supabase
-      // For now, we'll just log it
-      console.log('Deleting note:', noteId);
-      
+
+  async updateUserRole(userId: string, role: AdminUserRole, organizationId?: string): Promise<void> {
+    if (supabaseService.isAvailable()) {
+      const supRole = ROLE_REVERSE_MAP[role] ?? 'nurse';
+      await supabaseService.updateUserProfile(userId, { role: supRole });
       await supabaseService.storeAuditLog({
         user_id: 'admin',
-        organization_id: 'org-1',
-        action: 'delete_note',
-        resource: noteId,
-        ip_address: '',
-        user_agent: navigator.userAgent,
+        organization_id: organizationId ?? 'org-1',
+        action: 'update_user_role',
+        resource: userId,
         success: true,
-        details: { noteId },
-        risk_level: 'medium',
-        timestamp: new Date().toISOString()
+        details: { role: supRole },
+        risk_level: 'low'
       });
-      
-      return true;
-    } catch (error) {
-      console.error('Failed to delete note:', error);
-      return false;
+      return;
     }
+
+    await organizationService.updateUser(userId, {
+      role: role === 'Administrator' ? 'admin' : role === 'Educator' ? 'instructor' : 'nurse'
+    });
   }
-  
-  /**
-   * Export note to file
-   */
-  async exportNote(noteId: string): Promise<string> {
-    try {
-      // Get note metadata
-      const note = await this.getNoteById(noteId);
-      
-      if (!note) {
-        throw new Error('Note not found');
+
+  async updateUserStatus(userId: string, status: AdminUserStatus, organizationId?: string): Promise<void> {
+    if (supabaseService.isAvailable()) {
+      const supStatus = STATUS_REVERSE_MAP[status] ?? 'inactive';
+      await supabaseService.updateUserProfile(userId, { status: supStatus });
+      await supabaseService.storeAuditLog({
+        user_id: 'admin',
+        organization_id: organizationId ?? 'org-1',
+        action: 'update_user_status',
+        resource: userId,
+        success: true,
+        details: { status: supStatus },
+        risk_level: supStatus === 'suspended' ? 'medium' : 'low'
+      });
+      return;
+    }
+
+    await organizationService.updateUser(userId, { status: status === 'active' ? 'active' : 'suspended' });
+  }
+
+  async createUserInvite(organizationId: string, email: string, name: string, role: AdminUserRole): Promise<void> {
+    if (supabaseService.isAvailable()) {
+      await supabaseService.createUserProfile({
+        organization_id: organizationId,
+        email,
+        name,
+        role: ROLE_REVERSE_MAP[role] ?? 'nurse',
+        status: 'inactive'
+      });
+      await supabaseService.storeAuditLog({
+        user_id: 'admin',
+        organization_id: organizationId,
+        action: 'create_invite',
+        resource: email,
+        success: true,
+        details: { name, role },
+        risk_level: 'low'
+      });
+      return;
+    }
+
+    await organizationService.createUser({
+      organizationId,
+      email,
+      name,
+      role: role === 'Administrator' ? 'admin' : 'nurse',
+      permissions: [],
+      status: 'pending',
+      profile: {
+        timezone: 'UTC',
+        language: 'en-US',
+        preferences: {
+          defaultTemplate: 'SOAP',
+          voiceSpeed: 1,
+          notifications: true,
+          darkMode: false
+        }
+      },
+      stats: {
+        notesCreated: 0,
+        timeSaved: 0,
+        lastLogin: new Date(0),
+        sessionsThisMonth: 0
       }
-      
-      // Create export data
-      const exportData = {
-        id: note.id,
-        template: note.template,
-        author: note.author,
-        createdAt: note.createdAt.toISOString(),
-        metadata: note.metadata
-      };
-      
-      // Log export action
-      await supabaseService.storeAuditLog({
-        user_id: 'admin',
-        organization_id: 'org-1',
-        action: 'export_note',
-        resource: noteId,
-        ip_address: '',
-        user_agent: navigator.userAgent,
-        success: true,
-        details: { noteId },
-        risk_level: 'high',
-        timestamp: new Date().toISOString()
-      });
-      
-      return JSON.stringify(exportData, null, 2);
-    } catch (error) {
-      console.error('Failed to export note:', error);
-      throw error;
-    }
+    });
   }
-  
-  /**
-   * Update note status
-   */
-  async updateNoteStatus(noteId: string, status: string): Promise<boolean> {
-    try {
-      // Log status change
-      await supabaseService.storeAuditLog({
-        user_id: 'admin',
-        organization_id: 'org-1',
-        action: 'update_note_status',
-        resource: noteId,
-        ip_address: '',
-        user_agent: navigator.userAgent,
-        success: true,
-        details: { noteId, status },
-        risk_level: 'low',
-        timestamp: new Date().toISOString()
-      });
-      
-      return true;
-    } catch (error) {
-      console.error('Failed to update note status:', error);
-      return false;
-    }
-  }
-  
-  /**
-   * Get note by ID
-   */
-  async getNoteById(noteId: string): Promise<NoteRecord | null> {
-    try {
-      const allNotes = await this.getOrganizationNotes('org-1', 1000);
-      return allNotes.find(note => note.id === noteId) || null;
-    } catch (error) {
-      console.error('Failed to get note by ID:', error);
-      return null;
-    }
-  }
-  
-  /**
-   * Get audit logs for organization
-   */
-  async getAuditLogs(organizationId: string, limit: number = 100): Promise<AuditLog[]> {
-    try {
-      return await supabaseService.getOrganizationAuditLogs(organizationId, limit);
-    } catch (error) {
-      console.error('Failed to get audit logs:', error);
-      return [];
-    }
-  }
-  
-  /**
-   * Store analytics event
-   */
-  async logAnalyticsEvent(event: Partial<AnalyticsEvent>): Promise<void> {
-    try {
+
+  async resetUserUsage(userId: string, organizationId?: string): Promise<void> {
+    if (supabaseService.isAvailable()) {
       await supabaseService.storeAnalyticsEvent({
-        ...event,
-        timestamp: new Date().toISOString(),
-        session_id: this.getSessionId()
+        user_id: userId,
+        organization_id: organizationId ?? 'org-1',
+        event_type: 'admin_reset_usage',
+        event_data: { userId }
       });
-    } catch (error) {
-      console.error('Failed to log analytics event:', error);
+      return;
     }
   }
-  
-  /**
-   * Helper: Determine note status from metadata
-   */
-  private determineNoteStatus(metadata: NoteMetadata): 'draft' | 'completed' | 'reviewed' | 'archived' {
-    // Logic to determine status based on metadata
-    if (metadata.confidence_score < 0.8) return 'draft';
-    if (metadata.confidence_score >= 0.95) return 'reviewed';
+
+  async updateOrganizationSecurity(organizationId: string, patch: Partial<{ hipaaCompliant: boolean; settings: Record<string, any> }>): Promise<void> {
+    if (supabaseService.isAvailable()) {
+      await supabaseService.updateOrganization(organizationId, {
+        hipaa_compliant: patch.hipaaCompliant,
+        settings: patch.settings
+      });
+      return;
+    }
+
+    await organizationService.updateOrganization(organizationId, {
+      settings: {
+        ...organizationService.getOrganization(organizationId)?.settings,
+        ...patch.settings
+      }
+    });
+  }
+
+  async setUserTeams(userId: string, teamIds: string[]): Promise<void> {
+    if (supabaseService.isAvailable()) {
+      await supabaseService.setUserDepartments(userId, teamIds);
+      return;
+    }
+  }
+
+  async createTeam(organizationId: string, name: string, code: string, hipaaLevel: Department['hipaa_level']): Promise<void> {
+    if (supabaseService.isAvailable()) {
+      await supabaseService.createDepartment(organizationId, { name, code, hipaa_level: hipaaLevel });
+      return;
+    }
+
+    await organizationService.createTeam({
+      organizationId,
+      name,
+      description: '',
+      members: [],
+      settings: {
+        isPublic: false,
+        allowMemberInvites: true,
+        requireApproval: true
+      }
+    });
+  }
+
+  async logServiceEvent(organizationId: string, serviceName: string): Promise<void> {
+    if (supabaseService.isAvailable()) {
+      await supabaseService.storeAnalyticsEvent({
+        user_id: 'admin',
+        organization_id: organizationId,
+        event_type: 'service_refresh',
+        event_data: { service: serviceName }
+      });
+    }
+  }
+
+  async updateNoteStatus(noteId: string, _status: NoteRecord['status'], organizationId?: string): Promise<boolean> {
+    // Note metadata schema does not currently store status.
+    await supabaseService.storeAuditLog({
+      user_id: 'admin',
+      organization_id: organizationId ?? 'org-1',
+      action: 'update_note_status',
+      resource: noteId,
+      success: false,
+      details: { message: 'Status updates require schema migration' },
+      risk_level: 'low'
+    });
+    return false;
+  }
+
+  private async getOrganizationSummary(organizationId: string): Promise<AdminOrganizationSummary | null> {
+    if (supabaseService.isAvailable()) {
+      const org = await supabaseService.getOrganizationById(organizationId);
+      return org ? this.mapSupOrganization(org) : null;
+    }
+
+    const fallback = organizationService.getOrganization(organizationId);
+    return fallback
+      ? {
+          id: fallback.id,
+          name: fallback.name,
+          type: fallback.type,
+          hipaaCompliant: fallback.settings.hipaaCompliant,
+          settings: fallback.settings
+        }
+      : null;
+  }
+
+  private async getOrganizationUsersAndTeams(organizationId: string): Promise<{ users: AdminDashboardUser[]; teams: AdminTeamOverview[] }> {
+    if (supabaseService.isAvailable()) {
+      try {
+        const [profiles, departments, links, notes] = await Promise.all([
+          supabaseService.getUserProfilesByOrganization(organizationId),
+          supabaseService.getDepartments(organizationId),
+          supabaseService.getUserDepartmentLinks(organizationId),
+          supabaseService.getOrganizationNoteMetadata(organizationId, 500)
+        ]);
+
+        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const noteCounts = new Map<string, { week: number }>();
+        notes.forEach(note => {
+          const created = new Date(note.created_at);
+          const stats = noteCounts.get(note.user_id) || { week: 0 };
+          if (created >= weekAgo) {
+            stats.week += 1;
+          }
+          noteCounts.set(note.user_id, stats);
+        });
+
+        const departmentMap = new Map<string, Department>(departments.map(dept => [dept.id, dept]));
+
+        const userTeamIds = new Map<string, string[]>();
+        links.forEach(link => {
+          if (!userTeamIds.has(link.user_id)) {
+            userTeamIds.set(link.user_id, []);
+          }
+          userTeamIds.get(link.user_id)!.push(link.department_id);
+        });
+
+        const users = profiles.map(profile => {
+          const teams = userTeamIds.get(profile.id) ?? [];
+          const teamNames = teams
+            .map(teamId => departmentMap.get(teamId)?.name)
+            .filter((name): name is string => Boolean(name));
+
+          return {
+            id: profile.id,
+            name: profile.name,
+            email: profile.email,
+            role: ROLE_MAP[profile.role] ?? 'Clinician',
+            status: STATUS_MAP[profile.status] ?? 'invited',
+            lastActiveISO: (profile.last_login ?? profile.updated_at ?? profile.created_at) ?? new Date().toISOString(),
+            notesThisWeek: noteCounts.get(profile.id)?.week ?? 0,
+            teamIds: teams,
+            teamNames
+          };
+        });
+
+        const teams = departments.map(dept => ({
+          id: dept.id,
+          name: dept.name,
+          code: dept.code,
+          hipaaLevel: dept.hipaa_level,
+          memberCount: links.filter(link => link.department_id === dept.id).length
+        }));
+
+        return { users, teams };
+      } catch (error) {
+        console.error('Failed to load Supabase users and teams:', error);
+      }
+    }
+
+    const fallbackUsers = organizationService.getUsersByOrganization(organizationId);
+    const fallbackTeams = organizationService.getTeamsByOrganization(organizationId);
+
+    const users = fallbackUsers.map(user => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role === 'admin' ? 'Administrator' : 'Clinician',
+      status: user.status === 'active' ? 'active' : 'invited',
+      lastActiveISO: user.stats.lastLogin.toISOString(),
+      notesThisWeek: user.stats.notesCreated,
+      teamIds: [],
+      teamNames: []
+    }));
+
+    const teams = fallbackTeams.map(team => ({
+      id: team.id,
+      name: team.name,
+      code: team.name.toUpperCase(),
+      hipaaLevel: 'full' as const,
+      memberCount: team.members.length
+    }));
+
+    return { users, teams };
+  }
+
+  private mapAuditLogs(logs: AuditLog[], userLookup: Map<string, AdminDashboardUser>): AdminAuditLogEntry[] {
+    return logs.map(log => {
+      const user = log.user_id ? userLookup.get(log.user_id) : undefined;
+      const severity = log.risk_level === 'high' || log.risk_level === 'critical' ? 'high' : log.risk_level === 'medium' ? 'medium' : 'low';
+      return {
+        id: log.id,
+        event: log.action.replace(/_/g, ' ').toUpperCase(),
+        actor: user?.name ?? log.user_id ?? 'System',
+        role: user?.role ?? 'Service Account',
+        severity,
+        timestampISO: log.timestamp,
+        details: typeof log.details === 'string' ? log.details : JSON.stringify(log.details ?? {}),
+        resolved: false
+      };
+    });
+  }
+
+  private determineNoteStatus(metadata: NoteMetadata): NoteRecord['status'] {
+    if (Number(metadata.confidence_score) < 0.75) return 'draft';
+    if (Number(metadata.confidence_score) > 0.97) return 'reviewed';
     return 'completed';
   }
-  
-  /**
-   * Helper: Get session ID
-   */
-  private getSessionId(): string {
-    let sessionId = sessionStorage.getItem('admin_session_id');
-    if (!sessionId) {
-      sessionId = 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-      sessionStorage.setItem('admin_session_id', sessionId);
-    }
-    return sessionId;
+
+  private mapSupOrganization(org: SupOrganization): AdminOrganizationSummary {
+    return {
+      id: org.id,
+      name: org.name,
+      type: org.type,
+      hipaaCompliant: Boolean(org.hipaa_compliant),
+      settings: org.settings || {}
+    };
   }
-  
-  /**
-   * Helper: Get mock notes for fallback
-   */
-  private getMockNotes(): NoteRecord[] {
-    return [
-      {
-        id: 'note-001-2024-01-15',
-        patient: 'John Smith',
-        mrn: 'MRN123456',
-        template: 'SOAP',
-        author: 'Dr. Sarah Johnson',
-        status: 'completed',
-        createdAt: new Date('2024-01-15T10:30:00'),
-        content: 'Subjective: Patient reports chest pain...'
-      },
-      {
-        id: 'note-002-2024-01-15',
-        patient: 'Jane Doe',
-        mrn: 'MRN789012',
-        template: 'SBAR',
-        author: 'Nurse Mike Wilson',
-        status: 'draft',
-        createdAt: new Date('2024-01-15T11:15:00'),
-        content: 'Situation: Patient experiencing shortness of breath...'
-      },
-      {
-        id: 'note-003-2024-01-15',
-        patient: 'Robert Brown',
-        mrn: 'MRN345678',
-        template: 'PIE',
-        author: 'Dr. Emily Davis',
-        status: 'reviewed',
-        createdAt: new Date('2024-01-15T09:45:00'),
-        content: 'Problem: Acute abdominal pain...'
-      },
-      {
-        id: 'note-004-2024-01-14',
-        patient: 'Maria Garcia',
-        mrn: 'MRN901234',
-        template: 'DAR',
-        author: 'Nurse Lisa Chen',
-        status: 'completed',
-        createdAt: new Date('2024-01-14T16:20:00'),
-        content: 'Data: Patient presents with fever and cough...'
-      },
-      {
-        id: 'note-005-2024-01-14',
-        patient: 'David Wilson',
-        mrn: 'MRN567890',
-        template: 'SOAP',
-        author: 'Dr. James Miller',
-        status: 'archived',
-        createdAt: new Date('2024-01-14T14:10:00'),
-        content: 'Subjective: Patient reports headache...'
-      }
-    ];
-  }
-  
-  /**
-   * Helper: Get mock analytics data
-   */
+
   private getMockAnalyticsData(days: number): AnalyticsChartData[] {
     const data: AnalyticsChartData[] = [];
     const today = new Date();
-    
+
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
-      
+
       data.push({
         date: date.toISOString().split('T')[0],
         notesCreated: Math.floor(Math.random() * 30) + 35,
@@ -455,10 +690,9 @@ class AdminService {
         timeSaved: Math.floor(Math.random() * 5) + 10
       });
     }
-    
+
     return data;
   }
 }
 
-// Export singleton instance
 export const adminService = new AdminService();

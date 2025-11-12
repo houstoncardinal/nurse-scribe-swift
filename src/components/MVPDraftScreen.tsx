@@ -165,7 +165,12 @@ export function MVPDraftScreen({
         quality: generatedNote.qualityScore,
         medicalTerms: analysis.medicalTerms.length,
         icd10Suggestions: icd10Suggestions,
-        suggestions: generatedNote.suggestions
+        suggestions: generatedNote.suggestions,
+        riskFlags: generatedNote.insights?.riskFlags || [],
+        priorityActions: generatedNote.insights?.priorityActions || [],
+        documentationGaps: generatedNote.insights?.documentationGaps || [],
+        qualityScores: generatedNote.insights?.qualityScores,
+        summary: generatedNote.insights?.summary || ''
       };
       setAiInsights(insights);
       
@@ -454,6 +459,12 @@ export function MVPDraftScreen({
                 <Target className="h-3 w-3 text-orange-600" />
                 <span className="text-slate-700">{aiInsights.icd10Suggestions?.length || 0}</span>
               </div>
+              {aiInsights.riskFlags?.length > 0 && (
+                <div className="flex items-center gap-1 text-red-600 font-semibold">
+                  <AlertTriangle className="h-3 w-3" />
+                  <span>{aiInsights.riskFlags.length}</span>
+                </div>
+              )}
               <Button
                 size="sm"
                 variant="outline"
@@ -470,6 +481,22 @@ export function MVPDraftScreen({
               )}
             </div>
           </div>
+          {(aiInsights.summary || aiInsights.priorityActions?.length > 0) && (
+            <div className="mt-2 space-y-1">
+              {aiInsights.summary && (
+                <p className="text-[11px] text-slate-600 leading-snug">{aiInsights.summary}</p>
+              )}
+              {aiInsights.priorityActions?.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {aiInsights.priorityActions.slice(0, 2).map((action: string, index: number) => (
+                    <Badge key={index} className="bg-amber-100 text-amber-800 border-amber-200 text-[10px] px-2 py-1">
+                      {action}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -593,6 +620,12 @@ export function MVPDraftScreen({
                 <Target className="h-3.5 w-3.5 text-orange-600" />
                 <span className="text-slate-700">{aiInsights.icd10Suggestions?.length || 0} ICD-10</span>
               </div>
+              {aiInsights.riskFlags?.length > 0 && (
+                <div className="flex items-center gap-1.5 text-red-600 font-semibold">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  <span>{aiInsights.riskFlags.length} alert{aiInsights.riskFlags.length > 1 ? 's' : ''}</span>
+                </div>
+              )}
               <Button
                 size="sm"
                 variant="outline"
@@ -609,6 +642,30 @@ export function MVPDraftScreen({
               )}
             </div>
           </div>
+          {(aiInsights.summary || aiInsights.priorityActions?.length > 0 || aiInsights.documentationGaps?.length > 0) && (
+            <div className="mt-2 flex items-start justify-between gap-4 text-[11px] text-slate-600">
+              <div className="flex-1 space-y-1">
+                {aiInsights.summary && <p className="leading-snug">{aiInsights.summary}</p>}
+                {aiInsights.qualityScores && (
+                  <p className="leading-snug text-slate-500">
+                    Quality mix • Completeness {Math.round((aiInsights.qualityScores.completeness || 0) * 100)}% • Specificity {Math.round((aiInsights.qualityScores.specificity || 0) * 100)}% • Compliance {Math.round((aiInsights.qualityScores.compliance || 0) * 100)}%
+                  </p>
+                )}
+              </div>
+              <div className="flex-1 flex flex-col gap-1 items-end">
+                {aiInsights.priorityActions?.slice(0, 2).map((action: string, index: number) => (
+                  <Badge key={index} className="bg-amber-100 text-amber-800 border-amber-200 px-2 py-0.5 text-[10px]">
+                    {action}
+                  </Badge>
+                ))}
+                {aiInsights.documentationGaps?.length > 0 && (
+                  <span className="text-[10px] text-amber-700">
+                    Gaps: {aiInsights.documentationGaps.slice(0, 3).join(', ')}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

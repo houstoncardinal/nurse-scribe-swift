@@ -139,7 +139,7 @@ const Index = () => {
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-gradient">
-                    NovaCare
+                    Raha
                   </h1>
                   <p className="text-xs text-muted-foreground hidden sm:block">
                     Clinical Documentation Platform
@@ -391,7 +391,7 @@ const Index = () => {
                 <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                   <Shield className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <span className="text-lg font-bold text-gradient">NovaCare</span>
+                <span className="text-lg font-bold text-gradient">Raha</span>
               </div>
               <p className="text-sm text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                 <strong className="text-foreground">Enterprise-Grade Security:</strong> This platform runs entirely in your browser with 

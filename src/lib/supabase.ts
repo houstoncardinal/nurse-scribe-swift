@@ -32,6 +32,21 @@ export interface Organization {
   updated_at: string;
 }
 
+export interface Department {
+  id: string;
+  organization_id: string;
+  name: string;
+  code: string;
+  hipaa_level: 'full' | 'limited' | 'none';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserDepartmentLink {
+  user_id: string;
+  department_id: string;
+}
+
 export interface NoteMetadata {
   id: string;
   user_id: string;
@@ -200,6 +215,77 @@ class SupabaseService {
   }
 
   /**
+   * Organizations
+   */
+  async getOrganizations(): Promise<Organization[]> {
+    if (!this.isAvailable()) {
+      return [];
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('organizations')
+        .select('*')
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      return (data || []).map((org: any) => ({
+        ...org,
+        settings: org.settings || {}
+      })) as Organization[];
+    } catch (error) {
+      console.error('Failed to fetch organizations:', error);
+      return [];
+    }
+  }
+
+  async getOrganizationById(id: string): Promise<Organization | null> {
+    if (!this.isAvailable()) {
+      return null;
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('organizations')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      return data ? { ...data, settings: data.settings || {} } : null;
+    } catch (error) {
+      console.error('Failed to fetch organization:', error);
+      return null;
+    }
+  }
+
+  async updateOrganization(id: string, updates: Partial<Pick<Organization, 'name' | 'type' | 'hipaa_compliant'>> & { settings?: Record<string, any> }): Promise<Organization | null> {
+    if (!this.isAvailable()) {
+      return null;
+    }
+
+    try {
+      const payload: any = { ...updates };
+      if (updates.settings !== undefined) {
+        payload.settings = updates.settings;
+      }
+
+      const { data, error } = await this.supabase
+        .from('organizations')
+        .update(payload)
+        .eq('id', id)
+        .select('*')
+        .single();
+
+      if (error) throw error;
+      return data ? { ...data, settings: data.settings || {} } : null;
+    } catch (error) {
+      console.error('Failed to update organization:', error);
+      return null;
+    }
+  }
+
+  /**
    * User Management
    */
 
@@ -245,6 +331,78 @@ class SupabaseService {
       return data;
     } catch (error) {
       console.error('Failed to get user profile:', error);
+      return null;
+    }
+  }
+
+  async getUserProfilesByOrganization(organizationId: string): Promise<UserProfile[]> {
+    if (!this.isAvailable()) {
+      return [];
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Failed to list user profiles:', error);
+      return [];
+    }
+  }
+
+  async createUserProfile(profile: {
+    email: string;
+    name: string;
+    role: UserProfile['role'];
+    organization_id: string;
+    status?: 'active' | 'inactive' | 'suspended';
+    department?: string | null;
+  }): Promise<UserProfile | null> {
+    if (!this.isAvailable()) {
+      return null;
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('user_profiles')
+        .insert({
+          ...profile,
+          status: profile.status ?? 'inactive'
+        })
+        .select('*')
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Failed to create user profile:', error);
+      return null;
+    }
+  }
+
+  async updateUserProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile | null> {
+    if (!this.isAvailable()) {
+      return null;
+    }
+
+    try {
+      const payload = { ...updates };
+      const { data, error } = await this.supabase
+        .from('user_profiles')
+        .update(payload)
+        .eq('id', userId)
+        .select('*')
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Failed to update user profile:', error);
       return null;
     }
   }
@@ -303,6 +461,99 @@ class SupabaseService {
    * Note Metadata Storage
    */
 
+  async getDepartments(organizationId: string): Promise<Department[]> {
+    if (!this.isAvailable()) {
+      return [];
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('departments')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Failed to fetch departments:', error);
+      return [];
+    }
+  }
+
+  async createDepartment(organizationId: string, payload: { name: string; code: string; hipaa_level?: Department['hipaa_level'] }): Promise<Department | null> {
+    if (!this.isAvailable()) {
+      return null;
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('departments')
+        .insert({
+          organization_id: organizationId,
+          hipaa_level: payload.hipaa_level ?? 'full',
+          ...payload
+        })
+        .select('*')
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Failed to create department:', error);
+      return null;
+    }
+  }
+
+  async getUserDepartmentLinks(organizationId: string): Promise<UserDepartmentLink[]> {
+    if (!this.isAvailable()) {
+      return [];
+    }
+
+    try {
+      const departments = await this.getDepartments(organizationId);
+      if (departments.length === 0) return [];
+
+      const departmentIds = departments.map(dept => dept.id);
+      const { data, error } = await this.supabase
+        .from('user_departments')
+        .select('*')
+        .in('department_id', departmentIds);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Failed to fetch user departments:', error);
+      return [];
+    }
+  }
+
+  async setUserDepartments(userId: string, departmentIds: string[]): Promise<void> {
+    if (!this.isAvailable()) {
+      return;
+    }
+
+    try {
+      await this.supabase
+        .from('user_departments')
+        .delete()
+        .eq('user_id', userId);
+
+      if (departmentIds.length === 0) {
+        return;
+      }
+
+      const rows = departmentIds.map(departmentId => ({ user_id: userId, department_id: departmentId }));
+      const { error } = await this.supabase
+        .from('user_departments')
+        .insert(rows);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Failed to update user departments:', error);
+    }
+  }
+
   /**
    * Store note metadata (non-PHI)
    */
@@ -346,6 +597,27 @@ class SupabaseService {
       return data || [];
     } catch (error) {
       console.error('Failed to get note metadata:', error);
+      return [];
+    }
+  }
+
+  async getOrganizationNoteMetadata(organizationId: string, limit: number = 100): Promise<NoteMetadata[]> {
+    if (!this.isAvailable()) {
+      return [];
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('note_metadata')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Failed to get organization note metadata:', error);
       return [];
     }
   }
@@ -400,6 +672,32 @@ class SupabaseService {
       return data || [];
     } catch (error) {
       console.error('Failed to get analytics events:', error);
+      return [];
+    }
+  }
+
+  async getAnalyticsEventsByOrganization(organizationId: string, since?: Date): Promise<AnalyticsEvent[]> {
+    if (!this.isAvailable()) {
+      return [];
+    }
+
+    try {
+      let query = this.supabase
+        .from('analytics_events')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .order('timestamp', { ascending: false });
+
+      if (since) {
+        query = query.gte('timestamp', since.toISOString());
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Failed to get organization analytics events:', error);
       return [];
     }
   }

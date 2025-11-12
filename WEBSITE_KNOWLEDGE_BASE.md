@@ -1,8 +1,8 @@
-# 🌐 NovaCare Website Knowledge Base
+# 🌐 Raha Website Knowledge Base
 
 ## 📋 Project Overview
 
-**Project Name:** NovaCare - AI-Powered Nursing Documentation Platform  
+**Project Name:** Raha - AI-Powered Nursing Documentation Platform  
 **Tech Stack:** React + TypeScript + Vite + Tailwind CSS + Supabase  
 **Theme Colors:** Teal (#14b8a6) + Blue (#0891b2) + Cyan (#06b6d4)  
 **Design System:** Premium, professional, HIPAA-compliant healthcare interface

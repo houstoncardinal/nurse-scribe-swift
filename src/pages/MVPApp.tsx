@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { advancedTranscriptionService } from '@/lib/advancedTranscriptionService';
-import { PowerfulAdminDashboard } from '@/components/PowerfulAdminDashboard';
+import { EnhancedAdminDashboard } from '@/components/EnhancedAdminDashboard';
 import { InstructionsPage } from '@/components/InstructionsPage';
 import { TeamManagementScreen } from '@/components/TeamManagementScreen';
 import { AICopilotScreen } from '@/components/AICopilotScreen';
@@ -68,6 +68,135 @@ interface UserProfileData {
     unlockedAt: string;
   }>;
 }
+
+const formatSectionName = (section: string): string => {
+  return section
+    .split(/[\s_-]+/)
+    .filter(Boolean)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+const createTemplateFallback = (template: string, transcript: string): NoteContent => {
+  const details = transcript?.trim() || 'No detailed narrative captured during this attempt.';
+  const fallback: NoteContent = {};
+
+  const addEpicDefaults = (entries: Array<{ key: string; value: string }>) => {
+    entries.forEach(({ key, value }) => {
+      fallback[key] = value;
+    });
+  };
+
+  switch (template) {
+    case 'SOAP':
+      fallback.Subjective = `Patient reports: ${details}`;
+      fallback.Objective = 'Document vital signs, focused assessment findings, and monitoring data.';
+      fallback.Assessment = 'Summarize clinical impression based on current shift findings.';
+      fallback.Plan = 'Outline nursing interventions, monitoring cadence, and escalation triggers.';
+      break;
+    case 'SBAR':
+      fallback.Situation = `Current concern: ${details}`;
+      fallback.Background = 'Include diagnosis, recent changes, and key history.';
+      fallback.Assessment = 'Share clinical impression, pertinent positives/negatives, and risk level.';
+      fallback.Recommendation = 'Specify needs (orders, labs, consults) and follow-up timing.';
+      break;
+    case 'PIE':
+      fallback.Problem = `Primary issue described: ${details}`;
+      fallback.Intervention = 'Document interventions performed this shift with times.';
+      fallback.Evaluation = 'Describe patient response and next assessment milestone.';
+      break;
+    case 'DAR':
+      fallback.Data = `Assessment data collected: ${details}`;
+      fallback.Action = 'List nursing actions/interventions executed.';
+      fallback.Response = 'Summarize patient response and effectiveness of interventions.';
+      break;
+    case 'shift-assessment':
+      addEpicDefaults([
+        { key: 'Patient Assessment', value: `Shift highlights: ${details}` },
+        { key: 'Vital Signs', value: 'Document BP, HR, RR, Temp, SpO2, pain score with times.' },
+        { key: 'Medications', value: 'List scheduled/PRN meds administered, tolerance, and pending doses.' },
+        { key: 'Intake & Output', value: 'Capture IV/PO intake, urine/drain outputs, and fluid balance.' },
+        { key: 'Treatments', value: 'Note wound care, therapies, procedures, or consults completed.' },
+        { key: 'Communication', value: 'Record provider notifications, family updates, and handoff notes.' },
+        { key: 'Safety', value: 'Include fall risk status, precautions, devices, or restraints.' },
+        { key: 'Narrative', value: details }
+      ]);
+      break;
+    case 'mar':
+      addEpicDefaults([
+        { key: 'Medication Information', value: `Medication-related note: ${details}` },
+        { key: 'Administration Details', value: 'Document dose, route, time, double-checks, and safety checks.' },
+        { key: 'Assessment', value: 'Record pre-administration assessments or required labs/vitals.' },
+        { key: 'Response', value: 'Describe therapeutic effect and adverse reactions monitoring.' }
+      ]);
+      break;
+    case 'io':
+      addEpicDefaults([
+        { key: 'Intake', value: 'Track PO, IV, enteral, and blood product intake with totals.' },
+        { key: 'Output', value: 'Document urine, drains, stool, emesis, and insensible losses if applicable.' },
+        { key: 'Balance', value: 'Summarize net balance and clinical interpretation.' },
+        { key: 'Notes', value: details }
+      ]);
+      break;
+    case 'wound-care':
+      addEpicDefaults([
+        { key: 'Location & Stage', value: `Wound narrative: ${details}` },
+        { key: 'Size & Drainage', value: 'Record length/width/depth (cm), tunneling, drainage amount/type.' },
+        { key: 'Wound Bed', value: 'Describe granulation/slough/eschar, edges, and peri-wound condition.' },
+        { key: 'Interventions', value: 'Include cleansing solutions, dressings applied, and adjunct therapies.' },
+        { key: 'Response', value: 'Document tolerance, pain, progress, and next dressing change time.' }
+      ]);
+      break;
+    case 'safety-checklist':
+      addEpicDefaults([
+        { key: 'Fall Risk', value: `Risk summary: ${details}` },
+        { key: 'Restraints', value: 'Note type, justification, assessments, and alternatives tried.' },
+        { key: 'Isolation', value: 'Indicate isolation type/PPE requirements or note “Standard precautions”.' },
+        { key: 'Patient ID', value: 'Confirm two patient identifiers matched before interventions.' },
+        { key: 'Code Status', value: 'Document current code status and family/provider awareness.' }
+      ]);
+      break;
+    case 'med-surg':
+      addEpicDefaults([
+        { key: 'Patient Education', value: `Education delivered: ${details}` },
+        { key: 'Discharge Readiness', value: 'List checklist items completed and pending barriers.' },
+        { key: 'Pain Management', value: 'Note pain scores, medication response, and multimodal strategies.' },
+        { key: 'Mobility', value: 'Describe activity tolerance, assistance needed, and PT/OT involvement.' }
+      ]);
+      break;
+    case 'icu':
+      addEpicDefaults([
+        { key: 'Hemodynamics', value: `Critical care focus: ${details}` },
+        { key: 'Ventilator', value: 'Document mode, settings, ABG trends, and lung-protective strategies.' },
+        { key: 'Devices', value: 'List invasive lines, drains, pacing wires, and integrity checks.' },
+        { key: 'Drips', value: 'Include vasoactive, sedation, insulin, or other titrated infusions.' },
+        { key: 'Sedation', value: 'Record RASS/SAS scores, sedation goals, and spontaneous awakening trials.' }
+      ]);
+      break;
+    case 'nicu':
+      addEpicDefaults([
+        { key: 'Thermoregulation', value: `Infant status: ${details}` },
+        { key: 'Feeding', value: 'Document feeding type, route, volumes, and tolerance.' },
+        { key: 'Bonding', value: 'Describe parental presence, skin-to-skin, and education given.' },
+        { key: 'Weight', value: 'Include daily weights and percent change from birth weight.' },
+        { key: 'Development', value: 'Note tone, reflexes, positioning, and developmental care provided.' }
+      ]);
+      break;
+    case 'mother-baby':
+      addEpicDefaults([
+        { key: 'Maternal Assessment', value: `Postpartum summary: ${details}` },
+        { key: 'Newborn Assessment', value: 'Document VS, feeding cues, elimination, and screenings.' },
+        { key: 'Feeding', value: 'Include latch quality, volumes, frequency, and lactation support.' },
+        { key: 'Education', value: 'Highlight teaching topics (safe sleep, warning signs, follow-up).' }
+      ]);
+      break;
+    default:
+      fallback.Note = details;
+      break;
+  }
+
+  return fallback;
+};
 
 export function MVPApp() {
   console.log('MVPApp rendering...');
@@ -124,10 +253,12 @@ export function MVPApp() {
   const [selectedTemplate, setSelectedTemplate] = useState('SOAP');
   const [noteContent, setNoteContent] = useState<NoteContent>({});
   const [editedNoteContent, setEditedNoteContent] = useState<NoteContent>({});
+  const [templateLocked, setTemplateLocked] = useState(false);
   
   // Handle template change from home screen
   const handleTemplateChange = (template: string) => {
     setSelectedTemplate(template);
+    setTemplateLocked(true);
   };
 
   const handleSettingsChange = (settings: any) => {
@@ -273,32 +404,15 @@ export function MVPApp() {
                   // Check if we have sections
                   if (generatedNote && generatedNote.sections && Object.keys(generatedNote.sections).length > 0) {
                     Object.entries(generatedNote.sections).forEach(([section, data]) => {
-                      const sectionKey = section.charAt(0).toUpperCase() + section.slice(1).toLowerCase();
+                      const sectionKey = formatSectionName(section);
                       noteContent[sectionKey] = data.content;
                       console.log(`🤖 Section ${sectionKey}:`, data.content.substring(0, 100));
                     });
-                  } else {
-                    // Fallback: Create basic note structure using currentTranscript
-                    console.warn('⚠️ No sections in generated note, using fallback');
-                    if (selectedTemplate === 'SOAP') {
-                      noteContent.Subjective = `Patient reports: ${currentTranscript}`;
-                      noteContent.Objective = 'Vital signs stable, patient alert and oriented.';
-                      noteContent.Assessment = 'Patient condition stable, no acute distress noted.';
-                      noteContent.Plan = 'Continue current care plan, monitor for changes, patient education provided.';
-                    } else if (selectedTemplate === 'SBAR') {
-                      noteContent.Situation = `Patient presents with: ${currentTranscript}`;
-                      noteContent.Background = 'Patient history reviewed, current medications noted.';
-                      noteContent.Assessment = 'Patient stable, vital signs within normal limits.';
-                      noteContent.Recommendation = 'Continue monitoring, maintain current treatment plan.';
-                    } else if (selectedTemplate === 'PIE') {
-                      noteContent.Problem = `Identified issue: ${currentTranscript}`;
-                      noteContent.Intervention = 'Appropriate nursing interventions implemented.';
-                      noteContent.Evaluation = 'Patient responded well to interventions, condition stable.';
-                    } else if (selectedTemplate === 'DAR') {
-                      noteContent.Data = `Assessment data: ${currentTranscript}`;
-                      noteContent.Action = 'Nursing actions taken as per protocol.';
-                      noteContent.Response = 'Patient response positive, no adverse effects noted.';
-                    }
+                  }
+
+                  if (Object.keys(noteContent).length === 0) {
+                    console.warn('⚠️ No sections in generated note, using template fallback');
+                    Object.assign(noteContent, createTemplateFallback(selectedTemplate, currentTranscript));
                   }
                   
                   console.log('✅ Final note content to store:', noteContent);
@@ -326,26 +440,7 @@ export function MVPApp() {
                   console.error('❌ Error details:', error.message, error.stack);
                   
                   // Create fallback content even on error using currentTranscript
-                  const fallbackContent: NoteContent = {};
-                  if (selectedTemplate === 'SOAP') {
-                    fallbackContent.Subjective = `Patient reports: ${currentTranscript}`;
-                    fallbackContent.Objective = 'Vital signs stable, patient alert and oriented.';
-                    fallbackContent.Assessment = 'Patient condition stable, no acute distress noted.';
-                    fallbackContent.Plan = 'Continue current care plan, monitor for changes, patient education provided.';
-                  } else if (selectedTemplate === 'SBAR') {
-                    fallbackContent.Situation = `Patient presents with: ${currentTranscript}`;
-                    fallbackContent.Background = 'Patient history reviewed, current medications noted.';
-                    fallbackContent.Assessment = 'Patient stable, vital signs within normal limits.';
-                    fallbackContent.Recommendation = 'Continue monitoring, maintain current treatment plan.';
-                  } else if (selectedTemplate === 'PIE') {
-                    fallbackContent.Problem = `Identified issue: ${currentTranscript}`;
-                    fallbackContent.Intervention = 'Appropriate nursing interventions implemented.';
-                    fallbackContent.Evaluation = 'Patient responded well to interventions, condition stable.';
-                  } else if (selectedTemplate === 'DAR') {
-                    fallbackContent.Data = `Assessment data: ${currentTranscript}`;
-                    fallbackContent.Action = 'Nursing actions taken as per protocol.';
-                    fallbackContent.Response = 'Patient response positive, no adverse effects noted.';
-                  }
+                  const fallbackContent = createTemplateFallback(selectedTemplate, currentTranscript);
                   
                   setNoteContent(fallbackContent);
                   setEditedNoteContent(fallbackContent);
@@ -522,7 +617,7 @@ export function MVPApp() {
       
       setUserProfile(newUserProfile);
       setIsSignInModalOpen(false);
-      toast.success('Account created!', { description: `Welcome to NovaCare, ${name}` });
+      toast.success('Account created!', { description: `Welcome to Raha, ${name}` });
     } catch (error) {
       setAuthError('Failed to create account. Please try again.');
       toast.error('Sign up failed');
@@ -728,8 +823,9 @@ export function MVPApp() {
       const detectedType = intelligentNoteDetectionService.detectNoteType(text);
       
       // Auto-select detected template if confidence is high
-      if (detectedType.confidence > 0.6) {
+      if (detectedType.confidence > 0.6 && !templateLocked && detectedType.template !== selectedTemplate) {
         setSelectedTemplate(detectedType.template);
+        setTemplateLocked(false);
         toast.info(`🤖 Auto-detected ${detectedType.template} format`, {
           description: detectedType.reasoning
         });
@@ -807,10 +903,14 @@ export function MVPApp() {
       // Store AI-generated note content with proper capitalization for sections
       const noteContent: NoteContent = {};
       Object.entries(generatedNote.sections).forEach(([section, data]) => {
-        // Capitalize first letter of section name to match template format
-        const sectionKey = section.charAt(0).toUpperCase() + section.slice(1).toLowerCase();
+        const sectionKey = formatSectionName(section);
         noteContent[sectionKey] = data.content;
       });
+
+      if (Object.keys(noteContent).length === 0) {
+        console.warn('⚠️ No sections returned for manual text generation, using template fallback');
+        Object.assign(noteContent, createTemplateFallback(selectedTemplate, text));
+      }
       
       console.log('Generated note content:', noteContent);
       setNoteContent(noteContent);
@@ -831,6 +931,10 @@ export function MVPApp() {
       setTranscript(text);
       setFinalTranscript(text);
       setInterimTranscript('');
+      
+      const fallbackContent = createTemplateFallback(selectedTemplate, text);
+      setNoteContent(fallbackContent);
+      setEditedNoteContent(fallbackContent);
       
       toast.success('Text processed!', {
         description: 'Ready to review your note (basic mode)'
@@ -869,10 +973,14 @@ export function MVPApp() {
       // Store AI-generated note content with proper capitalization
       const noteContent: NoteContent = {};
       Object.entries(generatedNote.sections).forEach(([section, data]) => {
-        // Capitalize first letter of section name to match template format
-        const sectionKey = section.charAt(0).toUpperCase() + section.slice(1).toLowerCase();
+        const sectionKey = formatSectionName(section);
         noteContent[sectionKey] = data.content;
       });
+
+      if (Object.keys(noteContent).length === 0) {
+        console.warn('⚠️ No sections returned for pasted text, using template fallback');
+        Object.assign(noteContent, createTemplateFallback(selectedTemplate, text));
+      }
       
       console.log('Generated note content from paste:', noteContent);
       console.log('Number of sections:', Object.keys(noteContent).length);
@@ -896,6 +1004,10 @@ export function MVPApp() {
       setFinalTranscript(text);
       setInterimTranscript('');
       
+      const fallbackContent = createTemplateFallback(selectedTemplate, text);
+      setNoteContent(fallbackContent);
+      setEditedNoteContent(fallbackContent);
+      
       toast.success('Text imported!', {
         description: 'Ready to review your note (basic mode)'
       });
@@ -913,6 +1025,7 @@ export function MVPApp() {
     setIsProcessing(false);
     setRecordingTime(0);
     setCurrentScreen('home');
+    setTemplateLocked(false);
     
     // Stop any ongoing transcription
     if (advancedTranscriptionService.getIsListening()) {
@@ -1039,7 +1152,7 @@ export function MVPApp() {
         return <AICopilotScreen />;
 
       case 'admin':
-        return <PowerfulAdminDashboard />;
+        return <EnhancedAdminDashboard />;
 
       case 'instructions':
         return <InstructionsPage onNavigate={handleNavigate} />;
@@ -1063,10 +1176,10 @@ export function MVPApp() {
                   <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-teal-500/25">
                     <Stethoscope className="h-5 w-5 text-white" />
                   </div>
-                  <div>
-                    <h1 className="text-lg font-bold text-slate-900">NovaCare</h1>
-                    <p className="text-xs text-slate-600">Professional Documentation</p>
-                  </div>
+                    <div>
+                      <h1 className="text-lg font-bold text-slate-900">Raha</h1>
+                      <p className="text-xs text-slate-600">Tihkn Breathing Space</p>
+                    </div>
                 </div>
               </div>
 
@@ -1216,7 +1329,7 @@ export function MVPApp() {
                         }}
                       >
                         <Sparkles className="h-4 w-4 mr-2" />
-                        NovaCare AI
+                        Raha AI
                         {showAI && (
                           <div className="absolute right-2 w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
                         )}

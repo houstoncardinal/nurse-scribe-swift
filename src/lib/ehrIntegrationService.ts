@@ -179,7 +179,7 @@ class EHRIntegrationService {
       author: [{
         display: `${request.author.name}, ${request.author.credentials}`
       }],
-      description: `${request.template} Note - NovaCare`,
+      description: `${request.template} Note - Raha`,
       content: [{
         attachment: {
           contentType: 'text/html',

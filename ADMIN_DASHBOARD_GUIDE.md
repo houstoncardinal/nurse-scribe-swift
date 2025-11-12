@@ -1,7 +1,7 @@
-# 🛡️ NovaCare Admin Dashboard - Complete Guide
+# 🛡️ Raha Admin Dashboard - Complete Guide
 
 ## Overview
-The NovaCare Admin Dashboard is a comprehensive administrative interface for managing the entire platform. This guide covers all features, configurations, and best practices.
+The Raha Admin Dashboard is a comprehensive administrative interface for managing the entire platform. This guide covers all features, configurations, and best practices.
 
 ---
 
@@ -655,7 +655,7 @@ allowed_ips:
 
 **Application Settings:**
 ```yaml
-app_name: "NovaCareAI"
+app_name: "RahaAI"
 timezone: "America/New_York"
 language: "en-US"
 date_format: "MM/DD/YYYY"
@@ -684,7 +684,7 @@ smtp:
   port: 587
   username: "noreply@novacare.ai"
   password: "••••••••••••"
-  from_email: "NovaCare <noreply@novacare.ai>"
+  from_email: "Raha <noreply@novacare.ai>"
   use_tls: true
   use_ssl: false
 ```
@@ -703,7 +703,7 @@ POST /api/admin/settings/email/test
 {
   "recipient": "admin@example.com",
   "subject": "Test Email",
-  "body": "This is a test email from NovaCare Admin Dashboard"
+  "body": "This is a test email from Raha Admin Dashboard"
 }
 ```
 
@@ -1087,10 +1087,10 @@ We're constantly improving the Admin Dashboard. Your feedback helps us make it b
 **Community:**
 - Forum: community.novacare.ai
 - Discord: discord.gg/novacare
-- Twitter: @NovaCareAI
+- Twitter: @RahaAI
 
 ---
 
 *Last Updated: November 6, 2025*
 *Version: 2.4.0*
-*© 2025 NovaCare AI - All rights reserved*
+*© 2025 Raha AI - All rights reserved*

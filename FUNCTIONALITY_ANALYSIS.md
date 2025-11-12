@@ -1,4 +1,4 @@
-# NovaCare - Complete Functionality Analysis
+# Raha - Complete Functionality Analysis
 
 ## 🎯 Executive Summary
 

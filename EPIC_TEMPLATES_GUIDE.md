@@ -1,7 +1,7 @@
 # 🏥 Epic Templates - Complete Guide
 
 ## Overview
-NovaCareAI supports **9 Epic-compliant templates** designed for real-world healthcare documentation. This guide shows the expected input format and AI-generated output for each template.
+RahaAI supports **9 Epic-compliant templates** designed for real-world healthcare documentation. This guide shows the expected input format and AI-generated output for each template.
 
 ---
 

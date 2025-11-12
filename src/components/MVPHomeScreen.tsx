@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Mic, MicOff, Clock, Zap, Shield, Keyboard, Upload, FileText, TrendingUp, Target, Award, Activity, BarChart3, CheckCircle, Star, Timer, Users, BookOpen, AlertTriangle, Bell, Calendar, TrendingDown, Settings, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -46,6 +46,29 @@ export function MVPHomeScreen({
   const [showInputSelector, setShowInputSelector] = useState(false);
   const [aiWidgetMinimized, setAiWidgetMinimized] = useState(true);
   const [aiWidgetClosed, setAiWidgetClosed] = useState(false);
+  const [visibleInterimTranscript, setVisibleInterimTranscript] = useState(interimTranscript);
+  const [lastInterimUpdate, setLastInterimUpdate] = useState<number | null>(null);
+
+  // Keep the live transcript bubble visible until 6s of silence
+  useEffect(() => {
+    if (interimTranscript) {
+      setVisibleInterimTranscript(interimTranscript);
+      setLastInterimUpdate(Date.now());
+    }
+  }, [interimTranscript]);
+
+  useEffect(() => {
+    if (!visibleInterimTranscript || !lastInterimUpdate) return;
+
+    const interval = setInterval(() => {
+      if (Date.now() - lastInterimUpdate >= 6000) {
+        setVisibleInterimTranscript('');
+        setLastInterimUpdate(null);
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [visibleInterimTranscript, lastInterimUpdate]);
 
   const templates = [
     // Traditional Templates
@@ -90,8 +113,8 @@ export function MVPHomeScreen({
   return (
     <div className="mvp-app bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
               {/* Desktop Layout - Powerful Grid Organization */}
-              <div className="hidden lg:flex lg:h-full lg:overflow-hidden w-full">
-                <div className="flex-1 px-6 py-4 overflow-hidden w-full">
+              <div className="hidden lg:flex lg:h-full lg:overflow-visible w-full">
+                <div className="flex-1 max-w-full px-4 lg:px-6 py-4 overflow-visible w-full">
                   <div className="w-full h-full flex flex-col">
                     {/* Desktop Header - Streamlined */}
                     <div className="text-center mb-4">
@@ -107,7 +130,7 @@ export function MVPHomeScreen({
                     </div>
 
                     {/* Template Selector - Centered */}
-                    <div className="max-w-2xl mx-auto w-full mb-4">
+                    <div className="max-w-xl mx-auto w-full mb-4">
                       <Select value={currentTemplate} onValueChange={(value) => {
                         onTemplateChange(value);
                       }}>
@@ -128,9 +151,11 @@ export function MVPHomeScreen({
                     </div>
 
                     {/* Main Grid Layout - Powerful 3-Column Design */}
-                    <div className="flex-1 grid grid-cols-3 gap-4 overflow-hidden min-h-0">
+                    <div className="flex-1">
+                      <div className="relative h-full w-full rounded-[32px] border border-slate-200 bg-white/80 shadow-sm backdrop-blur-lg p-4 lg:p-6 overflow-hidden">
+                        <div className="relative h-full grid grid-cols-1 gap-4 min-h-0 lg:[grid-template-columns:0.85fr_1fr_0.6fr] lg:justify-items-stretch">
                       {/* Left Column - Recording Controls */}
-                      <div className="col-span-1 flex flex-col space-y-3 overflow-y-auto pr-2">
+                      <div className="col-span-1 h-full flex flex-col space-y-3 overflow-y-auto pr-2 pl-0">
                 {showInputSelector ? (
                   <div className="w-full">
                     <InputMethodSelector
@@ -155,7 +180,7 @@ export function MVPHomeScreen({
                 ) : (
                   <>
                         {/* Recording Control Card */}
-                        <Card className="flex-shrink-0 flex flex-col items-center justify-center p-5 bg-gradient-to-br from-white to-slate-50/50 border-2 border-slate-200/80 shadow-lg">
+                        <Card className="flex-shrink-0 flex flex-col items-center justify-center p-5 bg-white border border-slate-200 shadow-md rounded-[32px]">
                         <div className="relative flex flex-col items-center space-y-4 w-full">
                           <div className="relative">
                             {/* Multiple Pulse Rings */}
@@ -222,11 +247,11 @@ export function MVPHomeScreen({
                                   </div>
                                   
                                   {/* Live Transcript */}
-                                  {interimTranscript && (
+                                  {visibleInterimTranscript && (
                                     <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-md">
                                       <p className="text-xs text-slate-600 mb-1">Live transcription:</p>
                                       <p className="text-slate-800 font-medium italic text-sm">
-                                        "{interimTranscript}"
+                                        "{visibleInterimTranscript}"
                                       </p>
                                     </div>
                                   )}
@@ -268,33 +293,53 @@ export function MVPHomeScreen({
 
                         {/* Input Method Options Card */}
                         {!isRecording && !isProcessing && !transcript && (
-                          <Card className="flex-shrink-0 p-4 bg-white border-2 border-slate-200/80 shadow-lg">
-                            <h3 className="text-sm font-semibold text-slate-900 mb-2.5 text-center">Or choose another input method:</h3>
-                            <div className="space-y-2.5">
+                          <Card className="flex-shrink-0 p-4 bg-white/80 border border-slate-200/90 shadow-md backdrop-blur rounded-3xl">
+                            <h3 className="text-sm font-semibold text-slate-900 mb-4 text-center">Or choose another input method:</h3>
+                            <div className="grid gap-3 md:grid-cols-2">
                               <Button
-                                variant="outline"
+                                type="button"
+                                variant="ghost"
                                 onClick={() => setShowInputSelector(true)}
-                                className="h-12 flex items-center gap-2.5 bg-white border-2 border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 rounded-lg group"
+                                className="group flex min-h-[170px] flex-col justify-between rounded-2xl border border-slate-200/70 bg-gradient-to-br from-blue-50/80 via-white to-blue-100 p-5 text-left shadow-[0_20px_45px_rgba(15,118,210,0.15)] transition hover:-translate-y-0.5 hover:shadow-[0_25px_50px_rgba(15,118,210,0.25)]"
                               >
-                                <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center group-hover:from-blue-200 group-hover:to-blue-300 transition-all">
-                                  <Keyboard className="h-3.5 w-3.5 text-blue-600" />
+                                <div className="flex items-center gap-3">
+                                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-sm shadow-blue-200/80 group-hover:bg-white">
+                                    <Keyboard className="h-5 w-5 text-blue-600" />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-semibold text-blue-700">Manual Typing</p>
+                                    <p className="text-xs text-slate-500">Type or paste text</p>
+                                  </div>
                                 </div>
-                                <div className="text-left flex-1">
-                                  <div className="font-semibold text-xs text-slate-700 group-hover:text-blue-700 transition-colors">Type or Paste Text</div>
-                                  <div className="text-xs text-slate-500">Manual input method</div>
+                                <p className="text-xs text-slate-500 leading-relaxed break-words whitespace-normal">
+                                  Precision editing and offline use for detailed documentation.
+                                </p>
+                                <div className="flex items-center justify-between text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-blue-600">
+                                  <span>2-5 min</span>
+                                  <span>100% accuracy</span>
                                 </div>
                               </Button>
                               <Button
-                                variant="outline"
+                                type="button"
+                                variant="ghost"
                                 onClick={onStartRecording}
-                                className="h-12 flex items-center gap-2.5 bg-white border-2 border-slate-200 hover:border-teal-400 hover:bg-teal-50 transition-all duration-300 rounded-lg group"
+                                className="group flex min-h-[170px] flex-col justify-between rounded-2xl border border-slate-200/80 bg-gradient-to-br from-teal-50/80 via-white to-teal-100 p-5 text-left shadow-[0_20px_45px_rgba(16,185,129,0.15)] transition hover:-translate-y-0.5 hover:shadow-[0_25px_50px_rgba(16,185,129,0.25)]"
                               >
-                                <div className="w-8 h-8 bg-gradient-to-br from-teal-100 to-teal-200 rounded-lg flex items-center justify-center group-hover:from-teal-200 group-hover:to-teal-300 transition-all">
-                                  <Mic className="h-3.5 w-3.5 text-teal-600" />
+                                <div className="flex items-center gap-3">
+                                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-sm shadow-teal-200/80 group-hover:bg-white">
+                                    <Mic className="h-5 w-5 text-teal-600" />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-semibold text-teal-700">Voice Dictation</p>
+                                    <p className="text-xs text-slate-500">AI speech recognition</p>
+                                  </div>
                                 </div>
-                                <div className="text-left flex-1">
-                                  <div className="font-semibold text-xs text-slate-700 group-hover:text-teal-700 transition-colors">Voice Dictation</div>
-                                  <div className="text-xs text-slate-500">AI speech recognition</div>
+                                <p className="text-xs text-slate-500 leading-relaxed break-words whitespace-normal">
+                                  Hands-free recording with adaptive prompts for fast capture.
+                                </p>
+                                <div className="flex items-center justify-between text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-teal-600">
+                                  <span>30-60s</span>
+                                  <span>≈99% accuracy</span>
                                 </div>
                               </Button>
                             </div>
@@ -336,7 +381,7 @@ export function MVPHomeScreen({
                       </div>
 
                       {/* Center Column - Performance Metrics */}
-                      <div className="col-span-1 flex flex-col space-y-3 overflow-y-auto px-2">
+                      <div className="col-span-1 h-full flex flex-col space-y-3 overflow-y-auto px-2">
                         {/* Performance Today */}
                         <Card className="p-3 bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200/80 shadow-lg">
                           <div className="flex items-center gap-2 mb-2">
@@ -460,7 +505,7 @@ export function MVPHomeScreen({
                       </div>
 
                       {/* Right Column - Goals & Actions */}
-                      <div className="col-span-1 flex flex-col space-y-3 overflow-y-auto pl-2">
+                      <div className="col-span-1 h-full flex flex-col space-y-3 overflow-y-auto pl-2">
                         {/* Weekly Goal Progress */}
                         <Card className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-lg">
                           <div className="flex items-center gap-2 mb-2">
@@ -550,30 +595,13 @@ export function MVPHomeScreen({
                           </div>
                         </Card>
 
-                        {/* Activity Summary */}
-                        <Card className="p-3 bg-gradient-to-br from-slate-50 to-gray-100 border border-slate-200 shadow-lg">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-7 h-7 bg-gradient-to-r from-slate-500 to-gray-600 rounded-lg flex items-center justify-center">
-                              <Activity className="h-3 w-3 text-white" />
-                            </div>
-                            <h3 className="font-semibold text-xs text-slate-900">Activity</h3>
-                          </div>
-                          <div className="space-y-1.5">
-                            <div className="flex items-center justify-between p-1.5 bg-white rounded border border-slate-100">
-                              <span className="text-xs text-slate-600">Pending Reviews</span>
-                              <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">{userProfile.pendingReviews}</Badge>
-                            </div>
-                            <div className="flex items-center justify-between p-1.5 bg-white rounded border border-slate-100">
-                              <span className="text-xs text-slate-600">Upcoming Tasks</span>
-                              <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">{userProfile.upcomingTasks}</Badge>
-                            </div>
-                          </div>
-                        </Card>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
 
       {/* Mobile/Tablet Layout */}
       <div className="lg:hidden mvp-screen w-full">
@@ -720,11 +748,11 @@ export function MVPHomeScreen({
                     </div>
                     
                     {/* Live Transcript Display for Mobile */}
-                    {interimTranscript && (
+                    {visibleInterimTranscript && (
                       <div className="bg-white border border-slate-200 rounded-xl p-3 max-w-sm mx-auto shadow-lg">
                         <p className="text-xs text-slate-600 mb-1">Live transcription:</p>
                         <p className="text-slate-800 font-medium italic text-sm">
-                          "{interimTranscript}"
+                          "{visibleInterimTranscript}"
                         </p>
                       </div>
                     )}
@@ -1052,7 +1080,7 @@ export function MVPHomeScreen({
         </div>
       </div>
 
-      {/* NovaCare AI Widget - Always Visible */}
+      {/* Raha AI Widget - Always Visible */}
       {!aiWidgetClosed && (
         <SyntheticAI
           isMinimized={aiWidgetMinimized}

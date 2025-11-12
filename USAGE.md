@@ -1,4 +1,4 @@
-# NovaCare - Usage Guide
+# Raha - Usage Guide
 
 ## Quick Start: 60-Second Demo Path
 
@@ -120,7 +120,7 @@ After redaction, the system validates that no obvious PHI patterns remain before
 - Average: **7 minutes** per comprehensive note
 - Includes typing, formatting, review
 
-### NovaCare-Assisted
+### Raha-Assisted
 - Average: **1.5 minutes** total
 - Includes dictation (30-45s) + review + export (45s)
 - **~5.5 minutes saved per note**

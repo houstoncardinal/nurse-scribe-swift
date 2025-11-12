@@ -499,4 +499,4 @@ Your admin dashboard is now **fully documented and ready for implementation**!
 
 *Last Updated: November 6, 2025*
 *Version: 2.4.0*
-*© 2025 NovaCare AI*
+*© 2025 Raha AI*

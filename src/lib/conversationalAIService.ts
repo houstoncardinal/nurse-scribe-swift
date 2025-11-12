@@ -119,7 +119,7 @@ class ConversationalAIService {
    * Build system prompt with current context
    */
   private buildSystemPrompt(): string {
-    return `You are an intelligent AI assistant for NovaCare, a nursing documentation platform. Your role is to help nurses with:
+    return `You are an intelligent AI assistant for Raha, a nursing documentation platform. Your role is to help nurses with:
 
 1. Creating and editing clinical notes
 2. Voice transcription and documentation

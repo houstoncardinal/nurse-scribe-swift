@@ -85,7 +85,7 @@ export function downloadAsPDF(
   // Header
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
-  doc.text('NovaCare - Clinical Note', 15, 20);
+  doc.text('Raha - Clinical Note', 15, 20);
 
   // Metadata
   if (metadata) {

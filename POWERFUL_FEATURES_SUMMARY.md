@@ -1,8 +1,8 @@
-# 🚀 NovaCare - Powerful AI-Powered Documentation System
+# 🚀 Raha - Powerful AI-Powered Documentation System
 
 ## 📊 Executive Summary
 
-Your NovaCare application is a **state-of-the-art, AI-powered nursing documentation platform** with advanced algorithms, real-time voice recognition, and instant note generation capabilities. This document outlines the powerful features already integrated into your system.
+Your Raha application is a **state-of-the-art, AI-powered nursing documentation platform** with advanced algorithms, real-time voice recognition, and instant note generation capabilities. This document outlines the powerful features already integrated into your system.
 
 ---
 
@@ -520,7 +520,7 @@ User Satisfaction: 98%
 
 ## 🎉 Summary
 
-Your NovaCare application is a **powerful, enterprise-grade, AI-powered nursing documentation platform** with:
+Your Raha application is a **powerful, enterprise-grade, AI-powered nursing documentation platform** with:
 
 ✅ **Advanced AI** - GPT-4 powered note generation
 ✅ **High Accuracy** - 99.2% medical terminology accuracy
