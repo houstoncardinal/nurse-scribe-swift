@@ -23,19 +23,19 @@
     --popover-foreground: 30 15% 18%;
 
     /* Soft Teal Primary */
-    --primary: 174 40% 64%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 164 35% 64%;
+    --primary-foreground: 30 15% 18%;
 
     /* Warm Neutral Secondary */
-    --secondary: 28 60% 55%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 28 45% 65%;
+    --secondary-foreground: 30 15% 18%;
 
-    --muted: 32 18% 91%;
-    --muted-foreground: 30 10% 34%;
+    --muted: 32 25% 92%;
+    --muted-foreground: 30 15% 45%;
 
-    /* Accent - Soft Sunrise */
-    --accent: 23 78% 68%;
-    --accent-foreground: 0 0% 12%;
+    /* Accent - Warm Clay */
+    --accent: 23 55% 58%;
+    --accent-foreground: 30 15% 18%;
 
     --destructive: 6 85% 56%;
     --destructive-foreground: 0 0% 100%;
@@ -48,7 +48,7 @@
 
     --border: 32 20% 86%;
     --input: 32 20% 86%;
-    --ring: 174 40% 64%;
+    --ring: 164 35% 64%;
 
     /* Premium Typography */
     --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -75,14 +75,14 @@
     --shadow-inner: inset 0 2px 4px 0 hsl(30 20% 12% / 0.12);
 
     /* Premium Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(174 40% 64%) 0%, hsl(174 50% 54%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(28 60% 55%) 0%, hsl(28 65% 45%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(23 78% 68%) 0%, hsl(23 75% 58%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(174 40% 64% / 0.1) 0%, hsl(28 60% 55% / 0.1) 100%);
-    --gradient-glass: linear-gradient(135deg, hsl(0 0% 100% / 0.9) 0%, hsl(0 0% 100% / 0.6) 100%);
-    --gradient-mesh: radial-gradient(at 30% 20%, hsl(174 40% 64% / 0.08) 0px, transparent 50%),
-                     radial-gradient(at 80% 0%, hsl(28 60% 55% / 0.08) 0px, transparent 50%),
-                     radial-gradient(at 10% 60%, hsl(23 78% 68% / 0.08) 0px, transparent 50%);
+    --gradient-primary: linear-gradient(135deg, hsl(164 35% 64%) 0%, hsl(164 40% 54%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(28 45% 65%) 0%, hsl(28 50% 55%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(23 55% 58%) 0%, hsl(23 60% 48%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(164 35% 64% / 0.1) 0%, hsl(28 45% 65% / 0.1) 100%);
+    --gradient-glass: linear-gradient(135deg, hsl(32 40% 97% / 0.9) 0%, hsl(32 35% 100% / 0.6) 100%);
+    --gradient-mesh: radial-gradient(at 30% 20%, hsl(164 35% 64% / 0.08) 0px, transparent 50%),
+                     radial-gradient(at 80% 0%, hsl(28 45% 65% / 0.08) 0px, transparent 50%),
+                     radial-gradient(at 10% 60%, hsl(23 55% 58% / 0.08) 0px, transparent 50%);
 
     /* Glass Morphism */
     --glass-bg: hsl(32 20% 96% / 0.9);
@@ -719,11 +719,11 @@
 }
 
 .gradient-secondary-corporate {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #b88b74 0%, #8f6a58 50%, #6b5b4f 100%);
 }
 
 .gradient-accent-corporate {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
+  background: linear-gradient(135deg, #d9b8a0 0%, #b88b74 50%, #8f6a58 100%);
 }
 
 /* Glass morphism effects */
@@ -775,7 +775,7 @@
 }
 
 .status-ready::before {
-  background: #3b82f6;
+  background: #8f6a58;
 }
 
 .status-processing::before {

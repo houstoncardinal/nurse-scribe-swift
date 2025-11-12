@@ -372,8 +372,7 @@ export function SyntheticAI({
 
               {/* Clean vertical text */}
               <div className="text-white text-xs font-semibold tracking-wide text-center leading-tight">
-                <div>Nova</div>
-                <div>Care</div>
+                <div>Raha</div>
                 <div>AI</div>
               </div>
 
@@ -395,12 +394,12 @@ export function SyntheticAI({
       );
     }
     
-    // Desktop: smaller bottom-right button
+    // Desktop: pill-shaped bottom-right button
     return (
       <div className="fixed bottom-6 right-6 z-[9999]">
         <Button
           onClick={onToggleMinimize}
-          className="relative h-14 w-14 rounded-full overflow-hidden group"
+          className="relative h-14 w-24 rounded-full overflow-hidden group"
           style={{
             background: 'linear-gradient(135deg, #14b8a6 0%, #0891b2 50%, #06b6d4 100%)',
             boxShadow: '0 0 40px rgba(20, 184, 166, 0.6), 0 0 80px rgba(8, 145, 178, 0.4)'
