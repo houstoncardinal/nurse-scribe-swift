@@ -725,7 +725,7 @@ ${sections}
             variant="ghost"
             size="sm"
             onClick={() => onNavigate?.('home')}
-            className="flex-1 flex flex-col items-center gap-1 h-12 px-2 py-1 text-slate-600 hover:text-teal-600 hover:bg-teal-50/50 rounded-lg transition-all"
+            className="flex-1 flex flex-col items-center gap-1 h-12 px-2 py-1 text-slate-600 hover:text-teal-600 hover:bg-amber-50/60 rounded-lg transition-all"
           >
             <Home className="h-4 w-4" />
             <span className="text-xs font-medium">Home</span>
@@ -734,7 +734,7 @@ ${sections}
             variant="ghost"
             size="sm"
             onClick={() => onNavigate?.('history')}
-            className="flex-1 flex flex-col items-center gap-1 h-12 px-2 py-1 text-slate-600 hover:text-teal-600 hover:bg-teal-50/50 rounded-lg transition-all"
+            className="flex-1 flex flex-col items-center gap-1 h-12 px-2 py-1 text-slate-600 hover:text-teal-600 hover:bg-amber-50/60 rounded-lg transition-all"
           >
             <History className="h-4 w-4" />
             <span className="text-xs font-medium">Notes</span>
@@ -743,7 +743,7 @@ ${sections}
             variant="ghost"
             size="sm"
             onClick={() => onNavigate?.('analytics')}
-            className="flex-1 flex flex-col items-center gap-1 h-12 px-2 py-1 text-slate-600 hover:text-teal-600 hover:bg-teal-50/50 rounded-lg transition-all"
+            className="flex-1 flex flex-col items-center gap-1 h-12 px-2 py-1 text-slate-600 hover:text-teal-600 hover:bg-amber-50/60 rounded-lg transition-all"
           >
             <BarChart3 className="h-4 w-4" />
             <span className="text-xs font-medium">Stats</span>
@@ -752,7 +752,7 @@ ${sections}
             variant="ghost"
             size="sm"
             onClick={() => onNavigate?.('settings')}
-            className="flex-1 flex flex-col items-center gap-1 h-12 px-2 py-1 text-slate-600 hover:text-teal-600 hover:bg-teal-50/50 rounded-lg transition-all"
+            className="flex-1 flex flex-col items-center gap-1 h-12 px-2 py-1 text-slate-600 hover:text-teal-600 hover:bg-amber-50/60 rounded-lg transition-all"
           >
             <Settings className="h-4 w-4" />
             <span className="text-xs font-medium">Settings</span>
@@ -1119,7 +1119,7 @@ ${sections}
         </div>
 
         {/* Enhanced Input Area with Voice & Send Controls */}
-        <div className="flex-shrink-0 px-4 lg:px-6 py-4 pb-20 lg:pb-4 bg-white/95 backdrop-blur-xl border-t-2 border-slate-200 shadow-lg">
+        <div className="flex-shrink-0 px-4 lg:px-6 py-4 pb-4 lg:pb-4 bg-white/95 backdrop-blur-xl border-t-2 border-slate-200 shadow-lg">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-3">
               {/* Voice Input Button */}

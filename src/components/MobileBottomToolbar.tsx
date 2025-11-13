@@ -106,9 +106,9 @@ export function MobileBottomToolbar({
                 className={`
                   relative flex-1 h-14 flex flex-col items-center justify-center gap-1.5
                   rounded-2xl transition-all duration-300 ease-out group
-                  ${isActive 
-                    ? 'bg-gradient-to-b from-teal-500 to-teal-600 shadow-lg shadow-teal-500/30 scale-[1.02]' 
-                    : 'hover:bg-slate-100/80 active:scale-95'
+                  ${isActive
+                    ? 'bg-gradient-to-b from-teal-500 to-teal-600 shadow-lg shadow-teal-500/30 scale-[1.02]'
+                    : 'hover:bg-amber-50/60 active:scale-95'
                   }
                 `}
                 onClick={() => handleNavigate(item.id)}

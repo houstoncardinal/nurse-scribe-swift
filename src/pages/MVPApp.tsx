@@ -1189,16 +1189,20 @@ export function MVPApp() {
           {currentScreen !== 'raha-ai' && (
             <aside className="w-64 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
               <div className="flex flex-col h-full">
-                {/* Logo Section - Compact */}
-                <div className="p-4 border-b border-slate-200">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-teal-500/25">
-                      <Stethoscope className="h-5 w-5 text-white" />
+                {/* Logo Section - Modern & Professional */}
+                <div className="p-6 border-b border-slate-200/80 bg-gradient-to-br from-slate-50/50 to-white">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-teal-500 via-teal-600 to-blue-600 rounded-xl flex items-center justify-center shadow-xl shadow-teal-500/30 ring-1 ring-white/20">
+                      <Stethoscope className="h-6 w-6 text-white" />
                     </div>
-                      <div>
-                        <h1 className="text-lg font-bold text-slate-900">Raha</h1>
-                        <p className="text-xs text-slate-600">Tihkn Breathing Space</p>
-                      </div>
+                    <div className="flex-1">
+                      <h1 className="text-xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent tracking-tight">
+                        Raha
+                      </h1>
+                      <p className="text-xs font-medium text-slate-500 tracking-wide uppercase">
+                        Charting Made Gentle
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -1225,155 +1229,202 @@ export function MVPApp() {
                   </div>
                 </div>
 
-                {/* Main Navigation - Compact */}
-                <div className="flex-1 p-3 overflow-y-auto">
-                  <nav className="space-y-1">
-                    <div className="mb-2">
-                      <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Core</h3>
+                {/* Main Navigation - Modern & Professional */}
+                <div className="flex-1 p-4 overflow-y-auto">
+                  <nav className="space-y-6">
+                    {/* Core Section */}
+                    <div>
+                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-2">Core Features</h3>
                       <div className="space-y-1">
                         <Button
-                          variant={currentScreen === 'home' ? 'default' : 'ghost'}
-                          className={`w-full justify-start h-9 text-sm ${
+                          variant="ghost"
+                          className={`w-full justify-start h-11 text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
                             currentScreen === 'home'
-                              ? 'bg-[#6dbda9] text-white shadow-lg'
-                              : 'hover:bg-slate-100 text-slate-700'
+                              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25 border border-teal-400/20'
+                              : 'text-slate-700 hover:text-teal-700 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 border border-transparent hover:border-teal-200/50'
                           }`}
                           onClick={() => handleNavigate('home')}
                         >
-                          <Mic className="h-4 w-4 mr-2" />
-                          New Note
+                          <div className={`absolute inset-0 bg-gradient-to-r from-teal-400/10 to-blue-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${currentScreen === 'home' ? 'opacity-100' : ''}`} />
+                          <Mic className={`h-4 w-4 mr-3 transition-colors duration-200 ${currentScreen === 'home' ? 'text-white' : 'text-teal-600 group-hover:text-teal-700'}`} />
+                          <span className="relative z-10">New Note</span>
+                          {currentScreen === 'home' && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full" />
+                          )}
                         </Button>
                         <Button
-                          variant={currentScreen === 'draft' ? 'default' : 'ghost'}
-                          className={`w-full justify-start h-9 text-sm ${
+                          variant="ghost"
+                          className={`w-full justify-start h-11 text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
                             currentScreen === 'draft'
-                              ? 'bg-[#6dbda9] text-white shadow-lg'
-                              : 'hover:bg-slate-100 text-slate-700'
+                              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25 border border-teal-400/20'
+                              : 'text-slate-700 hover:text-teal-700 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 border border-transparent hover:border-teal-200/50'
                           }`}
                           onClick={() => handleNavigate('draft')}
                         >
-                          <FileText className="h-4 w-4 mr-2" />
-                          Draft Preview
+                          <div className={`absolute inset-0 bg-gradient-to-r from-teal-400/10 to-blue-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${currentScreen === 'draft' ? 'opacity-100' : ''}`} />
+                          <FileText className={`h-4 w-4 mr-3 transition-colors duration-200 ${currentScreen === 'draft' ? 'text-white' : 'text-teal-600 group-hover:text-teal-700'}`} />
+                          <span className="relative z-10">Draft Preview</span>
+                          {currentScreen === 'draft' && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full" />
+                          )}
                         </Button>
                         <Button
-                          variant={currentScreen === 'export' ? 'default' : 'ghost'}
-                          className={`w-full justify-start h-9 text-sm ${
+                          variant="ghost"
+                          className={`w-full justify-start h-11 text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
                             currentScreen === 'export'
-                              ? 'bg-[#6dbda9] text-white shadow-lg'
-                              : 'hover:bg-slate-100 text-slate-700'
+                              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25 border border-teal-400/20'
+                              : 'text-slate-700 hover:text-teal-700 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 border border-transparent hover:border-teal-200/50'
                           }`}
                           onClick={() => handleNavigate('export')}
                         >
-                          <Download className="h-4 w-4 mr-2" />
-                          Export
+                          <div className={`absolute inset-0 bg-gradient-to-r from-teal-400/10 to-blue-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${currentScreen === 'export' ? 'opacity-100' : ''}`} />
+                          <Download className={`h-4 w-4 mr-3 transition-colors duration-200 ${currentScreen === 'export' ? 'text-white' : 'text-teal-600 group-hover:text-teal-700'}`} />
+                          <span className="relative z-10">Export</span>
+                          {currentScreen === 'export' && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full" />
+                          )}
                         </Button>
                       </div>
                     </div>
 
-                    <div className="mb-2">
-                      <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Tools & Analytics</h3>
+                    {/* Advanced Tools Section */}
+                    <div>
+                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-2">Advanced Tools</h3>
                       <div className="space-y-1">
                         <Button
-                          variant={currentScreen === 'history' ? 'default' : 'ghost'}
-                          className={`w-full justify-start h-9 text-sm ${
+                          variant="ghost"
+                          className={`w-full justify-start h-11 text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
                             currentScreen === 'history'
-                              ? 'bg-[#6dbda9] text-white shadow-lg'
-                              : 'hover:bg-slate-100 text-slate-700'
+                              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25 border border-teal-400/20'
+                              : 'text-slate-700 hover:text-teal-700 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 border border-transparent hover:border-teal-200/50'
                           }`}
                           onClick={() => handleNavigate('history')}
                         >
-                          <FileText className="h-4 w-4 mr-2" />
-                          Note History
+                          <div className={`absolute inset-0 bg-gradient-to-r from-teal-400/10 to-blue-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${currentScreen === 'history' ? 'opacity-100' : ''}`} />
+                          <FileText className={`h-4 w-4 mr-3 transition-colors duration-200 ${currentScreen === 'history' ? 'text-white' : 'text-teal-600 group-hover:text-teal-700'}`} />
+                          <span className="relative z-10">Note History</span>
+                          {currentScreen === 'history' && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full" />
+                          )}
                         </Button>
                         <Button
-                          variant={currentScreen === 'analytics' ? 'default' : 'ghost'}
-                          className={`w-full justify-start h-9 text-sm ${
+                          variant="ghost"
+                          className={`w-full justify-start h-11 text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
                             currentScreen === 'analytics'
-                              ? 'bg-[#6dbda9] text-white shadow-lg'
-                              : 'hover:bg-slate-100 text-slate-700'
+                              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25 border border-teal-400/20'
+                              : 'text-slate-700 hover:text-teal-700 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 border border-transparent hover:border-teal-200/50'
                           }`}
                           onClick={() => handleNavigate('analytics')}
                         >
-                          <BarChart3 className="h-4 w-4 mr-2" />
-                          Analytics
+                          <div className={`absolute inset-0 bg-gradient-to-r from-teal-400/10 to-blue-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${currentScreen === 'analytics' ? 'opacity-100' : ''}`} />
+                          <BarChart3 className={`h-4 w-4 mr-3 transition-colors duration-200 ${currentScreen === 'analytics' ? 'text-white' : 'text-teal-600 group-hover:text-teal-700'}`} />
+                          <span className="relative z-10">Analytics</span>
+                          {currentScreen === 'analytics' && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full" />
+                          )}
                         </Button>
                         <Button
-                          variant={currentScreen === 'education' ? 'default' : 'ghost'}
-                          className={`w-full justify-start h-9 text-sm ${
+                          variant="ghost"
+                          className={`w-full justify-start h-11 text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
                             currentScreen === 'education'
-                              ? 'bg-[#6dbda9] text-white shadow-lg'
-                              : 'hover:bg-slate-100 text-slate-700'
+                              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25 border border-teal-400/20'
+                              : 'text-slate-700 hover:text-teal-700 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 border border-transparent hover:border-teal-200/50'
                           }`}
                           onClick={() => handleNavigate('education')}
                         >
-                          <BookOpen className="h-4 w-4 mr-2" />
-                          Education
+                          <div className={`absolute inset-0 bg-gradient-to-r from-teal-400/10 to-blue-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${currentScreen === 'education' ? 'opacity-100' : ''}`} />
+                          <BookOpen className={`h-4 w-4 mr-3 transition-colors duration-200 ${currentScreen === 'education' ? 'text-white' : 'text-teal-600 group-hover:text-teal-700'}`} />
+                          <span className="relative z-10">Education</span>
+                          {currentScreen === 'education' && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full" />
+                          )}
                         </Button>
                         <Button
-                          variant={currentScreen === 'team' ? 'default' : 'ghost'}
-                          className={`w-full justify-start h-9 text-sm ${
+                          variant="ghost"
+                          className={`w-full justify-start h-11 text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
                             currentScreen === 'team'
-                              ? 'bg-[#6dbda9] text-white shadow-lg'
-                              : 'hover:bg-slate-100 text-slate-700'
+                              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25 border border-teal-400/20'
+                              : 'text-slate-700 hover:text-teal-700 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 border border-transparent hover:border-teal-200/50'
                           }`}
                           onClick={() => handleNavigate('team')}
                         >
-                          <Users className="h-4 w-4 mr-2" />
-                          Team
+                          <div className={`absolute inset-0 bg-gradient-to-r from-teal-400/10 to-blue-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${currentScreen === 'team' ? 'opacity-100' : ''}`} />
+                          <Users className={`h-4 w-4 mr-3 transition-colors duration-200 ${currentScreen === 'team' ? 'text-white' : 'text-teal-600 group-hover:text-teal-700'}`} />
+                          <span className="relative z-10">Team</span>
+                          {currentScreen === 'team' && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full" />
+                          )}
                         </Button>
                         <Button
-                          variant={currentScreen === 'copilot' ? 'default' : 'ghost'}
-                          className={`w-full justify-start h-9 text-sm ${
+                          variant="ghost"
+                          className={`w-full justify-start h-11 text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
                             currentScreen === 'copilot'
-                              ? 'bg-[#6dbda9] text-white shadow-lg'
-                              : 'hover:bg-slate-100 text-slate-700'
+                              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25 border border-teal-400/20'
+                              : 'text-slate-700 hover:text-teal-700 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 border border-transparent hover:border-teal-200/50'
                           }`}
                           onClick={() => handleNavigate('copilot')}
                         >
-                          <Brain className="h-4 w-4 mr-2" />
-                          AI Copilot
+                          <div className={`absolute inset-0 bg-gradient-to-r from-teal-400/10 to-blue-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${currentScreen === 'copilot' ? 'opacity-100' : ''}`} />
+                          <Brain className={`h-4 w-4 mr-3 transition-colors duration-200 ${currentScreen === 'copilot' ? 'text-white' : 'text-teal-600 group-hover:text-teal-700'}`} />
+                          <span className="relative z-10">AI Copilot</span>
+                          {currentScreen === 'copilot' && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full" />
+                          )}
                         </Button>
                         <Button
-                          variant={currentScreen === 'raha-ai' ? 'default' : 'ghost'}
-                          className={`w-full justify-start h-9 text-sm ${
+                          variant="ghost"
+                          className={`w-full justify-start h-11 text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
                             currentScreen === 'raha-ai'
-                              ? 'bg-[#6dbda9] text-white shadow-lg'
-                              : 'hover:bg-slate-100 text-slate-700'
+                              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25 border border-teal-400/20'
+                              : 'text-slate-700 hover:text-teal-700 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 border border-transparent hover:border-teal-200/50'
                           }`}
                           onClick={() => handleNavigate('raha-ai')}
                         >
-                          <Sparkles className="h-4 w-4 mr-2" />
-                          Raha AI
+                          <div className={`absolute inset-0 bg-gradient-to-r from-teal-400/10 to-blue-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${currentScreen === 'raha-ai' ? 'opacity-100' : ''}`} />
+                          <Sparkles className={`h-4 w-4 mr-3 transition-colors duration-200 ${currentScreen === 'raha-ai' ? 'text-white' : 'text-teal-600 group-hover:text-teal-700'}`} />
+                          <span className="relative z-10">Raha AI</span>
+                          {currentScreen === 'raha-ai' && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full" />
+                          )}
                         </Button>
                       </div>
                     </div>
 
+                    {/* Account Section */}
                     <div>
-                      <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Account</h3>
+                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-2">Account</h3>
                       <div className="space-y-1">
                         <Button
-                          variant={currentScreen === 'profile' ? 'default' : 'ghost'}
-                          className={`w-full justify-start h-9 text-sm ${
+                          variant="ghost"
+                          className={`w-full justify-start h-11 text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
                             currentScreen === 'profile'
-                              ? 'bg-[#6dbda9] text-white shadow-lg'
-                              : 'hover:bg-slate-100 text-slate-700'
+                              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25 border border-teal-400/20'
+                              : 'text-slate-700 hover:text-teal-700 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 border border-transparent hover:border-teal-200/50'
                           }`}
                           onClick={() => handleNavigate('profile')}
                         >
-                          <User className="h-4 w-4 mr-2" />
-                          Profile
+                          <div className={`absolute inset-0 bg-gradient-to-r from-teal-400/10 to-blue-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${currentScreen === 'profile' ? 'opacity-100' : ''}`} />
+                          <User className={`h-4 w-4 mr-3 transition-colors duration-200 ${currentScreen === 'profile' ? 'text-white' : 'text-teal-600 group-hover:text-teal-700'}`} />
+                          <span className="relative z-10">Profile</span>
+                          {currentScreen === 'profile' && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full" />
+                          )}
                         </Button>
                         <Button
-                          variant={currentScreen === 'settings' ? 'default' : 'ghost'}
-                          className={`w-full justify-start h-9 text-sm ${
+                          variant="ghost"
+                          className={`w-full justify-start h-11 text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
                             currentScreen === 'settings'
-                              ? 'bg-[#6dbda9] text-white shadow-lg'
-                              : 'hover:bg-slate-100 text-slate-700'
+                              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25 border border-teal-400/20'
+                              : 'text-slate-700 hover:text-teal-700 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 border border-transparent hover:border-teal-200/50'
                           }`}
                           onClick={() => handleNavigate('settings')}
                         >
-                          <Settings className="h-4 w-4 mr-2" />
-                          Settings
+                          <div className={`absolute inset-0 bg-gradient-to-r from-teal-400/10 to-blue-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${currentScreen === 'settings' ? 'opacity-100' : ''}`} />
+                          <Settings className={`h-4 w-4 mr-3 transition-colors duration-200 ${currentScreen === 'settings' ? 'text-white' : 'text-teal-600 group-hover:text-teal-700'}`} />
+                          <span className="relative z-10">Settings</span>
+                          {currentScreen === 'settings' && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full" />
+                          )}
                         </Button>
                       </div>
                     </div>

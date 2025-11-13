@@ -790,12 +790,12 @@ export function MVPHomeScreen({
       {/* Mobile/Tablet Layout - World-Class Design */}
       <div className="lg:hidden mvp-screen w-full bg-gradient-to-br from-slate-50 via-white to-slate-50/50">
         {/* Mobile Header - Premium Professional Walkthrough */}
-        <div className="flex-shrink-0 px-6 pt-6 pb-4 safe-area-top w-full">
+        <div className="flex-shrink-0 px-6 pt-8 pb-4 safe-area-top w-full">
           <div className="text-left space-y-6">
             {/* Premium Hero Section with Professional Walkthrough */}
             <div className="space-y-5">
               {/* Enhanced Typography - Left aligned with Refined Old Money Serif Fonts */}
-              <div className="space-y-4 pt-2">
+              <div className="space-y-4 pt-4">
                 <h1 className="text-3xl font-heading font-semibold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent tracking-tight leading-tight">
                   Start New Note
                 </h1>
@@ -858,24 +858,24 @@ export function MVPHomeScreen({
             </div>
 
             {/* Luxury Template Selector with Warm Glow */}
-            <div className="w-full max-w-sm mx-auto">
-              <div className="space-y-4">
+            <div className="w-full max-w-xs mx-auto px-2">
+              <div className="space-y-3">
                 {/* Premium Label with Warm Accent */}
-                <div className="text-center space-y-2">
-                  <Label className="text-sm font-bold text-slate-800 block tracking-wide">Choose Documentation Template</Label>
-                  <div className="w-16 h-0.5 bg-gradient-to-r from-[#b88b74] to-[#8f6a58] mx-auto rounded-full" />
+                <div className="text-center space-y-1">
+                  <Label className="text-sm font-bold text-slate-800 block tracking-wide">Choose Template</Label>
+                  <div className="w-12 h-0.5 bg-gradient-to-r from-[#b88b74] to-[#8f6a58] mx-auto rounded-full" />
                 </div>
 
                 {/* Luxury Template Selector with Warm Glow */}
                 <div className="relative">
                   {/* Warm Glow Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#b88b74]/20 via-[#8f6a58]/15 to-[#b88b74]/20 rounded-3xl blur-xl opacity-60 animate-pulse" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#b88b74]/10 via-transparent to-[#b88b74]/10 rounded-3xl" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#b88b74]/20 via-[#8f6a58]/15 to-[#b88b74]/20 rounded-2xl blur-lg opacity-50 animate-pulse" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#b88b74]/8 via-transparent to-[#b88b74]/8 rounded-2xl" />
 
                   <Select value={currentTemplate} onValueChange={(value) => {
                     onTemplateChange(value);
                   }}>
-                  <SelectTrigger className="w-full h-14 text-sm bg-white/95 backdrop-blur-2xl border-2 border-[#b88b74]/30 hover:border-[#b88b74]/60 focus:border-[#b88b74] focus:ring-4 focus:ring-[#b88b74]/15 transition-all duration-500 shadow-2xl shadow-[#b88b74]/10 hover:shadow-3xl hover:shadow-[#b88b74]/20 rounded-3xl font-bold text-slate-800 tracking-wide [&>svg]:text-[#b88b74] [&>svg]:w-5 [&>svg]:h-5">
+                  <SelectTrigger className="w-full h-12 text-sm bg-white/95 backdrop-blur-2xl border-2 border-[#b88b74]/30 hover:border-[#b88b74]/60 focus:border-[#b88b74] focus:ring-4 focus:ring-[#b88b74]/15 transition-all duration-500 shadow-xl shadow-[#b88b74]/10 hover:shadow-2xl hover:shadow-[#b88b74]/15 rounded-2xl font-bold text-slate-800 tracking-wide [&>svg]:text-[#b88b74] [&>svg]:w-4 [&>svg]:h-4">
                     <SelectValue />
                   </SelectTrigger>
                         <SelectContent className="bg-white border-2 border-slate-200 shadow-[0_20px_60px_rgb(0,0,0,0.15)] rounded-2xl p-3 max-h-80 overflow-y-auto">
@@ -1104,86 +1104,119 @@ export function MVPHomeScreen({
                   </div>
                 )}
 
-                {!isRecording && !isProcessing && (
+                {!isRecording && !isProcessing && !transcript && (
                   <div className="relative">
                     {/* Premium Background Glow */}
                     <div className="absolute inset-0 bg-gradient-to-r from-teal-100/30 via-blue-100/20 to-teal-100/30 rounded-3xl blur-2xl opacity-60 animate-pulse" />
 
-                    {/* Compact Professional Voice Dictation Card */}
-                    <div className="relative bg-white/95 backdrop-blur-2xl border-2 border-slate-200/60 rounded-2xl p-4 shadow-[0_12px_32px_rgb(0,0,0,0.06)] hover:shadow-[0_16px_40px_rgb(0,0,0,0.08)] transition-all duration-300 max-w-sm mx-auto">
-                      {/* Compact Header with Inline Icon */}
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl flex items-center justify-center shadow-lg border border-slate-700/20">
-                          <Mic className="h-5 w-5 text-white" />
+                    {/* Powerful 2-in-1 Input Methods Card */}
+                    <div className="relative bg-white/95 backdrop-blur-2xl border-2 border-slate-200/60 rounded-2xl p-5 shadow-[0_12px_32px_rgb(0,0,0,0.06)] hover:shadow-[0_16px_40px_rgb(0,0,0,0.08)] transition-all duration-300 max-w-sm mx-auto">
+                      {/* Powerful Header */}
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl flex items-center justify-center shadow-lg border border-slate-700/20">
+                          <Zap className="h-6 w-6 text-white" />
                         </div>
                         <div className="flex-1">
-                          <h2 className="text-base font-bold text-slate-900 tracking-tight">Voice Dictation Ready</h2>
-                          <p className="text-xs text-slate-600 font-medium">AI-powered speech recognition</p>
+                          <h2 className="text-lg font-bold text-slate-900 tracking-tight">AI Documentation Suite</h2>
+                          <p className="text-sm text-slate-600 font-medium">Voice + Manual Input • Professional Results</p>
                         </div>
                       </div>
 
-                      {/* Compact Feature Grid */}
-                      <div className="grid grid-cols-3 gap-2 mb-3">
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-7 h-7 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-sm">
-                            <Shield className="h-3.5 w-3.5 text-white" />
+                      {/* Dual Input Methods Grid - Now Clickable */}
+                      <div className="grid grid-cols-2 gap-3 mb-4">
+                        {/* Voice Dictation - Clickable */}
+                        <button
+                          onClick={onStartRecording}
+                          className="group bg-gradient-to-br from-teal-50/80 to-teal-100/40 rounded-xl p-3 border border-teal-200/60 hover:border-teal-300/80 hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-300 cursor-pointer text-left"
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300">
+                              <Mic className="h-4 w-4 text-white" />
+                            </div>
+                            <h3 className="text-sm font-bold text-teal-800 group-hover:text-teal-900 transition-colors duration-300">Voice</h3>
                           </div>
-                          <div>
-                            <p className="text-xs font-bold text-slate-800">HIPAA</p>
-                            <p className="text-xs text-slate-600">Compliant</p>
+                          <p className="text-xs text-teal-700 leading-tight mb-2 group-hover:text-teal-800 transition-colors duration-300">Speak naturally, AI transcribes & formats</p>
+                          <div className="flex items-center gap-1">
+                            <div className="w-1.5 h-1.5 bg-teal-500 rounded-full"></div>
+                            <span className="text-xs font-medium text-teal-600 group-hover:text-teal-700 transition-colors duration-300">30-60s</span>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
-                            <Zap className="h-3.5 w-3.5 text-white" />
+                        </button>
+
+                        {/* Manual Input - Clickable */}
+                        <button
+                          onClick={() => setShowInputSelector(true)}
+                          className="group bg-gradient-to-br from-blue-50/80 to-blue-100/40 rounded-xl p-3 border border-blue-200/60 hover:border-blue-300/80 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 cursor-pointer text-left"
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300">
+                              <Keyboard className="h-4 w-4 text-white" />
+                            </div>
+                            <h3 className="text-sm font-bold text-blue-800 group-hover:text-blue-900 transition-colors duration-300">Manual</h3>
                           </div>
-                          <div>
-                            <p className="text-xs font-bold text-slate-800">Real-time</p>
-                            <p className="text-xs text-slate-600">AI</p>
+                          <p className="text-xs text-blue-700 leading-tight mb-2 group-hover:text-blue-800 transition-colors duration-300">Type or paste, AI enhances & structures</p>
+                          <div className="flex items-center gap-1">
+                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                            <span className="text-xs font-medium text-blue-600 group-hover:text-blue-700 transition-colors duration-300">2-5min</span>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-7 h-7 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-sm">
-                            <Target className="h-3.5 w-3.5 text-white" />
-                          </div>
-                          <div>
-                            <p className="text-xs font-bold text-slate-800">99%</p>
-                            <p className="text-xs text-slate-600">Accurate</p>
-                          </div>
-                        </div>
+                        </button>
                       </div>
 
-                      {/* Compact Instructions */}
-                      <div className="bg-gradient-to-r from-slate-50 to-slate-100/50 rounded-lg p-3 border border-slate-200/60 mb-2.5">
+                      {/* Feature Highlights */}
+                      <div className="grid grid-cols-3 gap-2 mb-4">
                         <div className="text-center">
-                          <p className="text-sm font-bold text-slate-900 mb-2">Quick Start Guide</p>
-                          <div className="space-y-1.5">
+                          <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-sm mx-auto mb-1">
+                            <Shield className="h-4 w-4 text-white" />
+                          </div>
+                          <p className="text-xs font-bold text-slate-800">HIPAA</p>
+                          <p className="text-xs text-slate-600">Secure</p>
+                        </div>
+                        <div className="text-center">
+                          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-sm mx-auto mb-1">
+                            <Target className="h-4 w-4 text-white" />
+                          </div>
+                          <p className="text-xs font-bold text-slate-800">99%</p>
+                          <p className="text-xs text-slate-600">Accurate</p>
+                        </div>
+                        <div className="text-center">
+                          <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg flex items-center justify-center shadow-sm mx-auto mb-1">
+                            <Timer className="h-4 w-4 text-white" />
+                          </div>
+                          <p className="text-xs font-bold text-slate-800">5x</p>
+                          <p className="text-xs text-slate-600">Faster</p>
+                        </div>
+                      </div>
+
+                      {/* Quick Start Guide - Compact */}
+                      <div className="bg-gradient-to-r from-slate-50 to-slate-100/50 rounded-lg p-3 border border-slate-200/60">
+                        <div className="text-center">
+                          <p className="text-sm font-bold text-slate-900 mb-2">How It Works</p>
+                          <div className="space-y-1">
                             <div className="flex items-center gap-2">
                               <div className="w-2 h-2 bg-teal-500 rounded-full flex-shrink-0"></div>
-                              <p className="text-xs text-slate-700 text-left">Tap microphone to record</p>
+                              <p className="text-xs text-slate-700 text-left">Choose voice or manual input</p>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="w-2 h-2 bg-teal-500 rounded-full flex-shrink-0"></div>
-                              <p className="text-xs text-slate-700 text-left">Speak naturally about patient</p>
+                              <p className="text-xs text-slate-700 text-left">AI processes & formats professionally</p>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="w-2 h-2 bg-teal-500 rounded-full flex-shrink-0"></div>
-                              <p className="text-xs text-slate-700 text-left">AI formats into professional notes</p>
+                              <p className="text-xs text-slate-700 text-left">Review, edit, and export</p>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Compact Voice Support Warning */}
+                      {/* Voice Support Warning - Only if needed */}
                       {!voiceSupported && (
-                        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-lg p-2.5">
+                        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-lg p-2.5 mt-3">
                           <div className="flex items-center gap-2">
-                            <div className="w-5 h-5 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
+                            <div className="w-4 h-4 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
                               <AlertTriangle className="h-2.5 w-2.5 text-white" />
                             </div>
                             <div className="flex-1">
-                              <p className="text-xs font-bold text-amber-900">Voice Input Unavailable</p>
-                              <p className="text-xs text-amber-800">Check browser permissions</p>
+                              <p className="text-xs font-bold text-amber-900">Voice input unavailable</p>
+                              <p className="text-xs text-amber-800">Use manual input instead</p>
                             </div>
                           </div>
                         </div>
@@ -1191,94 +1224,82 @@ export function MVPHomeScreen({
                     </div>
                   </div>
                 )}
+
+                {/* Transcript Ready - Show Preview Button Right Here */}
+                {transcript && !isRecording && !isProcessing && (
+                  <div className="relative">
+                    {/* Success Background Glow */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-100/40 via-green-100/30 to-emerald-100/40 rounded-3xl blur-2xl opacity-70 animate-pulse" />
+
+                    {/* Transcript Success Card */}
+                    <div className="relative bg-white/95 backdrop-blur-2xl border-2 border-emerald-200/60 rounded-2xl p-5 shadow-[0_12px_32px_rgb(16,185,129,0.15)] max-w-sm mx-auto">
+                      {/* Success Header */}
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg border border-emerald-400/20">
+                          <CheckCircle className="h-6 w-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h2 className="text-lg font-bold text-slate-900 tracking-tight">Voice Transcription Complete!</h2>
+                          <p className="text-sm text-slate-600 font-medium">Ready to create your professional note</p>
+                        </div>
+                      </div>
+
+                      {/* Transcript Info */}
+                      <div className="bg-gradient-to-br from-slate-50 to-emerald-50/30 border border-slate-200 rounded-lg p-3 mb-4">
+                        <div className="text-center space-y-1">
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                            <span className="text-sm font-semibold text-slate-700">AI Processing Complete</span>
+                          </div>
+                          <p className="text-xs text-slate-600">
+                            {transcript.length} characters captured • {selectedTemplate} template selected
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Preview Draft Note Button - Prominent Placement */}
+                      <Button
+                        size="lg"
+                        className="w-full h-12 text-sm font-bold bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 hover:from-emerald-600 hover:via-teal-700 hover:to-emerald-700 text-white transition-all duration-300 transform hover:scale-105 shadow-lg"
+                        style={{
+                          boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4), 0 2px 8px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                        }}
+                        onClick={() => onNavigate('draft')}
+                      >
+                        <FileText className="h-4 w-4 mr-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
+                        Preview Draft Note
+                      </Button>
+
+                      {/* Alternative Actions */}
+                      <div className="mt-3 text-center">
+                        <p className="text-xs text-slate-500 mb-2">Or choose another input method:</p>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 text-xs h-8 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                            onClick={() => setShowInputSelector(true)}
+                          >
+                            <Keyboard className="h-3 w-3 mr-1" />
+                            Manual
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 text-xs h-8 hover:bg-teal-50 hover:border-teal-300 transition-colors"
+                            onClick={onStartRecording}
+                          >
+                            <Mic className="h-3 w-3 mr-1" />
+                            Record Again
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Premium Input Method Options - Always Available */}
-              {!isRecording && !isProcessing && (
-                <div className="w-full max-w-sm mx-auto space-y-6">
-                  {/* Method Selector Header */}
-                  <div className="text-center">
-                    <p className="text-sm text-slate-600 font-medium">
-                      {transcript ? 'Or try a different input method:' : 'Alternative input methods:'}
-                    </p>
-                  </div>
 
-                  {/* Premium Method Cards */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <Card className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-slate-200/60 hover:border-blue-300/80 bg-gradient-to-br from-white to-blue-50/30 shadow-lg hover:shadow-blue-500/10">
-                      <div
-                        className="p-4 text-center space-y-3 h-full flex flex-col justify-center"
-                        onClick={() => {
-                          setShowInputSelector(true);
-                        }}
-                      >
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mx-auto shadow-md group-hover:shadow-lg transition-all duration-300">
-                          <Keyboard className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div className="space-y-1">
-                          <h4 className="text-sm font-bold text-slate-800 group-hover:text-blue-800 transition-colors duration-300">Manual Input</h4>
-                          <p className="text-xs text-slate-600 group-hover:text-blue-600 transition-colors duration-300">Type or paste text</p>
-                        </div>
-                      </div>
-                    </Card>
-
-                    <Card className={`group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 shadow-lg ${
-                      'border-[#6dbda9]/60 bg-gradient-to-br from-white to-[#6dbda9]/10 hover:shadow-[#6dbda9]/10 hover:border-[#6dbda9]/80'
-                    }`}>
-                      <div
-                        className="p-4 text-center space-y-3 h-full flex flex-col justify-center"
-                        onClick={() => {
-                          onStartRecording();
-                        }}
-                      >
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mx-auto shadow-md group-hover:shadow-lg transition-all duration-300 ${
-                          'bg-gradient-to-br from-[#6dbda9]/20 to-[#5ba08c]/30'
-                        }`}>
-                          <Mic className="h-5 w-5 text-[#6dbda9]" />
-                        </div>
-                        <div className="space-y-1">
-                          <h4 className={`text-sm font-bold transition-colors duration-300 ${
-                            'text-slate-800 group-hover:text-[#6dbda9]'
-                          }`}>
-                            Voice Dictation
-                          </h4>
-                          <p className={`text-xs transition-colors duration-300 ${
-                            'text-slate-600 group-hover:text-[#6dbda9]/80'
-                          }`}>
-                            AI speech recognition
-                          </p>
-                        </div>
-                      </div>
-                    </Card>
-                  </div>
-
-                  {/* Premium Template Example Card */}
-                  {!transcript && (
-                    <Card className="bg-gradient-to-br from-amber-50/80 via-yellow-50/60 to-orange-50/80 border-2 border-amber-200/70 shadow-xl backdrop-blur-sm">
-                      <div className="p-5">
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
-                            <BookOpen className="h-4 w-4 text-white" />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-slate-900 text-sm">Template Example</h4>
-                            <p className="text-xs text-slate-600">For {templates.find(t => t.value === currentTemplate)?.label.split('(')[0].trim()}</p>
-                          </div>
-                        </div>
-                        <div className="bg-white/90 rounded-xl p-4 border border-amber-100 shadow-inner">
-                          <p className="text-sm text-slate-800 leading-relaxed italic font-medium">
-                            "{getTemplateExample(currentTemplate)}"
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2 mt-3">
-                          <Star className="h-4 w-4 fill-amber-400 text-amber-500" />
-                          <span className="text-sm text-amber-700 font-medium">Speak naturally - AI formats automatically</span>
-                        </div>
-                      </div>
-                    </Card>
-                  )}
-                </div>
-              )}
 
               {/* Enhanced Quick Actions */}
               {transcript && (

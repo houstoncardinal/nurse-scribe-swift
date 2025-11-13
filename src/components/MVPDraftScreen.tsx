@@ -736,7 +736,7 @@ export function MVPDraftScreen({
 
       {/* Note Content - Optimized for Desktop & Mobile */}
       <div className="flex-1 overflow-y-auto px-3 py-2 lg:px-6 lg:py-3 space-y-3 lg:space-y-3 min-h-0">
-        <div className="max-w-5xl mx-auto">
+        <div className="w-full max-w-[95%] lg:max-w-[90%]">
         {/* Template-specific sections */}
         {selectedTemplate === 'SOAP' && noteContent && (
           <>
