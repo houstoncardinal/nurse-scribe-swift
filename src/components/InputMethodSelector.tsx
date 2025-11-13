@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mic, Keyboard, FileText, Upload, Zap, Shield, Clock, Lightbulb, Info } from 'lucide-react';
+import { Mic, Keyboard, FileText, Upload, Zap, Shield, Clock, BookOpen, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -139,28 +139,60 @@ export function InputMethodSelector({
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="space-y-3">
                 <Label htmlFor="manual-text" className="text-sm font-medium">
-                  Enter your notes below:
+                  Enter your notes below - any format works!
                 </Label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleFillExample}
-                  className="h-8 text-xs gap-1.5"
-                >
-                  <Lightbulb className="h-3.5 w-3.5" />
-                  🧠 Example
-                </Button>
+
+                {/* Input Tips */}
+                <div className="bg-gradient-to-r from-slate-50 to-slate-100/50 rounded-lg p-3 border border-slate-200/60">
+                  <h4 className="text-xs font-semibold text-slate-700 mb-2">💡 Input Tips:</h4>
+                  <div className="grid grid-cols-1 gap-2 text-xs text-slate-600">
+                    <div className="flex items-start gap-2">
+                      <span className="text-slate-400 mt-0.5">•</span>
+                      <span>Type naturally - "pt c/o chest pain, bp 140/90, hr 88"</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-slate-400 mt-0.5">•</span>
+                      <span>Use abbreviations - "pt aox3, lungs clear, abd soft"</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-slate-400 mt-0.5">•</span>
+                      <span>Include vitals - "temp 98.6, resp 16, o2 sat 98% ra"</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-slate-400 mt-0.5">•</span>
+                      <span>AI will format it professionally into {selectedTemplate}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500">Try different input styles:</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleFillExample}
+                    className="h-8 text-xs gap-1.5"
+                  >
+                    <BookOpen className="h-3.5 w-3.5" />
+                    Load Example
+                  </Button>
+                </div>
               </div>
+
               <Textarea
                 id="manual-text"
                 value={manualText}
                 onChange={(e) => setManualText(e.target.value)}
-                placeholder={getTemplatePlaceholder(selectedTemplate)}
-                className="min-h-[200px] resize-none border-2 focus:border-emerald-300 dark:focus:border-emerald-600 font-mono text-sm"
+                placeholder={`Example inputs:
+• "patient reports headache, nausea, bp 160/95"
+• "pt with sob, wheezes bilateral, o2 2l nc"
+• "assessment: pneumonia, plan: antibiotics, oxygen"
+• "neuro intact, cardiac regular, gi soft nontender"`}
+                className="min-h-[200px] resize-none border-2 focus:border-emerald-300 dark:focus:border-emerald-600 text-sm leading-relaxed"
               />
-              
+
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>{manualText.length} characters</span>
                 <span>{manualText.split(' ').filter(w => w.length > 0).length} words</span>
@@ -235,8 +267,8 @@ export function InputMethodSelector({
                   onClick={handleFillExample}
                   className="h-8 text-xs gap-1.5"
                 >
-                  <Lightbulb className="h-3.5 w-3.5" />
-                  🧠 Example
+                  <BookOpen className="h-3.5 w-3.5" />
+                  Example
                 </Button>
               </div>
               <Textarea
