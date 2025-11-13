@@ -48,39 +48,41 @@ const App = () => {
       // If version changed, clear all caches and update
       if (lastKnownVersion && lastKnownVersion !== currentVersion && lastKnownVersion !== 'null') {
         console.log('🚀 New version detected! Clearing caches...');
-        
+        console.log('⚠️ Auto-reload temporarily disabled for development');
+
+        // Temporarily disabled to prevent reload loops during development
         // Mark that we're about to reload for this version
-        sessionStorage.setItem(reloadKey, 'true');
-        
+        // sessionStorage.setItem(reloadKey, 'true');
+
         // Clear all caches
-        if ('caches' in window) {
-          const cacheNames = await caches.keys();
-          await Promise.all(cacheNames.map(name => caches.delete(name)));
-          console.log('✅ All caches cleared');
-        }
-        
+        // if ('caches' in window) {
+        //   const cacheNames = await caches.keys();
+        //   await Promise.all(cacheNames.map(name => caches.delete(name)));
+        //   console.log('✅ All caches cleared');
+        // }
+
         // Clear localStorage items that might cause issues
-        localStorage.removeItem('background-sync-registered');
-        localStorage.removeItem('whisper-model-loaded');
-        
+        // localStorage.removeItem('background-sync-registered');
+        // localStorage.removeItem('whisper-model-loaded');
+
         // Update service worker
-        if ('serviceWorker' in navigator) {
-          const registration = await navigator.serviceWorker.getRegistration();
-          if (registration) {
-            await registration.update();
-            console.log('✅ Service worker updated');
-          }
-        }
-        
-        console.log('🎉 App updated to version', currentVersion);
-        console.log('🔄 Auto-reloading to apply updates...');
-        
+        // if ('serviceWorker' in navigator) {
+        //   const registration = await navigator.serviceWorker.getRegistration();
+        //   if (registration) {
+        //     await registration.update();
+        //     console.log('✅ Service worker updated');
+        //   }
+        // }
+
+        // console.log('🎉 App updated to version', currentVersion);
+        // console.log('🔄 Auto-reloading to apply updates...');
+
         // Store the new version before reloading
-        localStorage.setItem('nursescribe-version', currentVersion);
-        
+        // localStorage.setItem('nursescribe-version', currentVersion);
+
         // Automatically reload to apply the new version
-        window.location.reload();
-        return; // Exit early since we're reloading
+        // window.location.reload();
+        // return; // Exit early since we're reloading
       }
       
       // Store current version
@@ -94,17 +96,17 @@ const App = () => {
   useEffect(() => {
     // Check for app updates and clear caches automatically
     checkForUpdates();
-    
-    // Fallback: ensure app loads even if service worker fails
-    const fallbackTimer = setTimeout(() => {
-      const rootElement = document.getElementById('root');
-      if (rootElement && !rootElement.innerHTML.trim()) {
-        console.log('🔄 Fallback: App not loaded, forcing reload...');
-        window.location.reload();
-      }
-    }, 3000); // 3 second fallback
-    
-    return () => clearTimeout(fallbackTimer);
+
+    // Commented out fallback to prevent reload loops during development
+    // const fallbackTimer = setTimeout(() => {
+    //   const rootElement = document.getElementById('root');
+    //   if (rootElement && !rootElement.innerHTML.trim()) {
+    //     console.log('🔄 Fallback: App not loaded, forcing reload...');
+    //     window.location.reload();
+    //   }
+    // }, 3000); // 3 second fallback
+
+    // return () => clearTimeout(fallbackTimer);
     
     // Initialize PWA service
     pwaService.initialize().catch(console.error);
@@ -145,21 +147,20 @@ const App = () => {
       const handleServiceWorkerMessage = (event: MessageEvent) => {
         if (event.data?.type === 'SW_UPDATED') {
           console.log('🔄 Service worker updated to version:', event.data.version);
-          
-          // Prevent infinite reload loops from service worker updates
-          const swReloadKey = `sw-reload-${event.data.version}`;
-          const hasSwReloaded = sessionStorage.getItem(swReloadKey);
-          
-          if (hasSwReloaded) {
-            console.log('🔄 Already reloaded for this SW version, skipping');
-            return;
-          }
-          
-          console.log('🔄 Auto-reloading to apply service worker updates...');
-          sessionStorage.setItem(swReloadKey, 'true');
-          
-          // Automatically reload the page to ensure fresh state
-          window.location.reload();
+          console.log('⚠️ Auto-reload temporarily disabled for development');
+
+          // Temporarily disabled to prevent reload loops during development
+          // const swReloadKey = `sw-reload-${event.data.version}`;
+          // const hasSwReloaded = sessionStorage.getItem(swReloadKey);
+
+          // if (hasSwReloaded) {
+          //   console.log('🔄 Already reloaded for this SW version, skipping');
+          //   return;
+          // }
+
+          // console.log('🔄 Auto-reloading to apply service worker updates...');
+          // sessionStorage.setItem(swReloadKey, 'true');
+          // window.location.reload();
         }
       };
 

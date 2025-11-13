@@ -258,17 +258,17 @@ export function MVPExportScreen({
   ];
 
   return (
-    <div className="mvp-app bg-gradient-hero">
+    <div className="h-full flex flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-hidden">
       {/* Mobile-Optimized Compact Header */}
-      <div className="lg:hidden flex-shrink-0 p-3 bg-card/90 backdrop-blur-sm border-b border-border">
+      <div className="lg:hidden flex-shrink-0 p-3 bg-white/90 backdrop-blur-sm border-b border-slate-200">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h1 className="text-lg font-bold text-foreground">Export & Save</h1>
-            <p className="text-xs text-muted-foreground">
+            <h1 className="text-lg font-bold text-slate-900">Export & Save</h1>
+            <p className="text-xs text-slate-600">
               Choose how to save your {selectedTemplate} note
             </p>
           </div>
-          <Badge className="bg-gradient-primary text-primary-foreground px-2 py-1 text-xs">
+          <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-2 py-1 text-xs">
             {selectedTemplate}
           </Badge>
         </div>
@@ -293,40 +293,43 @@ export function MVPExportScreen({
       </div>
 
       {/* Desktop Header */}
-      <div className="hidden lg:block flex-shrink-0 p-4 bg-card/90 backdrop-blur-sm border-b border-border">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Export & Save</h1>
-            <p className="text-sm text-muted-foreground">
-              Choose how to save your {selectedTemplate} note
-            </p>
+      <div className="hidden lg:block flex-shrink-0 px-6 py-4 bg-white/90 backdrop-blur-sm border-b border-slate-200">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">Export & Save</h1>
+              <p className="text-sm text-slate-600">
+                Choose how to save your {selectedTemplate} note
+              </p>
+            </div>
+            <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-3 py-1">
+              {selectedTemplate}
+            </Badge>
           </div>
-          <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-3 py-1">
-            {selectedTemplate}
-          </Badge>
+
+          {/* Desktop Status Alerts */}
+          {exportStatus === 'success' && (
+            <Alert className="border-green-200 bg-green-50">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              <AlertDescription className="text-green-800">
+                Note exported successfully as {exportedFormat}!
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {exportStatus === 'error' && (
+            <Alert variant="destructive">
+              <AlertDescription>
+                Export failed. Please try again.
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
-
-        {/* Desktop Status Alerts */}
-        {exportStatus === 'success' && (
-          <Alert className="border-green-200 bg-green-50">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
-              Note exported successfully as {exportedFormat}!
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {exportStatus === 'error' && (
-          <Alert variant="destructive">
-            <AlertDescription>
-              Export failed. Please try again.
-            </AlertDescription>
-          </Alert>
-        )}
       </div>
 
       {/* Export Options - Mobile Optimized */}
-      <div className="flex-1 overflow-y-auto px-3 py-2 lg:px-4 lg:py-4 space-y-3 lg:space-y-4 min-h-0">
+      <div className="flex-1 overflow-y-auto px-3 py-2 lg:px-6 lg:py-6 space-y-3 lg:space-y-4 min-h-0">
+        <div className="max-w-4xl mx-auto space-y-3 lg:space-y-4">
         {exportOptions.map((option) => {
           const Icon = option.icon;
           return (
@@ -353,7 +356,7 @@ export function MVPExportScreen({
                 <Button
                   onClick={option.action}
                   disabled={exportStatus === 'exporting'}
-                  className="shrink-0 h-8 lg:h-10"
+                  className="shrink-0 h-8 lg:h-10 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white"
                   size="sm"
                 >
                   {exportStatus === 'exporting' ? (
@@ -374,61 +377,62 @@ export function MVPExportScreen({
           );
         })}
 
-        {/* Download Options Modal */}
-        {showDownloadOptions && (
-          <Card className="p-4 lg:p-6 border-2 border-blue-200 bg-blue-50">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base lg:text-lg font-semibold text-blue-900">Choose Download Format</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowDownloadOptions(false)}
-                className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
-              >
-                ×
-              </Button>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Button 
-                onClick={handleDownloadText}
-                disabled={exportStatus === 'exporting'}
-                className="h-12 bg-blue-600 hover:bg-blue-700"
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                <span className="text-sm">Text File</span>
-              </Button>
-              <Button 
-                onClick={handleDownloadPDF}
-                disabled={exportStatus === 'exporting'}
-                className="h-12 bg-red-600 hover:bg-red-700"
-              >
-                <File className="h-4 w-4 mr-2" />
-                <span className="text-sm">PDF</span>
-              </Button>
-            </div>
-            {exportStatus === 'exporting' && (
-              <div className="mt-3 text-center">
-                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                <p className="text-xs text-blue-600 mt-1">Preparing download...</p>
+          {/* Download Options Modal */}
+          {showDownloadOptions && (
+            <Card className="p-4 lg:p-6 border-2 border-teal-200 bg-teal-50">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base lg:text-lg font-semibold text-teal-900">Choose Download Format</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowDownloadOptions(false)}
+                  className="h-6 w-6 p-0 text-teal-600 hover:text-teal-800"
+                >
+                  ×
+                </Button>
               </div>
-            )}
-          </Card>
-        )}
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  onClick={handleDownloadText}
+                  disabled={exportStatus === 'exporting'}
+                  className="h-12 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  <span className="text-sm">Text File</span>
+                </Button>
+                <Button
+                  onClick={handleDownloadPDF}
+                  disabled={exportStatus === 'exporting'}
+                  className="h-12 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white"
+                >
+                  <File className="h-4 w-4 mr-2" />
+                  <span className="text-sm">PDF</span>
+                </Button>
+              </div>
+              {exportStatus === 'exporting' && (
+                <div className="mt-3 text-center">
+                  <div className="w-4 h-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  <p className="text-xs text-teal-600 mt-1">Preparing download...</p>
+                </div>
+              )}
+            </Card>
+          )}
 
-        {/* Mobile Additional Options */}
-        <Card className="p-4 lg:p-6">
-          <h3 className="text-base lg:text-lg font-semibold mb-3 lg:mb-4">Additional Options</h3>
-          <div className="grid grid-cols-2 gap-2 lg:gap-3">
-            <Button variant="outline" className="h-10 lg:h-12">
-              <Mail className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
-              <span className="text-xs lg:text-sm">Email</span>
-            </Button>
-            <Button variant="outline" className="h-10 lg:h-12">
-              <Share2 className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
-              <span className="text-xs lg:text-sm">Share</span>
-            </Button>
-          </div>
-        </Card>
+          {/* Additional Options */}
+          <Card className="p-4 lg:p-6 bg-white/90 border-2 border-slate-200 shadow-sm">
+            <h3 className="text-base lg:text-lg font-semibold mb-3 lg:mb-4 text-slate-900">Additional Options</h3>
+            <div className="grid grid-cols-2 gap-2 lg:gap-3">
+              <Button variant="outline" className="h-10 lg:h-12 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-700">
+                <Mail className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
+                <span className="text-xs lg:text-sm">Email</span>
+              </Button>
+              <Button variant="outline" className="h-10 lg:h-12 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-700">
+                <Share2 className="h-3 w-3 lg:h-4 lg:w-4 mr-1 lg:mr-2" />
+                <span className="text-xs lg:text-sm">Share</span>
+              </Button>
+            </div>
+          </Card>
+        </div>
       </div>
 
       {/* Mobile-Optimized Actions */}
@@ -455,26 +459,28 @@ export function MVPExportScreen({
       </div>
 
       {/* Desktop Actions */}
-      <div className="hidden lg:block flex-shrink-0 p-4 space-y-3 bg-white/90 backdrop-blur-sm border-t border-slate-200">
-        <Button
-          size="lg"
-          onClick={() => onNavigate('home')}
-          className="w-full h-11 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700"
-        >
-          <Zap className="h-4 w-4 mr-2" />
-          Start New Note
-        </Button>
-        
-        <div className="text-center">
+      <div className="hidden lg:block flex-shrink-0 px-6 py-4 space-y-3 bg-white/90 backdrop-blur-sm border-t border-slate-200">
+        <div className="max-w-4xl mx-auto space-y-3">
           <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onNavigate('draft')}
-            className="text-slate-500 hover:text-slate-700"
+            size="lg"
+            onClick={() => onNavigate('home')}
+            className="w-full h-11 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Draft
+            <Zap className="h-4 w-4 mr-2" />
+            Start New Note
           </Button>
+
+          <div className="text-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onNavigate('draft')}
+              className="text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Draft
+            </Button>
+          </div>
         </div>
       </div>
     </div>

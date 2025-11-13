@@ -1163,10 +1163,10 @@ export function MVPApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-x-hidden">
       {/* Desktop Layout */}
-      <div className="hidden lg:block">
-        <div className="flex h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+      <div className="hidden lg:block overflow-x-hidden">
+        <div className="flex h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-x-hidden">
           {/* Desktop Sidebar - Compact */}
           <aside className="w-64 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
             <div className="flex flex-col h-full">
@@ -1392,7 +1392,7 @@ export function MVPApp() {
           </aside>
 
           {/* Desktop Main Content */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col overflow-x-hidden">
             {/* Desktop Header */}
             <header className="bg-white/95 backdrop-blur-xl border-b border-slate-200 shadow-sm">
               <div className="px-8 py-6">
@@ -1447,8 +1447,8 @@ export function MVPApp() {
             </header>
 
             {/* Desktop Content */}
-            <main className="flex-1 overflow-hidden">
-              <div className="h-full">
+            <main className="flex-1 overflow-x-hidden overflow-y-hidden">
+              <div className="h-full overflow-x-hidden">
                 {renderCurrentScreen()}
               </div>
             </main>
