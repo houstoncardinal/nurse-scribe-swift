@@ -111,11 +111,11 @@ export function MVPHomeScreen({
   };
 
   return (
-    <div className="mvp-app bg-gradient-hero">
+    <div className="mvp-app bg-gradient-hero overflow-hidden">
               {/* Desktop Layout - Powerful Grid Organization */}
-              <div className="hidden lg:flex lg:h-full lg:overflow-visible w-full">
-                <div className="flex-1 max-w-full px-4 lg:px-6 py-4 overflow-visible w-full">
-                  <div className="w-full h-full flex flex-col">
+              <div className="hidden lg:flex lg:h-full lg:overflow-hidden w-full max-w-full">
+                <div className="flex-1 max-w-full px-4 lg:px-6 py-4 overflow-hidden w-full">
+                  <div className="w-full h-full flex flex-col max-w-full">
                     {/* Desktop Header - Streamlined */}
                     <div className="text-center mb-4">
                       <div className="flex items-center justify-center gap-2.5 mb-2">
@@ -149,11 +149,11 @@ export function MVPHomeScreen({
                     </div>
 
                     {/* Main Grid Layout - Powerful 3-Column Design */}
-                    <div className="flex-1">
-                      <div className="relative h-full w-full rounded-[32px] border border-border bg-card/80 shadow-sm backdrop-blur-lg p-4 lg:p-6 overflow-hidden">
-                        <div className="relative h-full grid grid-cols-1 gap-4 min-h-0 lg:[grid-template-columns:0.85fr_1fr_0.6fr] lg:justify-items-stretch">
+                    <div className="flex-1 overflow-hidden">
+                      <div className="relative h-full w-full max-w-full rounded-[32px] border border-border bg-card/80 shadow-sm backdrop-blur-lg p-4 lg:p-6 overflow-hidden">
+                        <div className="relative h-full grid grid-cols-1 gap-4 min-h-0 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)_minmax(0,0.6fr)] w-full max-w-full overflow-hidden">
                       {/* Left Column - Recording Controls */}
-                      <div className="col-span-1 h-full flex flex-col space-y-3 overflow-y-auto pr-2 pl-0">
+                      <div className="col-span-1 h-full flex flex-col space-y-3 overflow-y-auto pr-2 pl-0 min-w-0">
                 {showInputSelector ? (
                   <div className="w-full">
                     <InputMethodSelector
@@ -379,7 +379,7 @@ export function MVPHomeScreen({
                       </div>
 
                       {/* Center Column - Performance Metrics */}
-                      <div className="col-span-1 h-full flex flex-col space-y-3 overflow-y-auto px-2">
+                      <div className="col-span-1 h-full flex flex-col space-y-3 overflow-y-auto px-2 min-w-0">
                         {/* Performance Today */}
                         <Card className="p-3 bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200/80 shadow-lg">
                           <div className="flex items-center gap-2 mb-2">
@@ -503,7 +503,7 @@ export function MVPHomeScreen({
                       </div>
 
                       {/* Right Column - Goals & Actions */}
-                      <div className="col-span-1 h-full flex flex-col space-y-3 overflow-y-auto pl-2">
+                      <div className="col-span-1 h-full flex flex-col space-y-3 overflow-y-auto pl-2 min-w-0">
                         {/* Weekly Goal Progress */}
                         <Card className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-lg">
                           <div className="flex items-center gap-2 mb-2">
