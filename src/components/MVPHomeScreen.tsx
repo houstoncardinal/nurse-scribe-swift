@@ -111,7 +111,7 @@ export function MVPHomeScreen({
   };
 
   return (
-    <div className="mvp-app bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="mvp-app bg-gradient-hero">
               {/* Desktop Layout - Powerful Grid Organization */}
               <div className="hidden lg:flex lg:h-full lg:overflow-visible w-full">
                 <div className="flex-1 max-w-full px-4 lg:px-6 py-4 overflow-visible w-full">
@@ -119,14 +119,12 @@ export function MVPHomeScreen({
                     {/* Desktop Header - Streamlined */}
                     <div className="text-center mb-4">
                       <div className="flex items-center justify-center gap-2.5 mb-2">
-                        <div className="w-9 h-9 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/20">
-                          <Mic className="h-4 w-4 text-white" />
+                        <div className="w-9 h-9 bg-gradient-primary rounded-xl flex items-center justify-center shadow-lg">
+                          <Mic className="h-4 w-4 text-primary-foreground" />
                         </div>
-                        <h1 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                          Start New Note
-                        </h1>
+                        <h1 className="text-xl font-bold text-gradient">Start New Note</h1>
                       </div>
-                      <p className="text-xs text-slate-600">Create professional nursing documentation with AI assistance</p>
+                      <p className="text-xs text-muted-foreground">Create professional nursing documentation with AI assistance</p>
                     </div>
 
                     {/* Template Selector - Centered */}
@@ -134,14 +132,14 @@ export function MVPHomeScreen({
                       <Select value={currentTemplate} onValueChange={(value) => {
                         onTemplateChange(value);
                       }}>
-                        <SelectTrigger className="w-full h-10 text-sm bg-white border-2 border-slate-200 hover:border-teal-300 focus:border-teal-500 transition-colors shadow-sm">
+                        <SelectTrigger className="w-full h-10 text-sm bg-background border-2 border-border hover:border-primary focus:border-primary transition-colors shadow-sm">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border border-slate-200 shadow-xl">
+                        <SelectContent className="bg-background border border-border shadow-xl">
                           {templates.map((template) => (
-                            <SelectItem key={template.value} value={template.value} className="hover:bg-teal-50 py-2.5">
+                            <SelectItem key={template.value} value={template.value} className="hover:bg-primary/10 py-2.5">
                               <div className="flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full" />
+                                <div className="w-1.5 h-1.5 bg-gradient-primary rounded-full" />
                                 <span className="font-medium text-sm">{template.label}</span>
                               </div>
                             </SelectItem>
@@ -152,7 +150,7 @@ export function MVPHomeScreen({
 
                     {/* Main Grid Layout - Powerful 3-Column Design */}
                     <div className="flex-1">
-                      <div className="relative h-full w-full rounded-[32px] border border-slate-200 bg-white/80 shadow-sm backdrop-blur-lg p-4 lg:p-6 overflow-hidden">
+                      <div className="relative h-full w-full rounded-[32px] border border-border bg-card/80 shadow-sm backdrop-blur-lg p-4 lg:p-6 overflow-hidden">
                         <div className="relative h-full grid grid-cols-1 gap-4 min-h-0 lg:[grid-template-columns:0.85fr_1fr_0.6fr] lg:justify-items-stretch">
                       {/* Left Column - Recording Controls */}
                       <div className="col-span-1 h-full flex flex-col space-y-3 overflow-y-auto pr-2 pl-0">
@@ -180,7 +178,7 @@ export function MVPHomeScreen({
                 ) : (
                   <>
                         {/* Recording Control Card */}
-                        <Card className="flex-shrink-0 flex flex-col items-center justify-center p-5 bg-white border border-slate-200 shadow-md rounded-[32px]">
+                        <Card className="flex-shrink-0 flex flex-col items-center justify-center p-5 bg-card border border-border shadow-md rounded-[32px]">
                         <div className="relative flex flex-col items-center space-y-4 w-full">
                           <div className="relative">
                             {/* Multiple Pulse Rings */}
@@ -197,8 +195,8 @@ export function MVPHomeScreen({
                               size="lg"
                               className={`w-40 h-40 rounded-full shadow-2xl transition-all duration-500 transform hover:scale-105 ${
                                 isRecording 
-                                  ? 'bg-gradient-to-br from-red-500 via-pink-600 to-red-600 hover:from-red-600 hover:via-pink-700 hover:to-red-700 shadow-red-500/30' 
-                                  : 'bg-gradient-to-br from-teal-500 via-blue-600 to-teal-600 hover:from-teal-600 hover:via-blue-700 hover:to-teal-700 shadow-teal-500/30'
+                                  ? 'bg-gradient-to-br from-red-500 via-pink-600 to-red-600' 
+                                  : 'bg-gradient-primary'
                               } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                               onClick={(e) => {
                                 e.preventDefault();
@@ -248,9 +246,9 @@ export function MVPHomeScreen({
                                   
                                   {/* Live Transcript */}
                                   {visibleInterimTranscript && (
-                                    <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-md">
-                                      <p className="text-xs text-slate-600 mb-1">Live transcription:</p>
-                                      <p className="text-slate-800 font-medium italic text-sm">
+                                    <div className="bg-card border border-border rounded-lg p-2 shadow-md">
+                                      <p className="text-xs text-muted-foreground mb-1">Live transcription:</p>
+                                      <p className="text-foreground font-medium italic text-sm">
                                         "{visibleInterimTranscript}"
                                       </p>
                                     </div>
@@ -272,14 +270,14 @@ export function MVPHomeScreen({
                               )}
 
                               {!isRecording && !isProcessing && (
-                                <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 border border-slate-200 rounded-xl p-4 shadow-md">
-                                  <h2 className="text-base font-bold text-slate-900 mb-1">Ready to Record</h2>
-                                  <p className="text-sm text-slate-600 mb-2">
+                                <div className="bg-gradient-hero border border-border rounded-xl p-4 shadow-md">
+                                  <h2 className="text-base font-bold text-foreground mb-1">Ready to Record</h2>
+                                  <p className="text-sm text-muted-foreground mb-2">
                                     Click the microphone to start AI-powered transcription
                                   </p>
                                   {!voiceSupported && (
-                                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2.5">
-                                      <p className="text-xs text-yellow-800">
+                                    <div className="bg-warning/10 border border-warning/30 rounded-lg p-2.5">
+                                      <p className="text-xs text-warning-foreground">
                                         ⚠️ Voice not supported. Use manual input.
                                       </p>
                                     </div>
@@ -293,14 +291,14 @@ export function MVPHomeScreen({
 
                         {/* Input Method Options Card */}
                         {!isRecording && !isProcessing && !transcript && (
-                          <Card className="flex-shrink-0 p-4 bg-white/80 border border-slate-200/90 shadow-md backdrop-blur rounded-3xl">
-                            <h3 className="text-sm font-semibold text-slate-900 mb-4 text-center">Or choose another input method:</h3>
+                          <Card className="flex-shrink-0 p-4 bg-card/80 border border-border/90 shadow-md backdrop-blur rounded-3xl">
+                            <h3 className="text-sm font-semibold text-foreground mb-4 text-center">Or choose another input method:</h3>
                             <div className="grid gap-3 md:grid-cols-2">
                               <Button
                                 type="button"
                                 variant="ghost"
                                 onClick={() => setShowInputSelector(true)}
-                                className="group flex min-h-[170px] flex-col justify-between rounded-2xl border border-slate-200/70 bg-gradient-to-br from-blue-50/80 via-white to-blue-100 p-5 text-left shadow-[0_20px_45px_rgba(15,118,210,0.15)] transition hover:-translate-y-0.5 hover:shadow-[0_25px_50px_rgba(15,118,210,0.25)]"
+                                className="group flex min-h-[170px] flex-col justify-between rounded-2xl border border-border bg-gradient-hero p-5 text-left shadow-[0_20px_45px_rgba(0,0,0,0.05)] transition hover:-translate-y-0.5 hover:shadow-[0_25px_50px_rgba(0,0,0,0.08)]"
                               >
                                 <div className="flex items-center gap-3">
                                   <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-sm shadow-blue-200/80 group-hover:bg-white">
@@ -626,11 +624,11 @@ export function MVPHomeScreen({
               <Select value={currentTemplate} onValueChange={(value) => {
                 onTemplateChange(value);
               }}>
-                <SelectTrigger className="w-full h-9 text-xs bg-white border border-slate-200 hover:border-teal-300 focus:border-teal-500 transition-colors shadow-sm">
+                <SelectTrigger className="w-full h-9 text-xs bg-background border border-border hover:border-primary focus:border-primary transition-colors shadow-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent 
-                  className="bg-white border border-slate-200 shadow-xl"
+                  className="bg-background border border-border shadow-xl"
                   position="popper"
                   side="bottom"
                   align="center"
@@ -749,9 +747,9 @@ export function MVPHomeScreen({
                     
                     {/* Live Transcript Display for Mobile */}
                     {visibleInterimTranscript && (
-                      <div className="bg-white border border-slate-200 rounded-xl p-3 max-w-sm mx-auto shadow-lg">
-                        <p className="text-xs text-slate-600 mb-1">Live transcription:</p>
-                        <p className="text-slate-800 font-medium italic text-sm">
+                      <div className="bg-card border border-border rounded-xl p-3 max-w-sm mx-auto shadow-lg">
+                        <p className="text-xs text-muted-foreground mb-1">Live transcription:</p>
+                        <p className="text-foreground font-medium italic text-sm">
                           "{visibleInterimTranscript}"
                         </p>
                       </div>

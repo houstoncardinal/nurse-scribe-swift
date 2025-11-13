@@ -403,7 +403,7 @@ export function MVPDraftScreen({
   };
 
   return (
-    <div className="mvp-app bg-gradient-to-br from-slate-50 via-white to-blue-50/30 w-full">
+    <div className="mvp-app bg-gradient-hero w-full">
       {/* Mobile-Optimized Compact Header */}
       <div className="lg:hidden flex-shrink-0 p-3 bg-white/90 backdrop-blur-sm border-b border-slate-200">
         <div className="flex items-center justify-between mb-2">

@@ -85,7 +85,7 @@ class ThemeService {
     if (metaThemeColor) {
       metaThemeColor.setAttribute(
         'content',
-        effectiveTheme === 'dark' ? '#0A1628' : '#FFFFFF'
+        effectiveTheme === 'dark' ? '#0A1628' : '#F7EFE6'
       );
     }
   }

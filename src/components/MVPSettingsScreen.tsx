@@ -150,9 +150,9 @@ export function MVPSettingsScreen({ onNavigate, onSettingsChange }: MVPSettingsS
   };
 
   return (
-    <div className="mvp-app bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="mvp-app bg-gradient-hero">
       {/* Mobile-Optimized Compact Header */}
-      <div className="lg:hidden flex-shrink-0 p-3 bg-white/90 backdrop-blur-sm border-b border-slate-200">
+      <div className="lg:hidden flex-shrink-0 p-3 bg-card/90 backdrop-blur-sm border-b border-border">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -163,19 +163,19 @@ export function MVPSettingsScreen({ onNavigate, onSettingsChange }: MVPSettingsS
             <ArrowLeft className="h-3 w-3" />
           </Button>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-teal-500 to-blue-600 rounded-lg flex items-center justify-center">
-              <Settings className="h-4 w-4 text-white" />
+            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+              <Settings className="h-4 w-4 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-slate-900">Settings</h1>
-              <p className="text-xs text-slate-600">Customize experience</p>
+              <h1 className="text-lg font-bold text-foreground">Settings</h1>
+              <p className="text-xs text-muted-foreground">Customize experience</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Desktop Header */}
-      <div className="hidden lg:block flex-shrink-0 p-4 bg-white/90 backdrop-blur-sm border-b border-slate-200">
+      <div className="hidden lg:block flex-shrink-0 p-4 bg-card/90 backdrop-blur-sm border-b border-border">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -186,12 +186,12 @@ export function MVPSettingsScreen({ onNavigate, onSettingsChange }: MVPSettingsS
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-teal-500 to-blue-600 rounded-xl flex items-center justify-center">
-              <Settings className="h-5 w-5 text-white" />
+            <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
+              <Settings className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-              <p className="text-sm text-slate-600">Customize your experience</p>
+              <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+              <p className="text-sm text-muted-foreground">Customize your experience</p>
             </div>
           </div>
         </div>

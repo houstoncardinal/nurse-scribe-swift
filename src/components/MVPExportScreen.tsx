@@ -258,17 +258,17 @@ export function MVPExportScreen({
   ];
 
   return (
-    <div className="mvp-app bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="mvp-app bg-gradient-hero">
       {/* Mobile-Optimized Compact Header */}
-      <div className="lg:hidden flex-shrink-0 p-3 bg-white/90 backdrop-blur-sm border-b border-slate-200">
+      <div className="lg:hidden flex-shrink-0 p-3 bg-card/90 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h1 className="text-lg font-bold text-slate-900">Export & Save</h1>
-            <p className="text-xs text-slate-600">
+            <h1 className="text-lg font-bold text-foreground">Export & Save</h1>
+            <p className="text-xs text-muted-foreground">
               Choose how to save your {selectedTemplate} note
             </p>
           </div>
-          <Badge className="bg-gradient-to-r from-teal-500 to-blue-600 text-white px-2 py-1 text-xs">
+          <Badge className="bg-gradient-primary text-primary-foreground px-2 py-1 text-xs">
             {selectedTemplate}
           </Badge>
         </div>
@@ -293,11 +293,11 @@ export function MVPExportScreen({
       </div>
 
       {/* Desktop Header */}
-      <div className="hidden lg:block flex-shrink-0 p-4 bg-white/90 backdrop-blur-sm border-b border-slate-200">
+      <div className="hidden lg:block flex-shrink-0 p-4 bg-card/90 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Export & Save</h1>
-            <p className="text-sm text-slate-600">
+            <h1 className="text-2xl font-bold text-foreground">Export & Save</h1>
+            <p className="text-sm text-muted-foreground">
               Choose how to save your {selectedTemplate} note
             </p>
           </div>
