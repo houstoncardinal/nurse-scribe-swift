@@ -18,6 +18,8 @@ export interface UserProfile {
   location?: string;
   avatar_url?: string;
   join_date: string;
+  status?: 'active' | 'invited' | 'suspended';
+  last_login?: string;
   preferences: {
     notifications: boolean;
     voiceSpeed: number;

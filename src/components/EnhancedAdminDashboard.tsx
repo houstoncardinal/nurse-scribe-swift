@@ -78,7 +78,7 @@ const noteStatusOptions: Array<'all' | 'draft' | 'completed' | 'reviewed' | 'arc
 const formatDateTime = (input: string | Date): string => {
   const date = input instanceof Date ? input : new Date(input);
   if (Number.isNaN(date.getTime())) return 'Unknown';
-  return new Intl.DateFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+  return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
 };
 
 const computeServiceSnapshot = (stats: AdminStats | null): ServiceStatus[] => {

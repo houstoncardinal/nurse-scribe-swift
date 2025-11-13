@@ -18,6 +18,8 @@ export interface UserProfile {
   organization_id: string;
   hipaa_training_completed: boolean;
   hipaa_training_date?: string;
+  status?: 'active' | 'invited' | 'suspended';
+  last_login?: string;
   created_at: string;
   updated_at: string;
 }

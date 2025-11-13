@@ -105,9 +105,9 @@ const ROLE_MAP: Record<UserProfile['role'], AdminUserRole> = {
   auditor: 'Auditor'
 };
 
-const STATUS_MAP: Record<UserProfile['status'], AdminUserStatus> = {
+const STATUS_MAP: Record<NonNullable<UserProfile['status']>, AdminUserStatus> = {
   active: 'active',
-  inactive: 'invited',
+  invited: 'invited',
   suspended: 'suspended'
 };
 
@@ -118,9 +118,9 @@ const ROLE_REVERSE_MAP: Record<AdminUserRole, UserProfile['role']> = {
   Auditor: 'auditor'
 };
 
-const STATUS_REVERSE_MAP: Record<AdminUserStatus, UserProfile['status']> = {
+const STATUS_REVERSE_MAP: Record<AdminUserStatus, NonNullable<UserProfile['status']>> = {
   active: 'active',
-  invited: 'inactive',
+  invited: 'invited',
   suspended: 'suspended'
 };
 
@@ -389,7 +389,7 @@ class AdminService {
 
   async updateUserStatus(userId: string, status: AdminUserStatus, organizationId?: string): Promise<void> {
     if (supabaseService.isAvailable()) {
-      const supStatus = STATUS_REVERSE_MAP[status] ?? 'inactive';
+      const supStatus = STATUS_REVERSE_MAP[status] ?? 'invited';
       await supabaseService.updateUserProfile(userId, { status: supStatus });
       await supabaseService.storeAuditLog({
         user_id: 'admin',
@@ -618,12 +618,12 @@ class AdminService {
     const fallbackUsers = organizationService.getUsersByOrganization(organizationId);
     const fallbackTeams = organizationService.getTeamsByOrganization(organizationId);
 
-    const users = fallbackUsers.map(user => ({
+    const users: AdminDashboardUser[] = fallbackUsers.map(user => ({
       id: user.id,
       name: user.name,
       email: user.email,
-      role: user.role === 'admin' ? 'Administrator' : 'Clinician',
-      status: user.status === 'active' ? 'active' : 'invited',
+      role: (user.role === 'admin' ? 'Administrator' : 'Clinician') as AdminUserRole,
+      status: (user.status === 'active' ? 'active' : 'invited') as AdminUserStatus,
       lastActiveISO: user.stats.lastLogin.toISOString(),
       notesThisWeek: user.stats.notesCreated,
       teamIds: [],
