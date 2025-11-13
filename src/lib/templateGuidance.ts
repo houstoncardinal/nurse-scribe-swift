@@ -165,12 +165,12 @@ List safety measures naturally - AI organizes the checklist!`,
 
 Example: "Post-op day 2 after appendectomy. No fever. Walking with help. Eating regular diet okay. Pain is 2 out of 10. Encouraged walking and deep breathing. Doing well, continue current plan."
 
-Talk through the patient's day - AI structures it!`,
+Talk through the patient day - AI structures it!`,
     example: 'Patient post-op day 2 following appendectomy. Afebrile, temperature 98.4°F. Ambulating with assistance x1, tolerated 100 feet in hallway. Tolerating regular diet, no nausea. Pain level 2/10, well-controlled with oral acetaminophen. Physical therapy consulted. Continue post-operative care, encourage mobility, advance activity as tolerated.',
     tips: [
       'Describe surgery/diagnosis, temperature, mobility',
       'Include diet, pain level, and what you did',
-      'Speak conversationally about the patient's progress',
+      'Speak conversationally about the patient progress',
       'AI organizes it into proper med-surg format'
     ]
   },
@@ -187,7 +187,7 @@ Describe ICU care naturally - AI formats the critical details!`,
       'Mention ventilator settings, sedation, cardiac status',
       'Include drips, pressures, and monitoring',
       'Talk through the ICU care - AI extracts all critical values',
-      'Natural speech works - just describe what's happening'
+      'Natural speech works - just describe what is happening'
     ]
   },
   'nicu': {

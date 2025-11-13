@@ -12,30 +12,30 @@
 /* Premium Design System - Million Dollar Quality */
 @layer base {
   :root {
-    /* Sophisticated Color Palette */
-    --background: 32 40% 97%;
+    /* Warm & Natural Color Palette */
+    --background: 32 25% 92%;
     --foreground: 30 15% 18%;
 
-    --card: 32 35% 100%;
+    --card: 0 0% 100%;
     --card-foreground: 30 15% 18%;
 
-    --popover: 32 35% 100%;
+    --popover: 0 0% 100%;
     --popover-foreground: 30 15% 18%;
 
     /* Soft Teal Primary */
     --primary: 164 35% 64%;
     --primary-foreground: 30 15% 18%;
 
-    /* Warm Neutral Secondary */
+    /* Warm Beige/Tan Secondary */
     --secondary: 28 45% 65%;
     --secondary-foreground: 30 15% 18%;
 
     --muted: 32 25% 92%;
     --muted-foreground: 30 15% 45%;
 
-    /* Accent - Warm Clay */
+    /* Rich Clay/Terracotta Accent */
     --accent: 23 55% 58%;
-    --accent-foreground: 30 15% 18%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 6 85% 56%;
     --destructive-foreground: 0 0% 100%;
@@ -44,7 +44,7 @@
     --success-foreground: 0 0% 100%;
 
     --warning: 29 78% 64%;
-    --warning-foreground: 0 0% 12%;
+    --warning-foreground: 30 15% 18%;
 
     --border: 32 20% 86%;
     --input: 32 20% 86%;
@@ -74,15 +74,15 @@
     --shadow-2xl: 0 25px 50px -12px hsl(30 20% 12% / 0.22);
     --shadow-inner: inset 0 2px 4px 0 hsl(30 20% 12% / 0.12);
 
-    /* Premium Gradients */
+    /* Premium Gradients - Warm & Natural */
     --gradient-primary: linear-gradient(135deg, hsl(164 35% 64%) 0%, hsl(164 40% 54%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(28 45% 65%) 0%, hsl(28 50% 55%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(28 45% 65%) 0%, hsl(23 55% 58%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(23 55% 58%) 0%, hsl(23 60% 48%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(164 35% 64% / 0.1) 0%, hsl(28 45% 65% / 0.1) 100%);
-    --gradient-glass: linear-gradient(135deg, hsl(32 40% 97% / 0.9) 0%, hsl(32 35% 100% / 0.6) 100%);
-    --gradient-mesh: radial-gradient(at 30% 20%, hsl(164 35% 64% / 0.08) 0px, transparent 50%),
-                     radial-gradient(at 80% 0%, hsl(28 45% 65% / 0.08) 0px, transparent 50%),
-                     radial-gradient(at 10% 60%, hsl(23 55% 58% / 0.08) 0px, transparent 50%);
+    --gradient-hero: linear-gradient(135deg, hsl(164 35% 64% / 0.15) 0%, hsl(28 45% 65% / 0.15) 100%);
+    --gradient-glass: linear-gradient(135deg, hsl(32 25% 92% / 0.95) 0%, hsl(0 0% 100% / 0.7) 100%);
+    --gradient-mesh: radial-gradient(at 30% 20%, hsl(164 35% 64% / 0.12) 0px, transparent 50%),
+                     radial-gradient(at 80% 0%, hsl(28 45% 65% / 0.12) 0px, transparent 50%),
+                     radial-gradient(at 10% 60%, hsl(23 55% 58% / 0.12) 0px, transparent 50%);
 
     /* Glass Morphism */
     --glass-bg: hsl(32 20% 96% / 0.9);
@@ -92,38 +92,38 @@
 
   .dark {
     --background: 30 14% 9%;
-    --foreground: 30 10% 95%;
+    --foreground: 32 25% 92%;
 
     --card: 30 12% 18%;
-    --card-foreground: 30 10% 95%;
+    --card-foreground: 32 25% 92%;
 
     --popover: 30 12% 18%;
-    --popover-foreground: 30 10% 95%;
+    --popover-foreground: 32 25% 92%;
 
-    --primary: 174 40% 64%;
-    --primary-foreground: 30 10% 95%;
+    --primary: 164 35% 64%;
+    --primary-foreground: 30 14% 9%;
 
-    --secondary: 28 60% 55%;
-    --secondary-foreground: 30 10% 95%;
+    --secondary: 28 45% 65%;
+    --secondary-foreground: 30 14% 9%;
 
     --muted: 30 10% 20%;
-    --muted-foreground: 30 10% 85%;
+    --muted-foreground: 32 20% 75%;
 
-    --accent: 23 78% 68%;
-    --accent-foreground: 30 10% 12%;
+    --accent: 23 55% 58%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 6 85% 56%;
-    --destructive-foreground: 30 10% 95%;
+    --destructive-foreground: 0 0% 100%;
 
     --success: 174 40% 64%;
-    --success-foreground: 30 10% 95%;
+    --success-foreground: 0 0% 100%;
 
     --warning: 29 78% 64%;
-    --warning-foreground: 30 10% 12%;
+    --warning-foreground: 30 14% 9%;
 
     --border: 30 10% 25%;
     --input: 30 10% 25%;
-    --ring: 174 40% 64%;
+    --ring: 164 35% 64%;
 
     --shadow-xs: 0 1px 2px 0 hsl(30 10% 5% / 0.5);
     --shadow-sm: 0 1px 3px 0 hsl(30 10% 5% / 0.55), 0 1px 2px -1px hsl(30 10% 5% / 0.55);
@@ -132,11 +132,11 @@
     --shadow-xl: 0 20px 25px -5px hsl(30 10% 5% / 0.7), 0 8px 10px -6px hsl(30 10% 5% / 0.65);
     --shadow-2xl: 0 25px 50px -12px hsl(30 10% 5% / 0.75);
 
-    --gradient-hero: linear-gradient(135deg, hsl(174 40% 64% / 0.25) 0%, hsl(28 60% 55% / 0.25) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(164 35% 64% / 0.25) 0%, hsl(28 45% 65% / 0.25) 100%);
     --gradient-glass: linear-gradient(135deg, hsl(30 12% 18% / 0.9) 0%, hsl(30 12% 18% / 0.6) 100%);
-    --gradient-mesh: radial-gradient(at 40% 20%, hsl(174 40% 64% / 0.3) 0px, transparent 50%),
-                     radial-gradient(at 80% 0%, hsl(28 60% 55% / 0.3) 0px, transparent 50%),
-                     radial-gradient(at 0% 50%, hsl(23 78% 68% / 0.3) 0px, transparent 50%);
+    --gradient-mesh: radial-gradient(at 40% 20%, hsl(164 35% 64% / 0.3) 0px, transparent 50%),
+                     radial-gradient(at 80% 0%, hsl(28 45% 65% / 0.3) 0px, transparent 50%),
+                     radial-gradient(at 0% 50%, hsl(23 55% 58% / 0.3) 0px, transparent 50%);
 
     --glass-bg: hsl(30 10% 12% / 0.9);
     --glass-border: hsl(30 10% 25% / 0.55);
