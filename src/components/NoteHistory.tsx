@@ -168,7 +168,11 @@ const mockNotes: Note[] = [
   }
 ];
 
-export function NoteHistory() {
+interface NoteHistoryProps {
+  onNavigate?: (screen: string) => void;
+}
+
+export function NoteHistory({ onNavigate }: NoteHistoryProps = {}) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterTemplate, setFilterTemplate] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -383,7 +387,10 @@ export function NoteHistory() {
 
             {/* New Note Button */}
             <div className="lg:col-span-1">
-              <Button className="w-full h-9 text-sm bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white">
+              <Button
+                onClick={() => onNavigate?.('home')}
+                className="w-full h-9 text-sm bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white"
+              >
                 <FileText className="h-4 w-4 lg:mr-2" />
                 <span className="hidden lg:inline">New</span>
               </Button>
@@ -404,7 +411,10 @@ export function NoteHistory() {
                   ? 'Try adjusting your filters or search query'
                   : 'Create your first note to get started'}
               </p>
-              <Button className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white">
+              <Button
+                onClick={() => onNavigate?.('home')}
+                className="bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white"
+              >
                 <FileText className="h-4 w-4 mr-2" />
                 Create New Note
               </Button>

@@ -1,5 +1,5 @@
 // import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect, lazy, Suspense } from "react";
@@ -192,7 +192,6 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Sonner />
         <Routes>
           <Route path="/" element={<Suspense fallback={null}><MVPAppLazy /></Suspense>} />
           <Route path="/full" element={<Index />} />
@@ -201,20 +200,23 @@ const App = () => {
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-        
+
         {/* Global Modals */}
-        <AnalyticsDashboard 
-          isOpen={showAnalytics} 
-          onClose={() => setShowAnalytics(false)} 
+        <AnalyticsDashboard
+          isOpen={showAnalytics}
+          onClose={() => setShowAnalytics(false)}
         />
-        <EducationMode 
-          isOpen={showEducation} 
-          onClose={() => setShowEducation(false)} 
+        <EducationMode
+          isOpen={showEducation}
+          onClose={() => setShowEducation(false)}
         />
-        <AdminDashboard 
-          isOpen={showAdmin} 
-          onClose={() => setShowAdmin(false)} 
+        <AdminDashboard
+          isOpen={showAdmin}
+          onClose={() => setShowAdmin(false)}
         />
+
+        {/* Toaster */}
+        <Toaster />
       </BrowserRouter>
     </QueryClientProvider>
   );

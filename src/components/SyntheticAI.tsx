@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+ import React, { useState, useEffect, useRef } from 'react';
 import { X, Minimize2, Mic, MicOff, Send, Sparkles, Volume2, VolumeX, Zap, Brain, Activity, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -341,55 +341,65 @@ export function SyntheticAI({
     if (isMobile) {
       return (
         <div className="fixed right-0 top-1/2 -translate-y-1/2 z-[9999]">
-          <div className="relative">
-            {/* Close button */}
-            <Button
-              onClick={onClose}
-              className="absolute -top-3 -left-3 h-8 w-8 rounded-full bg-white border-2 border-slate-200 shadow-lg hover:bg-red-50 hover:border-red-200 transition-all duration-200 z-10"
-            >
-              <X className="h-4 w-4 text-slate-600 hover:text-red-600" />
-            </Button>
+          {/* Main widget button - sleeker and less thick */}
+          <Button
+            onClick={() => onAction('navigate', { screen: 'raha-ai' })}
+            className="relative h-32 w-5 rounded-l-xl overflow-hidden group flex flex-col items-center justify-center gap-1 shadow-xl transition-all duration-300 hover:scale-105"
+            style={{
+              background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 20%, #6dbda9 40%, #5ba08c 60%, #4a9b7e 80%, #3a8b6e 100%)',
+              boxShadow: '-4px 0 20px rgba(109, 189, 169, 0.4), 0 4px 16px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            {/* Subtle neutral animated background */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0 bg-gradient-to-b from-slate-300/20 to-slate-400/20 animate-pulse" />
+            </div>
 
-            {/* Main widget button */}
+            {/* Close button inside widget */}
             <Button
-              onClick={onToggleMinimize}
-              className="relative h-36 w-14 rounded-l-2xl overflow-hidden group flex flex-col items-center justify-center gap-2 shadow-2xl transition-all duration-300 hover:scale-105"
-              style={{
-                background: 'linear-gradient(180deg, #14b8a6 0%, #0891b2 50%, #06b6d4 100%)',
-                boxShadow: '-6px 0 25px rgba(20, 184, 166, 0.5), 0 4px 20px rgba(0, 0, 0, 0.1)'
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
               }}
+              className="absolute -top-1 right-1 h-5 w-5 rounded-full bg-white/30 hover:bg-white/40 border-0 p-0 flex items-center justify-center transition-all duration-200 z-10"
             >
-              {/* Subtle animated background */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent animate-pulse" />
-              </div>
-
-              {/* Center icon with glow */}
-              <div className="relative">
-                <Brain className="h-7 w-7 text-white animate-pulse" />
-                <div className="absolute inset-0 bg-white/20 rounded-full blur-sm animate-pulse" />
-              </div>
-
-              {/* Clean vertical text */}
-              <div className="text-white text-xs font-semibold tracking-wide text-center leading-tight">
-                <div>Raha</div>
-                <div>AI</div>
-              </div>
-
-              {/* Status indicator */}
-              <div className="absolute top-3 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-green-400 rounded-full shadow-lg">
-                <div className="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-75" />
-              </div>
-
-              {/* Activity indicator */}
-              {isProcessing && (
-                <div className="absolute inset-0 bg-white/10 animate-pulse rounded-l-2xl" />
-              )}
-
-              {/* Hover effect */}
-              <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-l-2xl" />
+              <X className="h-3 w-3 text-slate-700" />
             </Button>
-          </div>
+
+            {/* Container for text positioning */}
+            <div className="flex-1 flex flex-col justify-end items-center pb-6">
+              {/* Horizontal text rotated -90 degrees */}
+              <div
+                className="text-white text-[11px] font-bold tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+                style={{
+                  transform: 'rotate(-90deg)',
+                  transformOrigin: 'center',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                RAHA AI
+              </div>
+            </div>
+
+            {/* Status indicator */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full shadow-lg animate-pulse" style={{
+              backgroundColor: '#ffffff',
+              boxShadow: '0 0 20px rgba(255, 255, 255, 0.9), 0 0 40px rgba(255, 255, 255, 0.6), 0 0 60px rgba(109, 189, 169, 0.4)'
+            }}>
+              <div className="absolute inset-0 rounded-full animate-ping opacity-75" style={{
+                backgroundColor: '#ffffff',
+                boxShadow: '0 0 15px rgba(255, 255, 255, 1.0), 0 0 30px rgba(109, 189, 169, 0.5)'
+              }} />
+            </div>
+
+            {/* Activity indicator */}
+            {isProcessing && (
+              <div className="absolute inset-0 bg-slate-400/10 animate-pulse rounded-l-xl" />
+            )}
+
+            {/* Hover effect */}
+            <div className="absolute inset-0 bg-slate-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-l-xl" />
+          </Button>
         </div>
       );
     }

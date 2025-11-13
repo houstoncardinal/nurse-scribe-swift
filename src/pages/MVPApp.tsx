@@ -24,13 +24,14 @@ import { AICopilotScreen } from '@/components/AICopilotScreen';
 import { NoteHistory } from '@/components/NoteHistory';
 import { AnalyticsScreen } from '@/components/AnalyticsScreen';
 import { EducationScreen } from '@/components/EducationScreen';
+import { RahaAIScreen } from '@/components/RahaAIScreen';
 import { knowledgeBaseService } from '@/lib/knowledgeBase';
 import { enhancedAIService } from '@/lib/enhancedAIService';
 import { performanceService } from '@/lib/performanceService';
 import { intelligentNoteDetectionService } from '@/lib/intelligentNoteDetection';
 import { toast } from 'sonner';
 
-type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'copilot' | 'history' | 'admin' | 'instructions';
+type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'copilot' | 'history' | 'admin' | 'instructions' | 'raha-ai';
 
 interface NoteContent {
   [key: string]: string;
@@ -516,7 +517,11 @@ export function MVPApp() {
       setCurrentScreen('admin' as Screen);
       return;
     }
-    
+    if (screen === 'raha-ai') {
+      setCurrentScreen('raha-ai' as Screen);
+      return;
+    }
+
     setCurrentScreen(screen as Screen);
   };
 
@@ -1137,7 +1142,7 @@ export function MVPApp() {
         );
 
       case 'history':
-        return <NoteHistory />;
+        return <NoteHistory onNavigate={handleNavigate} />;
 
       case 'analytics':
         return <AnalyticsScreen />;
@@ -1156,7 +1161,20 @@ export function MVPApp() {
 
       case 'instructions':
         return <InstructionsPage onNavigate={handleNavigate} />;
-      
+
+      case 'raha-ai':
+        return (
+          <RahaAIScreen
+            onNavigate={handleNavigate}
+            currentContext={{
+              screen: currentScreen,
+              template: selectedTemplate,
+              hasTranscript: !!transcript,
+              hasNote: Object.keys(noteContent).length > 0
+            }}
+          />
+        );
+
       default:
         return null;
     }
@@ -1166,230 +1184,224 @@ export function MVPApp() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-x-hidden">
       {/* Desktop Layout */}
       <div className="hidden lg:block overflow-x-hidden">
-        <div className="flex h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-x-hidden">
-          {/* Desktop Sidebar - Compact */}
-          <aside className="w-64 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
-            <div className="flex flex-col h-full">
-              {/* Logo Section - Compact */}
-              <div className="p-4 border-b border-slate-200">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-teal-500/25">
-                    <Stethoscope className="h-5 w-5 text-white" />
+        <div className={`flex h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-x-hidden ${currentScreen === 'raha-ai' ? '' : ''}`}>
+          {/* Desktop Sidebar - Compact - Hide on Raha AI screen */}
+          {currentScreen !== 'raha-ai' && (
+            <aside className="w-64 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
+              <div className="flex flex-col h-full">
+                {/* Logo Section - Compact */}
+                <div className="p-4 border-b border-slate-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-teal-500/25">
+                      <Stethoscope className="h-5 w-5 text-white" />
+                    </div>
+                      <div>
+                        <h1 className="text-lg font-bold text-slate-900">Raha</h1>
+                        <p className="text-xs text-slate-600">Tihkn Breathing Space</p>
+                      </div>
                   </div>
+                </div>
+
+                {/* User Profile Section - Compact */}
+                <div className="p-3 border-b border-slate-200">
+                  <div className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
+                    <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-semibold text-xs">
+                        {userProfile.name.split(' ').map(n => n[0]).join('')}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-slate-900 truncate">{userProfile.name}</p>
+                      <p className="text-xs text-slate-600 truncate">{userProfile.role}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleNavigate('profile')}
+                      className="h-6 w-6 p-0"
+                    >
+                      <Settings className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Main Navigation - Compact */}
+                <div className="flex-1 p-3 overflow-y-auto">
+                  <nav className="space-y-1">
+                    <div className="mb-2">
+                      <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Core</h3>
+                      <div className="space-y-1">
+                        <Button
+                          variant={currentScreen === 'home' ? 'default' : 'ghost'}
+                          className={`w-full justify-start h-9 text-sm ${
+                            currentScreen === 'home'
+                              ? 'bg-[#6dbda9] text-white shadow-lg'
+                              : 'hover:bg-slate-100 text-slate-700'
+                          }`}
+                          onClick={() => handleNavigate('home')}
+                        >
+                          <Mic className="h-4 w-4 mr-2" />
+                          New Note
+                        </Button>
+                        <Button
+                          variant={currentScreen === 'draft' ? 'default' : 'ghost'}
+                          className={`w-full justify-start h-9 text-sm ${
+                            currentScreen === 'draft'
+                              ? 'bg-[#6dbda9] text-white shadow-lg'
+                              : 'hover:bg-slate-100 text-slate-700'
+                          }`}
+                          onClick={() => handleNavigate('draft')}
+                        >
+                          <FileText className="h-4 w-4 mr-2" />
+                          Draft Preview
+                        </Button>
+                        <Button
+                          variant={currentScreen === 'export' ? 'default' : 'ghost'}
+                          className={`w-full justify-start h-9 text-sm ${
+                            currentScreen === 'export'
+                              ? 'bg-[#6dbda9] text-white shadow-lg'
+                              : 'hover:bg-slate-100 text-slate-700'
+                          }`}
+                          onClick={() => handleNavigate('export')}
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Export
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="mb-2">
+                      <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Tools & Analytics</h3>
+                      <div className="space-y-1">
+                        <Button
+                          variant={currentScreen === 'history' ? 'default' : 'ghost'}
+                          className={`w-full justify-start h-9 text-sm ${
+                            currentScreen === 'history'
+                              ? 'bg-[#6dbda9] text-white shadow-lg'
+                              : 'hover:bg-slate-100 text-slate-700'
+                          }`}
+                          onClick={() => handleNavigate('history')}
+                        >
+                          <FileText className="h-4 w-4 mr-2" />
+                          Note History
+                        </Button>
+                        <Button
+                          variant={currentScreen === 'analytics' ? 'default' : 'ghost'}
+                          className={`w-full justify-start h-9 text-sm ${
+                            currentScreen === 'analytics'
+                              ? 'bg-[#6dbda9] text-white shadow-lg'
+                              : 'hover:bg-slate-100 text-slate-700'
+                          }`}
+                          onClick={() => handleNavigate('analytics')}
+                        >
+                          <BarChart3 className="h-4 w-4 mr-2" />
+                          Analytics
+                        </Button>
+                        <Button
+                          variant={currentScreen === 'education' ? 'default' : 'ghost'}
+                          className={`w-full justify-start h-9 text-sm ${
+                            currentScreen === 'education'
+                              ? 'bg-[#6dbda9] text-white shadow-lg'
+                              : 'hover:bg-slate-100 text-slate-700'
+                          }`}
+                          onClick={() => handleNavigate('education')}
+                        >
+                          <BookOpen className="h-4 w-4 mr-2" />
+                          Education
+                        </Button>
+                        <Button
+                          variant={currentScreen === 'team' ? 'default' : 'ghost'}
+                          className={`w-full justify-start h-9 text-sm ${
+                            currentScreen === 'team'
+                              ? 'bg-[#6dbda9] text-white shadow-lg'
+                              : 'hover:bg-slate-100 text-slate-700'
+                          }`}
+                          onClick={() => handleNavigate('team')}
+                        >
+                          <Users className="h-4 w-4 mr-2" />
+                          Team
+                        </Button>
+                        <Button
+                          variant={currentScreen === 'copilot' ? 'default' : 'ghost'}
+                          className={`w-full justify-start h-9 text-sm ${
+                            currentScreen === 'copilot'
+                              ? 'bg-[#6dbda9] text-white shadow-lg'
+                              : 'hover:bg-slate-100 text-slate-700'
+                          }`}
+                          onClick={() => handleNavigate('copilot')}
+                        >
+                          <Brain className="h-4 w-4 mr-2" />
+                          AI Copilot
+                        </Button>
+                        <Button
+                          variant={currentScreen === 'raha-ai' ? 'default' : 'ghost'}
+                          className={`w-full justify-start h-9 text-sm ${
+                            currentScreen === 'raha-ai'
+                              ? 'bg-[#6dbda9] text-white shadow-lg'
+                              : 'hover:bg-slate-100 text-slate-700'
+                          }`}
+                          onClick={() => handleNavigate('raha-ai')}
+                        >
+                          <Sparkles className="h-4 w-4 mr-2" />
+                          Raha AI
+                        </Button>
+                      </div>
+                    </div>
+
                     <div>
-                      <h1 className="text-lg font-bold text-slate-900">Raha</h1>
-                      <p className="text-xs text-slate-600">Tihkn Breathing Space</p>
+                      <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Account</h3>
+                      <div className="space-y-1">
+                        <Button
+                          variant={currentScreen === 'profile' ? 'default' : 'ghost'}
+                          className={`w-full justify-start h-9 text-sm ${
+                            currentScreen === 'profile'
+                              ? 'bg-[#6dbda9] text-white shadow-lg'
+                              : 'hover:bg-slate-100 text-slate-700'
+                          }`}
+                          onClick={() => handleNavigate('profile')}
+                        >
+                          <User className="h-4 w-4 mr-2" />
+                          Profile
+                        </Button>
+                        <Button
+                          variant={currentScreen === 'settings' ? 'default' : 'ghost'}
+                          className={`w-full justify-start h-9 text-sm ${
+                            currentScreen === 'settings'
+                              ? 'bg-[#6dbda9] text-white shadow-lg'
+                              : 'hover:bg-slate-100 text-slate-700'
+                          }`}
+                          onClick={() => handleNavigate('settings')}
+                        >
+                          <Settings className="h-4 w-4 mr-2" />
+                          Settings
+                        </Button>
+                      </div>
                     </div>
+                  </nav>
+                </div>
+
+                {/* Bottom Actions */}
+                <div className="p-3 border-t border-slate-200">
+                  <Button
+                    onClick={handleNewNote}
+                    className="w-full bg-[#6dbda9] hover:bg-[#5ba08c] text-white shadow-lg h-9 text-sm"
+                  >
+                    <Mic className="h-4 w-4 mr-2" />
+                    Start New Note
+                  </Button>
+                  {!userProfile.isSignedIn && (
+                    <Button
+                      onClick={() => setIsSignInModalOpen(true)}
+                      variant="outline"
+                      className="w-full mt-2 h-8 text-sm"
+                    >
+                      Sign In
+                    </Button>
+                  )}
                 </div>
               </div>
-
-              {/* User Profile Section - Compact */}
-              <div className="p-3 border-b border-slate-200">
-                <div className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
-                  <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-semibold text-xs">
-                      {userProfile.name.split(' ').map(n => n[0]).join('')}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-slate-900 truncate">{userProfile.name}</p>
-                    <p className="text-xs text-slate-600 truncate">{userProfile.role}</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleNavigate('profile')}
-                    className="h-6 w-6 p-0"
-                  >
-                    <Settings className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-
-              {/* Main Navigation - Compact */}
-              <div className="flex-1 p-3 overflow-y-auto">
-                <nav className="space-y-1">
-                  <div className="mb-2">
-                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Core</h3>
-                    <div className="space-y-1">
-                      <Button
-                        variant={currentScreen === 'home' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-9 text-sm ${
-                          currentScreen === 'home' 
-                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
-                            : 'hover:bg-slate-100 text-slate-700'
-                        }`}
-                        onClick={() => handleNavigate('home')}
-                      >
-                        <Mic className="h-4 w-4 mr-2" />
-                        New Note
-                      </Button>
-                      <Button
-                        variant={currentScreen === 'draft' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-9 text-sm ${
-                          currentScreen === 'draft' 
-                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
-                            : 'hover:bg-slate-100 text-slate-700'
-                        }`}
-                        onClick={() => handleNavigate('draft')}
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        Draft Preview
-                      </Button>
-                      <Button
-                        variant={currentScreen === 'export' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-9 text-sm ${
-                          currentScreen === 'export' 
-                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
-                            : 'hover:bg-slate-100 text-slate-700'
-                        }`}
-                        onClick={() => handleNavigate('export')}
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        Export
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="mb-2">
-                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Tools & Analytics</h3>
-                    <div className="space-y-1">
-                      <Button
-                        variant={currentScreen === 'history' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-9 text-sm ${
-                          currentScreen === 'history' 
-                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
-                            : 'hover:bg-slate-100 text-slate-700'
-                        }`}
-                        onClick={() => handleNavigate('history')}
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        Note History
-                      </Button>
-                      <Button
-                        variant={currentScreen === 'analytics' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-9 text-sm ${
-                          currentScreen === 'analytics' 
-                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
-                            : 'hover:bg-slate-100 text-slate-700'
-                        }`}
-                        onClick={() => handleNavigate('analytics')}
-                      >
-                        <BarChart3 className="h-4 w-4 mr-2" />
-                        Analytics
-                      </Button>
-                      <Button
-                        variant={currentScreen === 'education' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-9 text-sm ${
-                          currentScreen === 'education' 
-                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
-                            : 'hover:bg-slate-100 text-slate-700'
-                        }`}
-                        onClick={() => handleNavigate('education')}
-                      >
-                        <BookOpen className="h-4 w-4 mr-2" />
-                        Education
-                      </Button>
-                      <Button
-                        variant={currentScreen === 'team' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-9 text-sm ${
-                          currentScreen === 'team' 
-                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
-                            : 'hover:bg-slate-100 text-slate-700'
-                        }`}
-                        onClick={() => handleNavigate('team')}
-                      >
-                        <Users className="h-4 w-4 mr-2" />
-                        Team
-                      </Button>
-                      <Button
-                        variant={currentScreen === 'copilot' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-9 text-sm ${
-                          currentScreen === 'copilot' 
-                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
-                            : 'hover:bg-slate-100 text-slate-700'
-                        }`}
-                        onClick={() => handleNavigate('copilot')}
-                      >
-                        <Brain className="h-4 w-4 mr-2" />
-                        AI Copilot
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className={`w-full justify-start h-9 text-sm relative ${
-                          showAI 
-                            ? 'bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 hover:from-purple-100 hover:to-pink-100' 
-                            : 'hover:bg-slate-100 text-slate-700'
-                        }`}
-                        onClick={() => {
-                          setShowAI(!showAI);
-                          if (!showAI) {
-                            setAiMinimized(true); // Start minimized when opening
-                          }
-                        }}
-                      >
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        Raha AI
-                        {showAI && (
-                          <div className="absolute right-2 w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Account</h3>
-                    <div className="space-y-1">
-                      <Button
-                        variant={currentScreen === 'profile' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-9 text-sm ${
-                          currentScreen === 'profile' 
-                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
-                            : 'hover:bg-slate-100 text-slate-700'
-                        }`}
-                        onClick={() => handleNavigate('profile')}
-                      >
-                        <User className="h-4 w-4 mr-2" />
-                        Profile
-                      </Button>
-                      <Button
-                        variant={currentScreen === 'settings' ? 'default' : 'ghost'}
-                        className={`w-full justify-start h-9 text-sm ${
-                          currentScreen === 'settings' 
-                            ? 'bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-lg' 
-                            : 'hover:bg-slate-100 text-slate-700'
-                        }`}
-                        onClick={() => handleNavigate('settings')}
-                      >
-                        <Settings className="h-4 w-4 mr-2" />
-                        Settings
-                      </Button>
-                    </div>
-                  </div>
-                </nav>
-              </div>
-
-              {/* Bottom Actions */}
-              <div className="p-3 border-t border-slate-200">
-                <Button
-                  onClick={handleNewNote}
-                  className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white shadow-lg h-9 text-sm"
-                >
-                  <Mic className="h-4 w-4 mr-2" />
-                  Start New Note
-                </Button>
-                {!userProfile.isSignedIn && (
-                  <Button
-                    onClick={() => setIsSignInModalOpen(true)}
-                    variant="outline"
-                    className="w-full mt-2 h-8 text-sm"
-                  >
-                    Sign In
-                  </Button>
-                )}
-              </div>
-            </div>
-          </aside>
+            </aside>
+          )}
 
           {/* Desktop Main Content */}
           <div className="flex-1 flex flex-col overflow-x-hidden">
@@ -1409,6 +1421,7 @@ export function MVPApp() {
                       {currentScreen === 'education' && 'Education Mode'}
                       {currentScreen === 'team' && 'Team Collaboration'}
                       {currentScreen === 'copilot' && 'AI Nurse Copilot'}
+                      {currentScreen === 'raha-ai' && 'Raha AI Assistant'}
                     </h2>
                     <p className="text-slate-600 mt-1">
                       {currentScreen === 'home' && 'Create professional nursing documentation with AI assistance'}
@@ -1421,6 +1434,7 @@ export function MVPApp() {
                       {currentScreen === 'education' && 'Practice with synthetic cases and improve your skills'}
                       {currentScreen === 'team' && 'Collaborate and share notes with your team'}
                       {currentScreen === 'copilot' && 'AI-powered care planning, bedside assist, and predictive insights'}
+                      {currentScreen === 'raha-ai' && 'Your conversational AI assistant for nursing documentation'}
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
@@ -1480,16 +1494,17 @@ export function MVPApp() {
             {renderCurrentScreen()}
           </main>
 
-          {/* Mobile Bottom Toolbar - Only show on mobile */}
-          <div className="md:hidden">
-            <MobileBottomToolbar
-              currentScreen={currentScreen}
-              onNavigate={handleNavigate}
-              isRecording={isRecording}
-              isProcessing={isProcessing}
-              isAIWidgetMinimized={aiMinimized}
-            />
-          </div>
+          {/* Mobile Bottom Toolbar - Only show on mobile and not on Raha AI */}
+          {currentScreen !== 'raha-ai' && (
+            <div className="md:hidden">
+              <MobileBottomToolbar
+                currentScreen={currentScreen}
+                onNavigate={handleNavigate}
+                isRecording={isRecording}
+                isProcessing={isProcessing}
+              />
+            </div>
+          )}
         </div>
       </div>
 

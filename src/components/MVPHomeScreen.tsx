@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mic, MicOff, Clock, Zap, Shield, Keyboard, Upload, FileText, TrendingUp, Target, Award, Activity, BarChart3, CheckCircle, Star, Timer, Users, BookOpen, AlertTriangle, Bell, Calendar, TrendingDown, Settings, Brain } from 'lucide-react';
+import { Mic, MicOff, Clock, Zap, Shield, Keyboard, Upload, FileText, TrendingUp, Target, Award, Activity, BarChart3, CheckCircle, Star, Timer, Users, BookOpen, AlertTriangle, Bell, Calendar, TrendingDown, Settings, Brain, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +44,7 @@ export function MVPHomeScreen({
   // Use the prop value directly - no need for local state
   const currentTemplate = selectedTemplate;
   const [showInputSelector, setShowInputSelector] = useState(false);
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
   const [aiWidgetMinimized, setAiWidgetMinimized] = useState(true);
   const [aiWidgetClosed, setAiWidgetClosed] = useState(false);
   const [visibleInterimTranscript, setVisibleInterimTranscript] = useState(interimTranscript);
@@ -130,52 +131,172 @@ export function MVPHomeScreen({
   };
 
   return (
-    <div className="mvp-app bg-gradient-hero">
+    <div className="mvp-app bg-white">
               {/* Desktop Layout - Powerful Grid Organization */}
               <div className="hidden lg:flex lg:h-full w-full">
                 <div className="flex-1 w-full px-6 lg:px-8 py-6 overflow-x-hidden">
                   <div className="w-full h-full flex flex-col">
-                    {/* Desktop Header - Streamlined */}
-                    <div className="mb-6 max-w-[1400px] mr-auto">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-11 h-11 bg-gradient-to-br from-teal-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-500/20">
-                          <Mic className="h-6 w-6 text-white" />
+                    {/* Desktop Header - Compact */}
+                    <div className="mb-3 max-w-[1400px] mr-auto">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md shadow-teal-500/20">
+                          <Mic className="h-4 w-4 text-white" />
                         </div>
-                        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Start New Note</h1>
+                        <h1 className="text-xl font-bold text-slate-900 tracking-tight">Start New Note</h1>
                       </div>
-                      <p className="text-base text-slate-600 ml-[56px] font-medium">Create professional nursing documentation with AI assistance</p>
+                      <p className="text-sm text-slate-600 ml-[40px] font-medium">Create professional AI-powered documentation</p>
                     </div>
 
-                    {/* Template Selector - Left Aligned */}
-                    <div className="max-w-2xl w-full mb-8 max-w-[1400px] mr-auto">
-                      <Label className="text-sm font-semibold text-slate-700 mb-2 block">Select Documentation Template</Label>
-                      <Select value={currentTemplate} onValueChange={(value) => {
-                        onTemplateChange(value);
-                      }}>
-                        <SelectTrigger className="w-full h-12 text-sm bg-white border-2 border-slate-300 hover:border-teal-500 focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 transition-all shadow-[0_2px_8px_rgb(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgb(0,0,0,0.08)] rounded-xl font-medium text-slate-800">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white backdrop-blur-xl border-2 border-slate-200 shadow-[0_12px_40px_rgb(0,0,0,0.15)] rounded-xl p-2">
-                          {templates.map((template) => (
-                            <SelectItem
-                              key={template.value}
-                              value={template.value}
-                              className="hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 focus:bg-gradient-to-r focus:from-teal-50 focus:to-blue-50 cursor-pointer py-3 px-3 rounded-lg my-1 transition-all duration-200"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full shadow-sm flex-shrink-0" />
-                                <span className="font-semibold text-sm text-slate-800">{template.label}</span>
+                    {/* Compact Template Selector */}
+                    <div className="max-w-3xl w-full mb-4 max-w-[1400px] mr-auto">
+                      {/* Compact Header Section */}
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 rounded-xl flex items-center justify-center shadow-lg shadow-slate-900/20">
+                          <FileText className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                          <h2 className="text-lg font-bold text-slate-900 tracking-tight">Template</h2>
+                          <p className="text-sm text-slate-600 font-medium">Choose your documentation format</p>
+                        </div>
+                      </div>
+
+                      {/* Corporate Template Selector */}
+                      <div className="relative">
+                        {/* Subtle Background Glow */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-slate-100/50 via-transparent to-slate-100/50 rounded-3xl blur-2xl opacity-60" />
+
+                        <Select value={currentTemplate} onValueChange={(value) => {
+                          onTemplateChange(value);
+                        }}>
+                          <SelectTrigger className="w-full h-16 text-base bg-white/95 backdrop-blur-2xl border-3 border-slate-300/80 hover:border-slate-400 focus:border-slate-500 focus:ring-4 focus:ring-slate-500/10 transition-all duration-500 shadow-[0_8px_32px_rgb(0,0,0,0.08)] hover:shadow-[0_16px_48px_rgb(0,0,0,0.12)] rounded-3xl font-bold text-slate-900 tracking-wide relative overflow-hidden group">
+                            {/* Animated Background */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-slate-50/0 via-slate-50/50 to-slate-50/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                            <div className="flex items-center gap-4 relative z-10">
+                              {/* Dynamic Icon Based on Selected Template */}
+                              <div className="w-10 h-10 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center shadow-lg border border-slate-300/50">
+                                <span className="text-slate-700 text-lg">
+                                  {currentTemplate === 'SOAP' && '📋'}
+                                  {currentTemplate === 'SBAR' && '📞'}
+                                  {currentTemplate === 'PIE' && '🎯'}
+                                  {currentTemplate === 'DAR' && '📊'}
+                                  {currentTemplate === 'shift-assessment' && '🏥'}
+                                  {currentTemplate === 'mar' && '💊'}
+                                  {currentTemplate === 'io' && '⚖️'}
+                                  {currentTemplate === 'wound-care' && '🩹'}
+                                  {currentTemplate === 'safety-checklist' && '✅'}
+                                  {currentTemplate === 'med-surg' && '🩺'}
+                                  {currentTemplate === 'icu' && '🏥'}
+                                  {currentTemplate === 'nicu' && '👶'}
+                                  {currentTemplate === 'mother-baby' && '👩‍👶'}
+                                </span>
                               </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                              <div className="text-left">
+                                <div className="font-bold text-slate-900 text-lg">
+                                  {templates.find(t => t.value === currentTemplate)?.label.split('(')[0].trim()}
+                                </div>
+                                <div className="text-sm text-slate-600 font-medium">
+                                  {templates.find(t => t.value === currentTemplate)?.category} Template
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Professional Chevron */}
+                            <ChevronDown className="h-5 w-5 text-slate-500 absolute right-4 transition-transform duration-300 group-data-[state=open]:rotate-180" />
+                          </SelectTrigger>
+
+                          <SelectContent className="bg-white border-2 border-slate-200 shadow-[0_20px_60px_rgb(0,0,0,0.15)] rounded-2xl p-3 max-h-96 overflow-y-auto">
+                            {/* Header */}
+                            <div className="px-2 py-2 border-b border-slate-200 mb-3">
+                              <h3 className="font-bold text-slate-900 text-base">Select Template</h3>
+                              <p className="text-xs text-slate-600">Choose the best format for your documentation</p>
+                            </div>
+
+                            {templates.map((template, index) => {
+                              const isSelected = currentTemplate === template.value;
+                              const categoryColor = template.category === 'Traditional' ? 'from-blue-500 to-blue-600' :
+                                                   template.category === 'Epic EMR' ? 'from-purple-500 to-purple-600' :
+                                                   'from-emerald-500 to-emerald-600';
+
+                              return (
+                                <SelectItem
+                                  key={template.value}
+                                  value={template.value}
+                                  className={`cursor-pointer py-3 px-4 rounded-xl my-1 transition-all duration-200 group border ${
+                                    isSelected
+                                      ? 'border-slate-300 bg-slate-50 shadow-md'
+                                      : 'border-slate-200 bg-white hover:border-teal-200 hover:bg-teal-50/30 hover:shadow-lg'
+                                  }`}
+                                  style={{ animationDelay: `${index * 30}ms` }}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    {/* Modern Icon */}
+                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                                      isSelected
+                                        ? 'bg-slate-600 shadow-md'
+                                        : 'bg-slate-100 group-hover:bg-slate-200 group-hover:shadow-md'
+                                    }`}>
+                                      <span className={`text-lg transition-all duration-200 ${
+                                        isSelected ? 'text-white' : 'text-slate-700 group-hover:text-slate-900'
+                                      }`}>
+                                        {template.value === 'SOAP' && '📋'}
+                                        {template.value === 'SBAR' && '📞'}
+                                        {template.value === 'PIE' && '🎯'}
+                                        {template.value === 'DAR' && '📊'}
+                                        {template.value === 'shift-assessment' && '🏥'}
+                                        {template.value === 'mar' && '💊'}
+                                        {template.value === 'io' && '⚖️'}
+                                        {template.value === 'wound-care' && '🩹'}
+                                        {template.value === 'safety-checklist' && '✅'}
+                                        {template.value === 'med-surg' && '🩺'}
+                                        {template.value === 'icu' && '🏥'}
+                                        {template.value === 'nicu' && '👶'}
+                                        {template.value === 'mother-baby' && '👩‍👶'}
+                                      </span>
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 mb-0.5">
+                                        <span className={`font-semibold text-sm transition-colors duration-200 ${
+                                          isSelected ? 'text-slate-900' : 'text-slate-800 group-hover:text-slate-900'
+                                        }`}>
+                                          {template.label.split('(')[0].trim()}
+                                        </span>
+                                        <div className={`px-2 py-0.5 rounded-md text-xs font-medium bg-gradient-to-r ${categoryColor} text-white shadow-sm`}>
+                                          {template.category}
+                                        </div>
+                                      </div>
+                                      {template.label.includes('(') && (
+                                        <p className={`text-xs transition-colors duration-200 ${
+                                          isSelected ? 'text-slate-600' : 'text-slate-500 group-hover:text-slate-600'
+                                        }`}>
+                                          {template.label.split('(')[1].replace(')', '')}
+                                        </p>
+                                      )}
+                                    </div>
+
+                                    {/* Selection Indicator */}
+                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                                      isSelected
+                                        ? 'bg-slate-600 border-slate-600'
+                                        : 'border-slate-300 group-hover:border-slate-400'
+                                    }`}>
+                                      {isSelected && <CheckCircle className="h-3 w-3 text-white" />}
+                                    </div>
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
                     {/* Main Grid Layout - Powerful 2-Column Design */}
                     <div className="flex-1 overflow-x-hidden overflow-y-hidden">
-                      <div className="relative h-full w-full max-w-[1400px] mr-auto rounded-3xl border-2 border-slate-200/60 bg-gradient-to-br from-white via-slate-50/30 to-blue-50/20 shadow-[0_8px_30px_rgb(0,0,0,0.06)] backdrop-blur-xl p-3 lg:p-4 overflow-x-hidden">
-                        <div className="relative h-full grid grid-cols-1 gap-3 lg:gap-4 min-h-0 lg:grid-cols-2 w-full overflow-x-hidden">
+                      <div className="relative h-full w-full max-w-[1400px] mr-auto rounded-3xl border-2 border-slate-200/60 bg-gradient-to-br from-white via-slate-50/30 to-blue-50/20 shadow-[0_8px_30px_rgb(0,0,0,0.06)] backdrop-blur-xl p-2 lg:p-3 overflow-x-hidden">
+                        <div className="relative h-full grid grid-cols-1 gap-2 lg:gap-3 min-h-0 lg:grid-cols-2 w-full overflow-x-hidden">
                       {/* Left Column - Recording Controls */}
                       <div className="col-span-1 h-full flex flex-col space-y-2 overflow-y-auto overflow-x-hidden pr-2 pl-0 min-w-0 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent hover:scrollbar-thumb-slate-400">
                 {showInputSelector ? (
@@ -202,9 +323,9 @@ export function MVPHomeScreen({
                 ) : (
                   <>
                         {/* Recording Control Card */}
-                        <Card className="flex-shrink-0 flex flex-col items-center justify-center p-6 min-h-[400px] bg-white/90 border-2 border-slate-200/50 shadow-[0_4px_20px_rgb(0,0,0,0.04)] backdrop-blur-sm rounded-3xl">
-                        <div className="relative flex flex-col items-center space-y-4 w-full">
-                          <div className="relative py-4">
+                        <Card className="flex-shrink-0 flex flex-col items-center justify-center p-3 min-h-[240px] bg-white/90 border-2 border-slate-200/50 shadow-[0_4px_20px_rgb(0,0,0,0.04)] backdrop-blur-sm rounded-3xl">
+                        <div className="relative flex flex-col items-center space-y-3 w-full">
+                          <div className="relative py-2">
                             {/* Multiple Pulse Rings */}
                             {isRecording && (
                               <>
@@ -213,14 +334,14 @@ export function MVPHomeScreen({
                                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-300 to-pink-400 animate-ping opacity-20 scale-140 animation-delay-700" />
                               </>
                             )}
-                            
+
                             {/* Main Recording Button */}
                             <Button
                               size="lg"
-                              className={`w-40 h-40 rounded-full shadow-2xl transition-all duration-500 transform hover:scale-105 ${
+                              className={`w-28 h-28 rounded-full shadow-2xl transition-all duration-500 transform hover:scale-105 ${
                                 isRecording
                                   ? 'bg-gradient-to-br from-red-500 via-pink-600 to-red-600'
-                                  : 'bg-gradient-primary'
+                                  : 'bg-[#6dbda9] hover:bg-[#5ba08c]'
                               } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                               onClick={(e) => {
                                 e.preventDefault();
@@ -238,9 +359,9 @@ export function MVPHomeScreen({
                               type="button"
                             >
                               {isRecording ? (
-                                <MicOff className="h-28 w-28 text-white drop-shadow-lg" />
+                                <MicOff className="h-20 w-20 text-white drop-shadow-lg" />
                               ) : (
-                                <Mic className="h-28 w-28 text-white drop-shadow-lg" />
+                                <Mic className="h-20 w-20 text-white drop-shadow-lg" />
                               )}
                             </Button>
 
@@ -294,18 +415,90 @@ export function MVPHomeScreen({
                               )}
 
                               {!isRecording && !isProcessing && (
-                                <div className="bg-gradient-hero border border-border rounded-xl p-5 shadow-md">
-                                  <h2 className="text-lg font-bold text-foreground mb-2">Ready to Record</h2>
-                                  <p className="text-sm text-muted-foreground mb-3">
-                                    Click the microphone to start AI-powered transcription
-                                  </p>
-                                  {!voiceSupported && (
-                                    <div className="bg-warning/10 border border-warning/30 rounded-lg p-2.5">
-                                      <p className="text-xs text-warning-foreground">
-                                        ⚠️ Voice not supported. Use manual input.
-                                      </p>
+                                <div className="relative">
+                                  {/* Premium Background Glow */}
+                                  <div className="absolute inset-0 bg-gradient-to-r from-teal-100/30 via-blue-100/20 to-teal-100/30 rounded-3xl blur-2xl opacity-60 animate-pulse" />
+
+                                  {/* Compact Professional Voice Dictation Card */}
+                                  <div className="relative bg-white/95 backdrop-blur-2xl border-2 border-slate-200/60 rounded-2xl p-5 shadow-[0_12px_32px_rgb(0,0,0,0.06)] hover:shadow-[0_16px_40px_rgb(0,0,0,0.08)] transition-all duration-300">
+                                    {/* Compact Header with Inline Icon */}
+                                    <div className="flex items-center gap-4 mb-4">
+                                      <div className="w-12 h-12 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl flex items-center justify-center shadow-lg border border-slate-700/20">
+                                        <Mic className="h-6 w-6 text-white" />
+                                      </div>
+                                      <div className="flex-1">
+                                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Voice Dictation Ready</h2>
+                                        <p className="text-sm text-slate-600 font-medium">AI-powered speech recognition for clinical documentation</p>
+                                      </div>
                                     </div>
-                                  )}
+
+                                    {/* Compact Feature Grid */}
+                                    <div className="grid grid-cols-3 gap-3 mb-4">
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-sm">
+                                          <Shield className="h-4 w-4 text-white" />
+                                        </div>
+                                        <div>
+                                          <p className="text-xs font-bold text-slate-800">HIPAA</p>
+                                          <p className="text-xs text-slate-600">Compliant</p>
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
+                                          <Zap className="h-4 w-4 text-white" />
+                                        </div>
+                                        <div>
+                                          <p className="text-xs font-bold text-slate-800">Real-time</p>
+                                          <p className="text-xs text-slate-600">AI</p>
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-sm">
+                                          <Target className="h-4 w-4 text-white" />
+                                        </div>
+                                        <div>
+                                          <p className="text-xs font-bold text-slate-800">99%</p>
+                                          <p className="text-xs text-slate-600">Accurate</p>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Compact Instructions */}
+                                    <div className="bg-gradient-to-r from-slate-50 to-slate-100/50 rounded-lg p-3 border border-slate-200/60 mb-2.5">
+                                      <div className="text-center">
+                                        <p className="text-sm font-bold text-slate-900 mb-2">Quick Start Guide</p>
+                                        <div className="space-y-1.5">
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-teal-500 rounded-full flex-shrink-0"></div>
+                                            <p className="text-xs text-slate-700 text-left">Tap microphone to record</p>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-teal-500 rounded-full flex-shrink-0"></div>
+                                            <p className="text-xs text-slate-700 text-left">Speak naturally about patient</p>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-teal-500 rounded-full flex-shrink-0"></div>
+                                            <p className="text-xs text-slate-700 text-left">AI formats into professional notes</p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Compact Voice Support Warning */}
+                                    {!voiceSupported && (
+                                      <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-xl p-3">
+                                        <div className="flex items-center gap-2">
+                                          <div className="w-6 h-6 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
+                                            <AlertTriangle className="h-3 w-3 text-white" />
+                                          </div>
+                                          <div className="flex-1">
+                                            <p className="text-xs font-bold text-amber-900">Voice Input Unavailable</p>
+                                            <p className="text-xs text-amber-800">Check browser permissions</p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               )}
                             </div>
@@ -313,10 +506,12 @@ export function MVPHomeScreen({
                   </>
                 )}
 
-                        {/* Input Method Options Card */}
-                        {!isRecording && !isProcessing && !transcript && (
-                          <Card className="flex-shrink-0 p-2.5 bg-white/90 border-2 border-slate-200/50 shadow-[0_4px_20px_rgb(0,0,0,0.04)] backdrop-blur-sm rounded-3xl">
-                            <h3 className="text-sm font-semibold text-foreground mb-2 text-center">Or choose another input method:</h3>
+                        {/* Input Method Options Card - Always Available */}
+                        {!isRecording && !isProcessing && (
+                          <Card className="flex-shrink-0 p-2 bg-white/90 border-2 border-slate-200/50 shadow-[0_4px_20px_rgb(0,0,0,0.04)] backdrop-blur-sm rounded-3xl">
+                            <h3 className="text-sm font-semibold text-foreground mb-2 text-center">
+                              {transcript ? 'Or try a different input method:' : 'Or choose another input method:'}
+                            </h3>
                             <div className="grid gap-2 md:grid-cols-2">
                               <Button
                                 type="button"
@@ -370,7 +565,7 @@ export function MVPHomeScreen({
 
                         {/* Pro Tip - Template Example */}
                         {!isRecording && !isProcessing && !transcript && (
-                          <Card className="flex-shrink-0 p-2.5 bg-gradient-to-br from-amber-50/80 to-orange-50/80 border-2 border-amber-200/60 shadow-[0_4px_20px_rgb(251,191,36,0.08)] backdrop-blur-sm rounded-3xl">
+                          <Card className="flex-shrink-0 p-2 bg-gradient-to-br from-amber-50/80 to-orange-50/80 border-2 border-amber-200/60 shadow-[0_4px_20px_rgb(251,191,36,0.08)] backdrop-blur-sm rounded-3xl">
                             <div className="flex items-center gap-2 mb-1.5">
                               <div className="w-7 h-7 bg-gradient-to-r from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
                                 <BookOpen className="h-4 w-4 text-white" />
@@ -391,7 +586,7 @@ export function MVPHomeScreen({
 
                         {/* Transcript Ready Card */}
                         {transcript && (
-                          <Card className="flex-shrink-0 p-2.5 bg-white/95 border-2 border-emerald-200/60 shadow-[0_4px_20px_rgb(16,185,129,0.12)] backdrop-blur-sm rounded-3xl">
+                          <Card className="flex-shrink-0 p-2 bg-white/95 border-2 border-emerald-200/60 shadow-[0_4px_20px_rgb(16,185,129,0.12)] backdrop-blur-sm rounded-3xl">
                             <Alert className="bg-emerald-50 border-emerald-200 rounded-lg p-2 mb-2">
                               <Shield className="h-4 w-4 text-emerald-600" />
                               <AlertDescription className="text-emerald-800 font-medium text-sm">
@@ -592,57 +787,185 @@ export function MVPHomeScreen({
             </div>
           </div>
 
-      {/* Mobile/Tablet Layout */}
-      <div className="lg:hidden mvp-screen w-full">
-        {/* Mobile Header - iPhone 16 Optimized */}
-        <div className="flex-shrink-0 px-4 pt-4 pb-2 safe-area-top w-full">
-          <div className="text-center space-y-3">
-            {/* Mobile Hero - Compact for iPhone */}
-            <div className="space-y-4 pt-4">
-              <div className="flex items-center justify-center gap-2.5">
-                <div className="w-9 h-9 bg-gradient-to-br from-teal-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/20">
-                  <Mic className="h-5 w-5 text-white" />
-                </div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+      {/* Mobile/Tablet Layout - World-Class Design */}
+      <div className="lg:hidden mvp-screen w-full bg-gradient-to-br from-slate-50 via-white to-slate-50/50">
+        {/* Mobile Header - Premium Professional Walkthrough */}
+        <div className="flex-shrink-0 px-6 pt-6 pb-4 safe-area-top w-full">
+          <div className="text-left space-y-6">
+            {/* Premium Hero Section with Professional Walkthrough */}
+            <div className="space-y-5">
+              {/* Enhanced Typography - Left aligned with Refined Old Money Serif Fonts */}
+              <div className="space-y-4 pt-2">
+                <h1 className="text-3xl font-heading font-semibold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent tracking-tight leading-tight">
                   Start New Note
                 </h1>
+                <p className="text-base text-slate-600 font-sans font-medium leading-relaxed">
+                  Professional AI-powered documentation
+                </p>
               </div>
-              <p className="text-sm text-slate-600 font-medium">Professional AI-powered documentation</p>
+
+              {/* Collapsible Professional Instructional Walkthrough */}
+              <div className="bg-gradient-to-r from-[#b88b74]/10 via-[#8f6a58]/5 to-[#b88b74]/10 rounded-2xl border border-[#b88b74]/20 shadow-lg backdrop-blur-sm overflow-hidden">
+                <button
+                  onClick={() => setShowWalkthrough(!showWalkthrough)}
+                  className="w-full p-3 flex items-center justify-between hover:bg-white/20 transition-colors duration-200"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 bg-gradient-to-br from-[#b88b74] to-[#8f6a58] rounded-lg flex items-center justify-center shadow-md">
+                      <BookOpen className="h-3.5 w-3.5 text-white" />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="font-bold text-slate-900 text-sm font-display">Quick Start Guide</h3>
+                      <p className="text-xs text-slate-600 font-sans">3 steps to create your first note</p>
+                    </div>
+                  </div>
+                  <div className={`w-5 h-5 text-[#b88b74] transition-transform duration-200 ${showWalkthrough ? 'rotate-180' : ''}`}>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </button>
+
+                {showWalkthrough && (
+                  <div className="px-3 pb-3 space-y-2 animate-in slide-in-from-top-2 duration-300">
+                    <div className="flex items-center gap-3 p-2 bg-white/60 rounded-lg border border-[#b88b74]/10">
+                      <div className="w-5 h-5 bg-gradient-to-br from-[#b88b74] to-[#8f6a58] rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm">1</div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-slate-800 font-sans">Choose Template</p>
+                        <p className="text-xs text-slate-600">Select from SOAP, SBAR, or specialized templates</p>
+                      </div>
+                      <div className="w-2 h-2 bg-[#b88b74] rounded-full animate-pulse"></div>
+                    </div>
+
+                    <div className="flex items-center gap-3 p-2 bg-white/40 rounded-lg border border-slate-200/50">
+                      <div className="w-5 h-5 bg-slate-300 rounded-full flex items-center justify-center text-slate-600 text-xs font-bold">2</div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-slate-700 font-sans">Record or Type</p>
+                        <p className="text-xs text-slate-500">Use voice dictation or manual input</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 p-2 bg-white/40 rounded-lg border border-slate-200/50">
+                      <div className="w-5 h-5 bg-slate-300 rounded-full flex items-center justify-center text-slate-600 text-xs font-bold">3</div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-slate-700 font-sans">AI Processing</p>
+                        <p className="text-xs text-slate-500">Watch as AI formats your note professionally</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Mobile Template Selector - Enhanced */}
-            <div className="w-full max-w-sm mx-auto px-4">
-              <Label className="text-xs font-semibold text-slate-700 mb-2 block">Select Template</Label>
-              <Select value={currentTemplate} onValueChange={(value) => {
-                onTemplateChange(value);
-              }}>
-                <SelectTrigger className="w-full h-11 text-xs bg-white border-2 border-slate-300 hover:border-teal-500 focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 transition-all shadow-sm rounded-xl font-medium text-slate-800">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent
-                  className="bg-white backdrop-blur-xl border-2 border-slate-200 shadow-[0_12px_40px_rgb(0,0,0,0.15)] rounded-xl p-2"
-                  position="popper"
-                  side="bottom"
-                  align="center"
-                  sideOffset={4}
-                >
-                  {templates.map((template) => (
-                    <SelectItem key={template.value} value={template.value} className="hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 cursor-pointer py-2.5 px-3 rounded-lg my-1 transition-all duration-200">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-1.5 h-1.5 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full shadow-sm flex-shrink-0" />
-                        <span className="font-semibold text-xs text-slate-800">{template.label}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {/* Luxury Template Selector with Warm Glow */}
+            <div className="w-full max-w-sm mx-auto">
+              <div className="space-y-4">
+                {/* Premium Label with Warm Accent */}
+                <div className="text-center space-y-2">
+                  <Label className="text-sm font-bold text-slate-800 block tracking-wide">Choose Documentation Template</Label>
+                  <div className="w-16 h-0.5 bg-gradient-to-r from-[#b88b74] to-[#8f6a58] mx-auto rounded-full" />
+                </div>
+
+                {/* Luxury Template Selector with Warm Glow */}
+                <div className="relative">
+                  {/* Warm Glow Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#b88b74]/20 via-[#8f6a58]/15 to-[#b88b74]/20 rounded-3xl blur-xl opacity-60 animate-pulse" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#b88b74]/10 via-transparent to-[#b88b74]/10 rounded-3xl" />
+
+                  <Select value={currentTemplate} onValueChange={(value) => {
+                    onTemplateChange(value);
+                  }}>
+                  <SelectTrigger className="w-full h-14 text-sm bg-white/95 backdrop-blur-2xl border-2 border-[#b88b74]/30 hover:border-[#b88b74]/60 focus:border-[#b88b74] focus:ring-4 focus:ring-[#b88b74]/15 transition-all duration-500 shadow-2xl shadow-[#b88b74]/10 hover:shadow-3xl hover:shadow-[#b88b74]/20 rounded-3xl font-bold text-slate-800 tracking-wide [&>svg]:text-[#b88b74] [&>svg]:w-5 [&>svg]:h-5">
+                    <SelectValue />
+                  </SelectTrigger>
+                        <SelectContent className="bg-white border-2 border-slate-200 shadow-[0_20px_60px_rgb(0,0,0,0.15)] rounded-2xl p-3 max-h-80 overflow-y-auto">
+                      {templates.map((template, index) => {
+                        const isSelected = currentTemplate === template.value;
+                        const categoryColor = template.category === 'Traditional' ? 'from-blue-500 to-blue-600' :
+                                             template.category === 'Epic EMR' ? 'from-purple-500 to-purple-600' :
+                                             'from-emerald-500 to-emerald-600';
+
+                        return (
+                          <SelectItem
+                            key={template.value}
+                            value={template.value}
+                            className={`cursor-pointer py-3 px-4 rounded-xl my-1 transition-all duration-200 group border ${
+                              isSelected
+                                ? 'border-slate-300 bg-slate-50 shadow-md'
+                                : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 hover:shadow-lg'
+                            }`}
+                            style={{ animationDelay: `${index * 30}ms` }}
+                          >
+                            <div className="flex items-center gap-3">
+                              {/* Modern Icon */}
+                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                                isSelected
+                                  ? 'bg-slate-600 shadow-md'
+                                  : 'bg-slate-100 group-hover:bg-slate-200 group-hover:shadow-md'
+                              }`}>
+                                <span className={`text-lg transition-all duration-200 ${
+                                  isSelected ? 'text-white' : 'text-slate-700 group-hover:text-slate-900'
+                                }`}>
+                                  {template.value === 'SOAP' && '📋'}
+                                  {template.value === 'SBAR' && '📞'}
+                                  {template.value === 'PIE' && '🎯'}
+                                  {template.value === 'DAR' && '📊'}
+                                  {template.value === 'shift-assessment' && '🏥'}
+                                  {template.value === 'mar' && '💊'}
+                                  {template.value === 'io' && '⚖️'}
+                                  {template.value === 'wound-care' && '🩹'}
+                                  {template.value === 'safety-checklist' && '✅'}
+                                  {template.value === 'med-surg' && '🩺'}
+                                  {template.value === 'icu' && '🏥'}
+                                  {template.value === 'nicu' && '👶'}
+                                  {template.value === 'mother-baby' && '👩‍👶'}
+                                </span>
+                              </div>
+
+                              {/* Content */}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-0.5">
+                                  <span className={`font-semibold text-sm transition-colors duration-200 ${
+                                    isSelected ? 'text-slate-900' : 'text-slate-800 group-hover:text-slate-900'
+                                  }`}>
+                                    {template.label.split('(')[0].trim()}
+                                  </span>
+                                  <div className={`px-2 py-0.5 rounded-md text-xs font-medium bg-gradient-to-r ${categoryColor} text-white shadow-sm`}>
+                                    {template.category}
+                                  </div>
+                                </div>
+                                {template.label.includes('(') && (
+                                  <p className={`text-xs transition-colors duration-200 ${
+                                    isSelected ? 'text-slate-600' : 'text-slate-500 group-hover:text-slate-600'
+                                  }`}>
+                                    {template.label.split('(')[1].replace(')', '')}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Selection Indicator */}
+                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                                isSelected
+                                  ? 'bg-slate-600 border-slate-600'
+                                  : 'border-slate-300 group-hover:border-slate-400'
+                              }`}>
+                                {isSelected && <CheckCircle className="h-3 w-3 text-white" />}
+                              </div>
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Mobile Main Content Area - iPhone 16 Optimized - Fully Scrollable */}
-        <div className="flex-1 w-full py-6 space-y-4 overflow-y-auto pb-24">
-          <div className="px-4 space-y-4 w-full">
+        {/* Premium Main Content Area - Enhanced Layout */}
+        <div className="flex-1 w-full py-8 overflow-y-auto pb-32">
+          <div className="px-6 space-y-8 w-full max-w-md mx-auto">
           {showInputSelector ? (
             <div className="w-full max-w-2xl">
               <InputMethodSelector
@@ -666,35 +989,36 @@ export function MVPHomeScreen({
             </div>
           ) : (
             <>
-              {/* Responsive Recording Button */}
-              <div className="relative flex flex-col items-center space-y-2 md:space-y-4">
+              {/* Premium Recording Section */}
+              <div className="relative flex flex-col items-center space-y-6">
+                {/* Recording Button Container */}
                 <div className="relative">
-                  {/* Multiple Pulse Rings */}
+                  {/* Enhanced Pulse Rings */}
                   {isRecording && (
                     <>
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-500 to-pink-600 animate-ping opacity-60 scale-110" />
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 to-pink-500 animate-ping opacity-40 scale-125 animation-delay-300" />
-                      <div className="hidden md:block absolute inset-0 rounded-full bg-gradient-to-r from-red-300 to-pink-400 animate-ping opacity-20 scale-140 animation-delay-700" />
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 to-pink-500 animate-ping opacity-75 scale-110 shadow-2xl shadow-red-500/30" />
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-300 to-pink-400 animate-ping opacity-50 scale-125 animation-delay-300 shadow-xl shadow-red-400/20" />
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-200 to-pink-300 animate-ping opacity-25 scale-140 animation-delay-700 shadow-lg shadow-red-300/10" />
                     </>
                   )}
-                  
-                  {/* Responsive Main Button - Apple-level aesthetics */}
+
+                  {/* Premium Main Button */}
                   <Button
                     size="lg"
-                    className={`w-28 h-28 sm:w-32 sm:h-32 rounded-full transition-all duration-500 transform hover:scale-105 active:scale-95 ${
+                    className={`w-32 h-32 rounded-full transition-all duration-700 transform hover:scale-110 active:scale-95 ${
                       isRecording
-                        ? 'bg-gradient-to-br from-red-500 via-pink-600 to-red-600 hover:from-red-600 hover:via-pink-700 hover:to-red-700 shadow-[0_8px_30px_rgb(239,68,68,0.4)] hover:shadow-[0_12px_40px_rgb(239,68,68,0.5)]'
-                        : 'bg-gradient-to-br from-teal-500 via-blue-600 to-teal-600 hover:from-teal-600 hover:via-blue-700 hover:to-teal-700 shadow-[0_8px_30px_rgb(20,184,166,0.4)] hover:shadow-[0_12px_40px_rgb(20,184,166,0.5)]'
-                    } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} shadow-lg`}
+                        ? 'bg-gradient-to-br from-red-500 via-red-600 to-pink-600 hover:from-red-600 hover:via-red-700 hover:to-pink-700 shadow-[0_12px_40px_rgb(239,68,68,0.6)] hover:shadow-[0_20px_60px_rgb(239,68,68,0.8)]'
+                        : 'bg-gradient-to-br from-[#6dbda9] via-[#5ba08c] to-[#4a9b7e] hover:from-[#5ba08c] hover:via-[#4a9b7e] hover:to-[#3a8b6e] shadow-[0_12px_40px_rgba(109,189,169,0.6)] hover:shadow-[0_20px_60px_rgba(109,189,169,0.8)]'
+                    } ${isProcessing ? 'opacity-60 cursor-not-allowed animate-pulse' : 'cursor-pointer'} shadow-2xl`}
                     style={{
                       boxShadow: isRecording
-                        ? '0 8px 30px rgba(239, 68, 68, 0.4), 0 2px 8px rgba(239, 68, 68, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
-                        : '0 8px 30px rgba(20, 184, 166, 0.4), 0 2px 8px rgba(20, 184, 166, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                        ? '0 12px 40px rgba(239, 68, 68, 0.6), 0 4px 16px rgba(239, 68, 68, 0.3), inset 0 2px 0 rgba(255, 255, 255, 0.3)'
+                        : '0 12px 40px rgba(109, 189, 169, 0.6), 0 4px 16px rgba(109, 189, 169, 0.3), inset 0 2px 0 rgba(255, 255, 255, 0.4)'
                     }}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('🎤 Mobile microphone button clicked, isRecording:', isRecording);
+                      console.log('🎤 Premium mobile microphone button clicked, isRecording:', isRecording);
                       if (isRecording) {
                         console.log('🛑 Stopping recording...');
                         onStopRecording();
@@ -707,18 +1031,36 @@ export function MVPHomeScreen({
                     type="button"
                   >
                     {isRecording ? (
-                      <MicOff className="h-14 w-14 sm:h-16 sm:w-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
+                      <MicOff className="h-16 w-16 text-white drop-shadow-[0_3px_6px_rgba(0,0,0,0.4)]" />
                     ) : (
-                      <Mic className="h-14 w-14 sm:h-16 sm:w-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
+                      <Mic className="h-16 w-16 text-white drop-shadow-[0_3px_6px_rgba(0,0,0,0.4)]" />
                     )}
                   </Button>
-                  
-                  {/* Mobile Status Indicator */}
-                  <div className={`absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-white ${
-                    isRecording ? 'bg-red-500 animate-pulse' : 
-                    isProcessing ? 'bg-yellow-500 animate-spin' : 
-                    'bg-green-500'
+
+                  {/* Premium Status Indicator */}
+                  <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full border-3 border-white shadow-xl ${
+                    isRecording ? 'bg-red-500 animate-pulse shadow-red-500/50' :
+                    isProcessing ? 'bg-yellow-500 animate-spin shadow-yellow-500/50' :
+                    'bg-green-500 shadow-green-500/50'
                   }`} />
+                </div>
+
+                {/* Premium Status Text */}
+                <div className="text-center space-y-1">
+                  <div className={`text-lg font-bold tracking-wide ${
+                    isRecording ? 'text-red-600' :
+                    isProcessing ? 'text-yellow-600' :
+                    'text-slate-700'
+                  }`}>
+                    {isRecording ? 'Recording Active' :
+                     isProcessing ? 'AI Processing...' :
+                     'Ready to Record'}
+                  </div>
+                  <p className="text-sm text-slate-500 font-medium">
+                    {isRecording ? 'Tap to stop recording' :
+                     isProcessing ? 'Analyzing your speech...' :
+                     'Tap the microphone to begin'}
+                  </p>
                 </div>
               </div>
 
@@ -763,91 +1105,180 @@ export function MVPHomeScreen({
                 )}
 
                 {!isRecording && !isProcessing && (
-                  <div className="bg-white/80 backdrop-blur-sm border border-slate-200 rounded-lg p-3 max-w-xs mx-auto shadow-lg">
-                    <h2 className="text-base font-bold text-slate-900 mb-1">Ready to Record</h2>
-                    <p className="text-xs text-slate-600">
-                      Tap microphone to start
-                    </p>
-                    {!voiceSupported && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2">
-                        <p className="text-xs text-yellow-800">
-                          ⚠️ Voice not supported. Use manual input.
-                        </p>
+                  <div className="relative">
+                    {/* Premium Background Glow */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-teal-100/30 via-blue-100/20 to-teal-100/30 rounded-3xl blur-2xl opacity-60 animate-pulse" />
+
+                    {/* Compact Professional Voice Dictation Card */}
+                    <div className="relative bg-white/95 backdrop-blur-2xl border-2 border-slate-200/60 rounded-2xl p-4 shadow-[0_12px_32px_rgb(0,0,0,0.06)] hover:shadow-[0_16px_40px_rgb(0,0,0,0.08)] transition-all duration-300 max-w-sm mx-auto">
+                      {/* Compact Header with Inline Icon */}
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl flex items-center justify-center shadow-lg border border-slate-700/20">
+                          <Mic className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h2 className="text-base font-bold text-slate-900 tracking-tight">Voice Dictation Ready</h2>
+                          <p className="text-xs text-slate-600 font-medium">AI-powered speech recognition</p>
+                        </div>
                       </div>
-                    )}
+
+                      {/* Compact Feature Grid */}
+                      <div className="grid grid-cols-3 gap-2 mb-3">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-7 h-7 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-sm">
+                            <Shield className="h-3.5 w-3.5 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-slate-800">HIPAA</p>
+                            <p className="text-xs text-slate-600">Compliant</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
+                            <Zap className="h-3.5 w-3.5 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-slate-800">Real-time</p>
+                            <p className="text-xs text-slate-600">AI</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-7 h-7 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-sm">
+                            <Target className="h-3.5 w-3.5 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-slate-800">99%</p>
+                            <p className="text-xs text-slate-600">Accurate</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Compact Instructions */}
+                      <div className="bg-gradient-to-r from-slate-50 to-slate-100/50 rounded-lg p-3 border border-slate-200/60 mb-2.5">
+                        <div className="text-center">
+                          <p className="text-sm font-bold text-slate-900 mb-2">Quick Start Guide</p>
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 bg-teal-500 rounded-full flex-shrink-0"></div>
+                              <p className="text-xs text-slate-700 text-left">Tap microphone to record</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 bg-teal-500 rounded-full flex-shrink-0"></div>
+                              <p className="text-xs text-slate-700 text-left">Speak naturally about patient</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 bg-teal-500 rounded-full flex-shrink-0"></div>
+                              <p className="text-xs text-slate-700 text-left">AI formats into professional notes</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Compact Voice Support Warning */}
+                      {!voiceSupported && (
+                        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-lg p-2.5">
+                          <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
+                              <AlertTriangle className="h-2.5 w-2.5 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-xs font-bold text-amber-900">Voice Input Unavailable</p>
+                              <p className="text-xs text-amber-800">Check browser permissions</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
 
-              {/* Mobile Input Method Options - iPhone 16 Optimized */}
-                {!isRecording && !isProcessing && !transcript && (
-                  <div className="w-full max-w-xs mx-auto space-y-2">
-                    <div className="text-center">
-                      <p className="text-xs text-slate-600 mb-2">Or choose another method:</p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => setShowInputSelector(true)}
-                        className="h-12 flex flex-col items-center justify-center gap-1 bg-white/95 backdrop-blur-sm border border-slate-200/60 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 rounded-lg group"
-                        style={{
-                          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.15), 0 2px 6px rgba(59, 130, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
-                        }}
-                      >
-                        <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-blue-200 rounded flex items-center justify-center group-hover:from-blue-200 group-hover:to-blue-300 transition-all duration-300 shadow-sm">
-                          <Keyboard className="h-3 w-3 text-blue-600 drop-shadow-sm" />
-                        </div>
-                        <span className="text-xs font-medium text-slate-700 group-hover:text-blue-700 transition-colors duration-300">Type</span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={onStartRecording}
-                        className="h-12 flex flex-col items-center justify-center gap-1 bg-white/95 backdrop-blur-sm border border-slate-200/60 hover:border-teal-400 hover:bg-teal-50 transition-all duration-300 rounded-lg group"
-                        style={{
-                          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.boxShadow = '0 6px 20px rgba(20, 184, 166, 0.15), 0 2px 6px rgba(20, 184, 166, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
-                        }}
-                      >
-                        <div className="w-6 h-6 bg-gradient-to-br from-teal-100 to-teal-200 rounded flex items-center justify-center group-hover:from-teal-200 group-hover:to-teal-300 transition-all duration-300 shadow-sm">
-                          <Mic className="h-3 w-3 text-teal-600 drop-shadow-sm" />
-                        </div>
-                        <span className="text-xs font-medium text-slate-700 group-hover:text-teal-700 transition-colors duration-300">Voice</span>
-                      </Button>
-                    </div>
+              {/* Premium Input Method Options - Always Available */}
+              {!isRecording && !isProcessing && (
+                <div className="w-full max-w-sm mx-auto space-y-6">
+                  {/* Method Selector Header */}
+                  <div className="text-center">
+                    <p className="text-sm text-slate-600 font-medium">
+                      {transcript ? 'Or try a different input method:' : 'Alternative input methods:'}
+                    </p>
+                  </div>
 
-                    {/* Mobile Pro Tip - Template Example */}
-                    <div className="w-full max-w-md mx-auto mt-3">
-                      <Card className="p-4 bg-gradient-to-br from-amber-50/90 to-orange-50/90 border-2 border-amber-200/60 shadow-[0_4px_20px_rgb(251,191,36,0.12)] backdrop-blur-sm rounded-2xl">
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="w-7 h-7 bg-gradient-to-r from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
+                  {/* Premium Method Cards */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <Card className="group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-slate-200/60 hover:border-blue-300/80 bg-gradient-to-br from-white to-blue-50/30 shadow-lg hover:shadow-blue-500/10">
+                      <div
+                        className="p-4 text-center space-y-3 h-full flex flex-col justify-center"
+                        onClick={() => {
+                          setShowInputSelector(true);
+                        }}
+                      >
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mx-auto shadow-md group-hover:shadow-lg transition-all duration-300">
+                          <Keyboard className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-bold text-slate-800 group-hover:text-blue-800 transition-colors duration-300">Manual Input</h4>
+                          <p className="text-xs text-slate-600 group-hover:text-blue-600 transition-colors duration-300">Type or paste text</p>
+                        </div>
+                      </div>
+                    </Card>
+
+                    <Card className={`group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 shadow-lg ${
+                      'border-[#6dbda9]/60 bg-gradient-to-br from-white to-[#6dbda9]/10 hover:shadow-[#6dbda9]/10 hover:border-[#6dbda9]/80'
+                    }`}>
+                      <div
+                        className="p-4 text-center space-y-3 h-full flex flex-col justify-center"
+                        onClick={() => {
+                          onStartRecording();
+                        }}
+                      >
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mx-auto shadow-md group-hover:shadow-lg transition-all duration-300 ${
+                          'bg-gradient-to-br from-[#6dbda9]/20 to-[#5ba08c]/30'
+                        }`}>
+                          <Mic className="h-5 w-5 text-[#6dbda9]" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className={`text-sm font-bold transition-colors duration-300 ${
+                            'text-slate-800 group-hover:text-[#6dbda9]'
+                          }`}>
+                            Voice Dictation
+                          </h4>
+                          <p className={`text-xs transition-colors duration-300 ${
+                            'text-slate-600 group-hover:text-[#6dbda9]/80'
+                          }`}>
+                            AI speech recognition
+                          </p>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+
+                  {/* Premium Template Example Card */}
+                  {!transcript && (
+                    <Card className="bg-gradient-to-br from-amber-50/80 via-yellow-50/60 to-orange-50/80 border-2 border-amber-200/70 shadow-xl backdrop-blur-sm">
+                      <div className="p-5">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
                             <BookOpen className="h-4 w-4 text-white" />
                           </div>
-                          <h3 className="font-semibold text-sm text-slate-900">Example Input for {templates.find(t => t.value === currentTemplate)?.label.split('(')[0].trim()}</h3>
+                          <div>
+                            <h4 className="font-bold text-slate-900 text-sm">Template Example</h4>
+                            <p className="text-xs text-slate-600">For {templates.find(t => t.value === currentTemplate)?.label.split('(')[0].trim()}</p>
+                          </div>
                         </div>
-                        <div className="bg-white/80 rounded-lg p-3 mb-3">
-                          <p className="text-xs text-slate-700 leading-relaxed italic">
+                        <div className="bg-white/90 rounded-xl p-4 border border-amber-100 shadow-inner">
+                          <p className="text-sm text-slate-800 leading-relaxed italic font-medium">
                             "{getTemplateExample(currentTemplate)}"
                           </p>
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs text-amber-700">
-                          <Star className="h-3 w-3 fill-amber-400" />
-                          <span className="font-medium">Speak naturally - AI will format it properly</span>
+                        <div className="flex items-center gap-2 mt-3">
+                          <Star className="h-4 w-4 fill-amber-400 text-amber-500" />
+                          <span className="text-sm text-amber-700 font-medium">Speak naturally - AI formats automatically</span>
                         </div>
-                      </Card>
-                    </div>
-                  </div>
-                )}
+                      </div>
+                    </Card>
+                  )}
+                </div>
+              )}
 
               {/* Enhanced Quick Actions */}
               {transcript && (
@@ -932,37 +1363,6 @@ export function MVPHomeScreen({
                     </div>
                   </Card>
 
-                  {/* Weekly Goal Progress */}
-                  <Card className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 shadow-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                        <Target className="h-3 w-3 text-white" />
-                      </div>
-                      <h3 className="font-semibold text-sm text-slate-900">Weekly Goal</h3>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="p-2 bg-white rounded-lg border border-blue-100">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-medium text-slate-700">Progress</span>
-                          <span className="text-sm font-bold text-blue-600">{userProfile.notesThisWeek}/{userProfile.weeklyGoal}</span>
-                        </div>
-                        <Progress value={(userProfile.notesThisWeek / userProfile.weeklyGoal) * 100} className="h-2 mb-1" />
-                        <div className="text-xs text-slate-500">
-                          {userProfile.weeklyGoal - userProfile.notesThisWeek} more to reach goal
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
-                        <div className="w-5 h-5 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <TrendingUp className="h-2.5 w-2.5 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-xs font-semibold text-green-700">On track!</div>
-                          <div className="text-xs text-green-600">84% of goal completed</div>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-
                   {/* Quick Actions */}
                   <Card className="p-3 bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 shadow-lg">
                     <div className="flex items-center gap-2 mb-2">
@@ -972,53 +1372,33 @@ export function MVPHomeScreen({
                       <h3 className="font-semibold text-sm text-slate-900">Quick Actions</h3>
                     </div>
                     <div className="space-y-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         className="w-full justify-start text-xs h-9 hover:bg-teal-50 hover:border-teal-300 transition-colors"
                         onClick={() => onNavigate('history')}
                       >
                         <FileText className="h-3 w-3 mr-2" />
                         View Note History
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         className="w-full justify-start text-xs h-9 hover:bg-teal-50 hover:border-teal-300 transition-colors"
                         onClick={() => onNavigate('analytics')}
                       >
                         <BarChart3 className="h-3 w-3 mr-2" />
                         View Analytics
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         className="w-full justify-start text-xs h-9 hover:bg-teal-50 hover:border-teal-300 transition-colors"
                         onClick={() => onNavigate('settings')}
                       >
                         <Settings className="h-3 w-3 mr-2" />
                         Settings
                       </Button>
-                    </div>
-                  </Card>
-
-                  {/* Activity Summary */}
-                  <Card className="p-3 bg-gradient-to-br from-slate-50 to-gray-100 border border-slate-200 shadow-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-6 h-6 bg-gradient-to-r from-slate-500 to-gray-600 rounded-lg flex items-center justify-center">
-                        <Activity className="h-3 w-3 text-white" />
-                      </div>
-                      <h3 className="font-semibold text-sm text-slate-900">Activity</h3>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-100">
-                        <span className="text-xs text-slate-600">Pending Reviews</span>
-                        <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">{userProfile.pendingReviews}</Badge>
-                      </div>
-                      <div className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-100">
-                        <span className="text-xs text-slate-600">Upcoming Tasks</span>
-                        <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">{userProfile.upcomingTasks}</Badge>
-                      </div>
                     </div>
                   </Card>
 

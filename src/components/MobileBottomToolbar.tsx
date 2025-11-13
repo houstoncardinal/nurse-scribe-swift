@@ -8,17 +8,13 @@ interface MobileBottomToolbarProps {
   onNavigate: (screen: string) => void;
   isRecording?: boolean;
   isProcessing?: boolean;
-  onToggleAIWidget?: () => void;
-  isAIWidgetMinimized?: boolean;
 }
 
 export function MobileBottomToolbar({
   currentScreen,
   onNavigate,
   isRecording = false,
-  isProcessing = false,
-  onToggleAIWidget,
-  isAIWidgetMinimized = true
+  isProcessing = false
 }: MobileBottomToolbarProps) {
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
 
@@ -37,12 +33,10 @@ export function MobileBottomToolbar({
       active: currentScreen === 'draft'
     },
     {
-      id: 'ai-widget',
+      id: 'raha-ai',
       label: 'Raha AI',
       icon: Brain,
-      active: false,
-      badge: !isAIWidgetMinimized ? 'active' : null,
-      isAI: true
+      active: currentScreen === 'raha-ai'
     },
   ];
 
@@ -92,11 +86,7 @@ export function MobileBottomToolbar({
   ];
 
   const handleNavigate = (screen: string) => {
-    if (screen === 'ai-widget' && onToggleAIWidget) {
-      onToggleAIWidget();
-    } else {
-      onNavigate(screen);
-    }
+    onNavigate(screen);
     setIsMoreMenuOpen(false);
   };
 

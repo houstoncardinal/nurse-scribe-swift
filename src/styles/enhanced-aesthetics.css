@@ -512,3 +512,19 @@
   background: rgba(20, 184, 166, 0.3);
   color: inherit;
 }
+
+/* ============================================
+   TEMPLATE SELECTOR OVERRIDES
+   ============================================ */
+
+/* Override any hover effects on template cards */
+.template-card:hover {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+  border-color: inherit !important;
+}
+
+.template-card:hover * {
+  color: inherit !important;
+}

@@ -138,7 +138,7 @@ export function EnhancedMobileHeader({
             {/* New Note Button */}
             <Button
               onClick={onNewNote}
-              className="bg-gradient-to-b from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg shadow-teal-500/30 h-9 px-3 text-xs transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/40"
+              className="bg-[#6dbda9] hover:bg-[#5ba08c] text-white shadow-lg shadow-[#6dbda9]/30 h-9 px-3 text-xs transition-all duration-300 hover:shadow-xl hover:shadow-[#6dbda9]/40"
               size="sm"
             >
               <Mic className="h-4 w-4 mr-1.5" />
@@ -185,10 +185,10 @@ export function EnhancedMobileHeader({
                             <span className="text-xs text-yellow-600">Guest Mode</span>
                           </div>
                         </div>
-                        <Button 
-                          onClick={onSignIn} 
-                          size="sm" 
-                          className="bg-gradient-to-b from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-md shadow-teal-500/30 h-8 px-3 text-xs transition-all duration-300"
+                        <Button
+                          onClick={onSignIn}
+                          size="sm"
+                          className="bg-[#6dbda9] hover:bg-[#5ba08c] text-white shadow-md shadow-[#6dbda9]/30 h-8 px-3 text-xs transition-all duration-300"
                         >
                           <LogIn className="h-3 w-3 mr-1" />
                           Sign In
