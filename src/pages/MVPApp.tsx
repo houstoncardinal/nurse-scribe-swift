@@ -31,7 +31,7 @@ import { performanceService } from '@/lib/performanceService';
 import { intelligentNoteDetectionService } from '@/lib/intelligentNoteDetection';
 import { toast } from 'sonner';
 
-type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'copilot' | 'history' | 'admin' | 'instructions' | 'raha-ai';
+type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'copilot' | 'history' | 'admin' | 'instructions';
 
 interface NoteContent {
   [key: string]: string;
@@ -515,10 +515,6 @@ export function MVPApp() {
     }
     if (screen === 'admin') {
       setCurrentScreen('admin' as Screen);
-      return;
-    }
-    if (screen === 'raha-ai') {
-      setCurrentScreen('raha-ai' as Screen);
       return;
     }
 
@@ -1162,18 +1158,6 @@ export function MVPApp() {
       case 'instructions':
         return <InstructionsPage onNavigate={handleNavigate} />;
 
-      case 'raha-ai':
-        return (
-          <RahaAIScreen
-            onNavigate={handleNavigate}
-            currentContext={{
-              screen: currentScreen,
-              template: selectedTemplate,
-              hasTranscript: !!transcript,
-              hasNote: Object.keys(noteContent).length > 0
-            }}
-          />
-        );
 
       default:
         return null;
@@ -1184,10 +1168,9 @@ export function MVPApp() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-x-hidden">
       {/* Desktop Layout */}
       <div className="hidden lg:block overflow-x-hidden">
-        <div className={`flex h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-x-hidden ${currentScreen === 'raha-ai' ? '' : ''}`}>
-          {/* Desktop Sidebar - Compact - Hide on Raha AI screen */}
-          {currentScreen !== 'raha-ai' && (
-            <aside className="w-64 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
+        <div className="flex h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-x-hidden">
+          {/* Desktop Sidebar - Compact */}
+          <aside className="w-64 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
               <div className="flex flex-col h-full">
                 {/* Logo Section - Modern & Professional */}
                 <div className="p-6 border-b border-slate-200/80 bg-gradient-to-br from-slate-50/50 to-white">
@@ -1371,22 +1354,6 @@ export function MVPApp() {
                             <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full" />
                           )}
                         </Button>
-                        <Button
-                          variant="ghost"
-                          className={`w-full justify-start h-11 text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
-                            currentScreen === 'raha-ai'
-                              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25 border border-teal-400/20'
-                              : 'text-slate-700 hover:text-teal-700 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 border border-transparent hover:border-teal-200/50'
-                          }`}
-                          onClick={() => handleNavigate('raha-ai')}
-                        >
-                          <div className={`absolute inset-0 bg-gradient-to-r from-teal-400/10 to-blue-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${currentScreen === 'raha-ai' ? 'opacity-100' : ''}`} />
-                          <Sparkles className={`h-4 w-4 mr-3 transition-colors duration-200 ${currentScreen === 'raha-ai' ? 'text-white' : 'text-teal-600 group-hover:text-teal-700'}`} />
-                          <span className="relative z-10">Raha AI</span>
-                          {currentScreen === 'raha-ai' && (
-                            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full" />
-                          )}
-                        </Button>
                       </div>
                     </div>
 
@@ -1452,7 +1419,6 @@ export function MVPApp() {
                 </div>
               </div>
             </aside>
-          )}
 
           {/* Desktop Main Content */}
           <div className="flex-1 flex flex-col overflow-x-hidden">
@@ -1472,7 +1438,6 @@ export function MVPApp() {
                       {currentScreen === 'education' && 'Education Mode'}
                       {currentScreen === 'team' && 'Team Collaboration'}
                       {currentScreen === 'copilot' && 'AI Nurse Copilot'}
-                      {currentScreen === 'raha-ai' && 'Raha AI Assistant'}
                     </h2>
                     <p className="text-slate-600 mt-1">
                       {currentScreen === 'home' && 'Create professional nursing documentation with AI assistance'}
@@ -1485,7 +1450,6 @@ export function MVPApp() {
                       {currentScreen === 'education' && 'Practice with synthetic cases and improve your skills'}
                       {currentScreen === 'team' && 'Collaborate and share notes with your team'}
                       {currentScreen === 'copilot' && 'AI-powered care planning, bedside assist, and predictive insights'}
-                      {currentScreen === 'raha-ai' && 'Your conversational AI assistant for nursing documentation'}
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
@@ -1545,9 +1509,8 @@ export function MVPApp() {
             {renderCurrentScreen()}
           </main>
 
-          {/* Mobile Bottom Toolbar - Only show on mobile and not on Raha AI */}
-          {currentScreen !== 'raha-ai' && (
-            <div className="md:hidden">
+          {/* Mobile Bottom Toolbar */}
+          <div className="md:hidden">
               <MobileBottomToolbar
                 currentScreen={currentScreen}
                 onNavigate={handleNavigate}
@@ -1555,8 +1518,7 @@ export function MVPApp() {
                 isProcessing={isProcessing}
               />
             </div>
-          )}
-        </div>
+          </div>
       </div>
 
       {/* Synthetic AI Assistant */}
