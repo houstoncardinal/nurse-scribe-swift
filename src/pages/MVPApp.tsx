@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Mic, FileText, Download, Settings, Stethoscope, Menu, User, BarChart3, BookOpen, Users, Shield, Brain, MessageSquare, Sparkles } from 'lucide-react';
 import { SimpleThemeToggle } from '@/components/ThemeToggle';
 import { SyntheticAI } from '@/components/SyntheticAI';
@@ -20,18 +21,17 @@ import { advancedTranscriptionService } from '@/lib/advancedTranscriptionService
 import { EnhancedAdminDashboard } from '@/components/EnhancedAdminDashboard';
 import { InstructionsPage } from '@/components/InstructionsPage';
 import { TeamManagementScreen } from '@/components/TeamManagementScreen';
-import { AICopilotScreen } from '@/components/AICopilotScreen';
+import { RahaAIScreen } from '@/components/RahaAIScreen';
 import { NoteHistory } from '@/components/NoteHistory';
 import { AnalyticsScreen } from '@/components/AnalyticsScreen';
 import { EducationScreen } from '@/components/EducationScreen';
-import { RahaAIScreen } from '@/components/RahaAIScreen';
 import { knowledgeBaseService } from '@/lib/knowledgeBase';
 import { enhancedAIService } from '@/lib/enhancedAIService';
 import { performanceService } from '@/lib/performanceService';
 import { intelligentNoteDetectionService } from '@/lib/intelligentNoteDetection';
 import { toast } from 'sonner';
 
-type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'copilot' | 'history' | 'admin' | 'instructions';
+type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'raha-ai' | 'history' | 'admin' | 'instructions';
 
 interface NoteContent {
   [key: string]: string;
@@ -201,6 +201,8 @@ const createTemplateFallback = (template: string, transcript: string): NoteConte
 
 export function MVPApp() {
   console.log('MVPApp rendering...');
+  const navigate = useNavigate();
+
   // Screen navigation
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
   
@@ -360,29 +362,67 @@ export function MVPApp() {
               setRecordingInterval(interval);
               
               toast.success('🎤 Listening with Medical AI...', {
-                description: '6-layer accuracy enhancement active'
+                description: 'Speak naturally - Auto-processes after 5 seconds of silence or when you tap stop'
               });
             },
             onEnd: async () => {
-              console.log('🎤 Advanced transcription ended');
+              console.log('🎤 Advanced transcription ended - starting intelligent processing...');
               setIsRecording(false);
-              
+
               // Clear recording timer
               if (recordingInterval) {
                 clearInterval(recordingInterval);
                 setRecordingInterval(null);
               }
-              
-              // Get the current transcript value (use state or check both sources)
-              const currentTranscript = finalTranscript || transcript;
-              console.log('📝 Current transcript on end:', currentTranscript);
-              console.log('📝 finalTranscript:', finalTranscript);
-              console.log('📝 transcript:', transcript);
-              
+
+              // CRITICAL: Get transcript directly from the service - this is the source of truth
+              const serviceTranscript = advancedTranscriptionService.getFinalTranscript();
+              console.log('📝 Service accumulated transcript:', serviceTranscript);
+
+              // Build complete transcript from all sources with intelligent priority
+              // Priority: serviceTranscript > finalTranscript > transcript > interimTranscript
+              let currentTranscript = '';
+
+              if (serviceTranscript && serviceTranscript.trim()) {
+                // Best source: directly from the service
+                currentTranscript = serviceTranscript.trim();
+                console.log('✅ Using service transcript (most reliable)');
+              } else if (finalTranscript && finalTranscript.trim()) {
+                // Use finalTranscript state if available
+                currentTranscript = finalTranscript.trim();
+                // Add any interim transcript that hasn't been finalized yet
+                if (interimTranscript && interimTranscript.trim()) {
+                  currentTranscript = currentTranscript + ' ' + interimTranscript.trim();
+                }
+                console.log('✅ Using finalTranscript state + interim');
+              } else if (transcript && transcript.trim()) {
+                // Use transcript state
+                currentTranscript = transcript.trim();
+                // Add any interim transcript
+                if (interimTranscript && interimTranscript.trim()) {
+                  currentTranscript = currentTranscript + ' ' + interimTranscript.trim();
+                }
+                console.log('✅ Using transcript state + interim');
+              } else if (interimTranscript && interimTranscript.trim()) {
+                // Last resort: use just the interim transcript
+                currentTranscript = interimTranscript.trim();
+                console.log('⚠️ Using only interim transcript (less reliable)');
+              }
+
+              console.log('📝 Final assembled transcript for processing:', currentTranscript);
+              console.log('📝 Character count:', currentTranscript.length);
+              console.log('📝 Word count:', currentTranscript.split(/\s+/).length);
+
               // Auto-generate note if we have a transcript
               if (currentTranscript && currentTranscript.trim()) {
                 console.log('🤖 Auto-generating note from transcript:', currentTranscript);
                 console.log('🤖 Selected template:', selectedTemplate);
+
+                // Show processing toast
+                toast.info('🎯 Processing Your Recording', {
+                  description: `Captured ${currentTranscript.split(/\s+/).length} words - generating ${selectedTemplate} note with advanced AI...`
+                });
+
                 setIsProcessing(true);
                 
                 try {
@@ -457,6 +497,13 @@ export function MVPApp() {
                 } finally {
                   setIsProcessing(false);
                 }
+              } else {
+                // No transcript captured
+                console.warn('⚠️ No transcript captured during recording session');
+                toast.warning('No audio captured', {
+                  description: 'Please try speaking closer to the microphone or check your audio settings'
+                });
+                setIsProcessing(false);
               }
             }
           });
@@ -509,8 +556,8 @@ export function MVPApp() {
       setCurrentScreen('team' as Screen);
       return;
     }
-    if (screen === 'copilot') {
-      setCurrentScreen('copilot' as Screen);
+    if (screen === 'raha-ai') {
+      setCurrentScreen('raha-ai' as Screen);
       return;
     }
     if (screen === 'admin') {
@@ -719,31 +766,28 @@ export function MVPApp() {
   // Stop recording with real voice recognition
   const handleStopRecording = () => {
     console.log('🎤 Stopping voice recording...');
-    
+
     // Only stop if actually recording or listening
     if (!isRecording && !advancedTranscriptionService.getIsListening()) {
       console.log('🎤 Not currently recording, ignoring stop request');
       return;
     }
-    
-    console.log('🎤 Force stopping transcription...');
-    
-    // Force stop the recording
-    setIsRecording(false);
-    setIsProcessing(false);
-    
-    // Stop the transcription service
-    if (advancedTranscriptionService.getIsListening()) {
-      advancedTranscriptionService.stopListening();
-    }
-    
-    // Clear any timers
+
+    console.log('🎤 Stopping transcription service - will process transcript in onEnd callback...');
+
+    // Clear recording timer first
     if (recordingInterval) {
       clearInterval(recordingInterval);
       setRecordingInterval(null);
     }
-    
-    console.log('✅ Voice recording stopped successfully');
+
+    // Stop the transcription service - this will trigger the onEnd callback
+    // which will process the transcript and generate the note
+    if (advancedTranscriptionService.getIsListening()) {
+      advancedTranscriptionService.stopListening();
+    }
+
+    console.log('✅ Transcription service stopped - processing will happen in onEnd callback');
   };
 
   // Helper function to check if text is already formatted
@@ -1149,8 +1193,13 @@ export function MVPApp() {
       case 'team':
         return <TeamManagementScreen />;
 
-      case 'copilot':
-        return <AICopilotScreen />;
+      case 'raha-ai':
+        return <RahaAIScreen onNavigate={handleNavigate} currentContext={{
+          screen: currentScreen,
+          template: selectedTemplate,
+          hasTranscript: transcript.length > 0,
+          hasNote: Object.keys(noteContent).length > 0
+        }} />;
 
       case 'admin':
         return <EnhancedAdminDashboard />;
@@ -1341,16 +1390,16 @@ export function MVPApp() {
                         <Button
                           variant="ghost"
                           className={`w-full justify-start h-11 text-sm font-medium transition-all duration-200 group relative overflow-hidden ${
-                            currentScreen === 'copilot'
+                            currentScreen === 'raha-ai'
                               ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/25 border border-teal-400/20'
                               : 'text-slate-700 hover:text-teal-700 hover:bg-gradient-to-r hover:from-teal-50 hover:to-blue-50 border border-transparent hover:border-teal-200/50'
                           }`}
-                          onClick={() => handleNavigate('copilot')}
+                          onClick={() => handleNavigate('raha-ai')}
                         >
-                          <div className={`absolute inset-0 bg-gradient-to-r from-teal-400/10 to-blue-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${currentScreen === 'copilot' ? 'opacity-100' : ''}`} />
-                          <Brain className={`h-4 w-4 mr-3 transition-colors duration-200 ${currentScreen === 'copilot' ? 'text-white' : 'text-teal-600 group-hover:text-teal-700'}`} />
-                          <span className="relative z-10">AI Copilot</span>
-                          {currentScreen === 'copilot' && (
+                          <div className={`absolute inset-0 bg-gradient-to-r from-teal-400/10 to-blue-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${currentScreen === 'raha-ai' ? 'opacity-100' : ''}`} />
+                          <Brain className={`h-4 w-4 mr-3 transition-colors duration-200 ${currentScreen === 'raha-ai' ? 'text-white' : 'text-teal-600 group-hover:text-teal-700'}`} />
+                          <span className="relative z-10">Raha AI</span>
+                          {currentScreen === 'raha-ai' && (
                             <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full" />
                           )}
                         </Button>
@@ -1409,7 +1458,7 @@ export function MVPApp() {
                   </Button>
                   {!userProfile.isSignedIn && (
                     <Button
-                      onClick={() => setIsSignInModalOpen(true)}
+                      onClick={() => navigate('/auth')}
                       variant="outline"
                       className="w-full mt-2 h-8 text-sm"
                     >
@@ -1437,7 +1486,7 @@ export function MVPApp() {
                       {currentScreen === 'analytics' && 'Analytics Dashboard'}
                       {currentScreen === 'education' && 'Education Mode'}
                       {currentScreen === 'team' && 'Team Collaboration'}
-                      {currentScreen === 'copilot' && 'AI Nurse Copilot'}
+                      {currentScreen === 'raha-ai' && 'Raha AI'}
                     </h2>
                     <p className="text-slate-600 mt-1">
                       {currentScreen === 'home' && 'Create professional nursing documentation with AI assistance'}
@@ -1449,7 +1498,7 @@ export function MVPApp() {
                       {currentScreen === 'analytics' && 'Track your performance and productivity metrics'}
                       {currentScreen === 'education' && 'Practice with synthetic cases and improve your skills'}
                       {currentScreen === 'team' && 'Collaborate and share notes with your team'}
-                      {currentScreen === 'copilot' && 'AI-powered care planning, bedside assist, and predictive insights'}
+                      {currentScreen === 'raha-ai' && 'Intelligent AI assistant for clinical documentation and guided workflows'}
                     </p>
                   </div>
                   <div className="flex items-center gap-4">

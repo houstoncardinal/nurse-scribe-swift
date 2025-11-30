@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { 
-  Menu, Mic, Stethoscope, Shield, User, LogIn, LogOut, Settings, 
+import { useNavigate } from 'react-router-dom';
+import {
+  Menu, Mic, Stethoscope, Shield, User, LogIn, LogOut, Settings,
   FileText, Download, BarChart3, Users, BookOpen, History, HelpCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -38,6 +39,7 @@ export function EnhancedMobileHeader({
   onSignIn,
   onSignOut
 }: EnhancedMobileHeaderProps) {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navigationItems = [
@@ -145,7 +147,7 @@ export function EnhancedMobileHeader({
                   ) : (
                     <div className="mb-6">
                       <Button
-                        onClick={onSignIn}
+                        onClick={() => navigate('/auth')}
                         className="w-full bg-gradient-primary hover:opacity-90"
                       >
                         <LogIn className="h-4 w-4 mr-2" />

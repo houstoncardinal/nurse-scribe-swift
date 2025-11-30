@@ -209,22 +209,7 @@ export function SignInModal({
             </CardContent>
           </Card>
 
-          {/* Demo Account */}
-          <div className="text-center">
-            <p className="text-xs text-slate-500 mb-2">Want to try without signing up?</p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                // Demo sign in logic
-                handleInputChange('email', 'demo@nursescribe.ai');
-                handleInputChange('password', 'demo123');
-              }}
-              className="text-xs"
-            >
-              Use Demo Account
-            </Button>
-          </div>
+
         </div>
       </DialogContent>
     </Dialog>

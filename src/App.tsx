@@ -6,6 +6,7 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import Index from "./pages/Index";
 // import { MVPApp } from "./pages/MVPApp";
 import { LandingPage } from "./pages/LandingPage";
+import { AuthPage } from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
 import { EducationMode } from "@/components/EducationMode";
@@ -23,6 +24,49 @@ const App = () => {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showEducation, setShowEducation] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+
+  // Authentication state
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [authError, setAuthError] = useState('');
+
+  // Authentication functions
+  const handleSignIn = async (email: string, password: string) => {
+    setIsSigningIn(true);
+    setAuthError('');
+
+    try {
+      // Simulate API call - in real app, this would call your authentication service
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Mock successful sign in - redirect to main app
+      console.log('Sign in successful, redirecting to main app...');
+      window.location.href = '/';
+    } catch (error) {
+      setAuthError('Invalid email or password. Please try again.');
+      console.error('Sign in failed:', error);
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
+
+  const handleSignUp = async (email: string, password: string, name: string, role: string) => {
+    setIsSigningIn(true);
+    setAuthError('');
+
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Mock successful sign up - redirect to main app
+      console.log('Sign up successful, redirecting to main app...');
+      window.location.href = '/';
+    } catch (error) {
+      setAuthError('Failed to create account. Please try again.');
+      console.error('Sign up failed:', error);
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
 
   // Check for app updates and clear caches automatically
   const checkForUpdates = async () => {
@@ -194,6 +238,7 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Suspense fallback={null}><MVPAppLazy /></Suspense>} />
+          <Route path="/auth" element={<AuthPage onSignIn={handleSignIn} onSignUp={handleSignUp} isLoading={isSigningIn} error={authError} />} />
           <Route path="/full" element={<Index />} />
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/admin" element={<AdminDashboardPage />} />

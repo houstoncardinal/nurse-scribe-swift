@@ -44,7 +44,7 @@ class AdvancedTranscriptionService {
   private silenceTimeout: NodeJS.Timeout | null = null;
   private autoRestartEnabled = true;
   private lastSpeechTime = 0;
-  private readonly SILENCE_THRESHOLD = 4000; // 4 seconds of silence before stopping
+  private readonly SILENCE_THRESHOLD = 5000; // 5 seconds of silence before auto-processing
 
   // Medical terminology corrections database
   private medicalCorrections: Map<string, string> = new Map([
@@ -266,8 +266,14 @@ class AdvancedTranscriptionService {
 
     this.recognition.onend = () => {
       console.log('🎤 Advanced transcription ended');
+      console.log('📝 Final accumulated transcript on end:', this.finalTranscript);
+      console.log('📝 Interim transcript on end:', this.interimTranscript);
+
       this.isListening = false;
-      
+
+      // Clear silence detection
+      this.clearSilenceDetection();
+
       if (this.callbacks.onEnd) {
         this.callbacks.onEnd();
       }
@@ -487,7 +493,7 @@ class AdvancedTranscriptionService {
 
   /**
    * Start silence detection timer
-   * Automatically stops recording after 4 seconds of silence
+   * Automatically stops recording after 5 seconds of silence
    */
   private startSilenceDetection(): void {
     // Clear any existing timeout
@@ -495,13 +501,14 @@ class AdvancedTranscriptionService {
       clearTimeout(this.silenceTimeout);
     }
 
-    // Set new timeout for 4 seconds
+    // Set new timeout for 5 seconds
     this.silenceTimeout = setTimeout(() => {
       const timeSinceLastSpeech = Date.now() - this.lastSpeechTime;
-      
-      // If it's been 4+ seconds since last speech, stop recording
+
+      // If it's been 5+ seconds since last speech, auto-stop and process
       if (timeSinceLastSpeech >= this.SILENCE_THRESHOLD && this.isListening && this.autoRestartEnabled) {
-        console.log('🎤 4 seconds of silence detected, stopping recording');
+        console.log('🎤 5 seconds of silence detected, auto-processing recording...');
+        console.log('📝 Accumulated transcript:', this.finalTranscript);
         this.stopListening();
       }
     }, this.SILENCE_THRESHOLD);

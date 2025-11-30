@@ -6,7 +6,7 @@
 export type Theme = 'light' | 'dark' | 'system';
 
 class ThemeService {
-  private currentTheme: Theme = 'system';
+  private currentTheme: Theme = 'light';
   private listeners: Set<(theme: Theme) => void> = new Set();
 
   constructor() {
@@ -14,15 +14,15 @@ class ThemeService {
   }
 
   /**
-   * Initialize theme from localStorage or system preference
+   * Initialize theme from localStorage or default to light
    */
   private initializeTheme(): void {
     const savedTheme = localStorage.getItem('novacare_theme') as Theme;
-    
+
     if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
       this.currentTheme = savedTheme;
     } else {
-      this.currentTheme = 'system';
+      this.currentTheme = 'light';
     }
 
     this.applyTheme(this.currentTheme);
