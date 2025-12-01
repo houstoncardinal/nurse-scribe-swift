@@ -28,9 +28,13 @@ interface SignInPageProps {
   heroImageSrc?: string;
   testimonials?: Testimonial[];
   onSignIn?: (event: React.FormEvent<HTMLFormElement>) => void;
+  onSignUp?: (event: React.FormEvent<HTMLFormElement>) => void;
   onGoogleSignIn?: () => void;
   onResetPassword?: () => void;
   onCreateAccount?: () => void;
+  isSignUp?: boolean;
+  signUpData?: { name: string; email: string; password: string; confirmPassword: string };
+  onSignUpDataChange?: (data: { name: string; email: string; password: string; confirmPassword: string }) => void;
 }
 
 // --- SUB-COMPONENTS ---
@@ -60,26 +64,65 @@ export const SignInPage: React.FC<SignInPageProps> = ({
   heroImageSrc,
   testimonials = [],
   onSignIn,
+  onSignUp,
   onGoogleSignIn,
   onResetPassword,
   onCreateAccount,
+  isSignUp = false,
+  signUpData,
+  onSignUpDataChange,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const handleSignUpDataChange = (field: string, value: string) => {
+    if (onSignUpDataChange && signUpData) {
+      onSignUpDataChange({
+        ...signUpData,
+        [field]: value
+      });
+    }
+  };
 
   return (
     <div className="h-[100dvh] flex flex-col md:flex-row font-geist w-[100dvw]">
-      {/* Left column: sign-in form */}
+      {/* Left column: auth form */}
       <section className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="flex flex-col gap-6">
             <h1 className="animate-element animate-delay-100 text-4xl md:text-5xl font-semibold leading-tight">{title}</h1>
             <p className="animate-element animate-delay-200 text-muted-foreground">{description}</p>
 
-            <form className="space-y-5" onSubmit={onSignIn}>
+            <form className="space-y-5" onSubmit={isSignUp ? onSignUp : onSignIn}>
+              {isSignUp && (
+                <div className="animate-element animate-delay-250">
+                  <label className="text-sm font-medium text-muted-foreground">Full Name</label>
+                  <GlassInputWrapper>
+                    <input
+                      name="name"
+                      type="text"
+                      placeholder="Enter your full name"
+                      value={signUpData?.name || ''}
+                      onChange={(e) => handleSignUpDataChange('name', e.target.value)}
+                      className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none"
+                      required
+                    />
+                  </GlassInputWrapper>
+                </div>
+              )}
+
               <div className="animate-element animate-delay-300">
                 <label className="text-sm font-medium text-muted-foreground">Email Address</label>
                 <GlassInputWrapper>
-                  <input name="email" type="email" placeholder="Enter your email address" className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none" />
+                  <input
+                    name="email"
+                    type="email"
+                    placeholder="Enter your email address"
+                    value={isSignUp ? signUpData?.email || '' : undefined}
+                    onChange={isSignUp ? (e) => handleSignUpDataChange('email', e.target.value) : undefined}
+                    className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none"
+                    required
+                  />
                 </GlassInputWrapper>
               </div>
 
@@ -87,7 +130,15 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 <label className="text-sm font-medium text-muted-foreground">Password</label>
                 <GlassInputWrapper>
                   <div className="relative">
-                    <input name="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password" className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none" />
+                    <input
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      value={isSignUp ? signUpData?.password || '' : undefined}
+                      onChange={isSignUp ? (e) => handleSignUpDataChange('password', e.target.value) : undefined}
+                      className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none"
+                      required
+                    />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-3 flex items-center">
                       {showPassword ? <EyeOff className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" /> : <Eye className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />}
                     </button>
@@ -95,16 +146,40 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 </GlassInputWrapper>
               </div>
 
-              <div className="animate-element animate-delay-500 flex items-center justify-between text-sm">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input type="checkbox" name="rememberMe" className="custom-checkbox" />
-                  <span className="text-foreground/90">Keep me signed in</span>
-                </label>
-                <a href="#" onClick={(e) => { e.preventDefault(); onResetPassword?.(); }} className="hover:underline text-violet-400 transition-colors">Reset password</a>
-              </div>
+              {isSignUp && (
+                <div className="animate-element animate-delay-450">
+                  <label className="text-sm font-medium text-muted-foreground">Confirm Password</label>
+                  <GlassInputWrapper>
+                    <div className="relative">
+                      <input
+                        name="confirmPassword"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        placeholder="Confirm your password"
+                        value={signUpData?.confirmPassword || ''}
+                        onChange={(e) => handleSignUpDataChange('confirmPassword', e.target.value)}
+                        className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none"
+                        required
+                      />
+                      <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-3 flex items-center">
+                        {showConfirmPassword ? <EyeOff className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" /> : <Eye className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />}
+                      </button>
+                    </div>
+                  </GlassInputWrapper>
+                </div>
+              )}
+
+              {!isSignUp && (
+                <div className="animate-element animate-delay-500 flex items-center justify-between text-sm">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" name="rememberMe" className="custom-checkbox" />
+                    <span className="text-foreground/90">Keep me signed in</span>
+                  </label>
+                  <a href="#" onClick={(e) => { e.preventDefault(); onResetPassword?.(); }} className="hover:underline text-violet-400 transition-colors">Reset password</a>
+                </div>
+              )}
 
               <button type="submit" className="animate-element animate-delay-600 w-full rounded-2xl bg-primary py-4 font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-                Sign In
+                {isSignUp ? 'Create Account' : 'Sign In'}
               </button>
             </form>
 
@@ -119,7 +194,11 @@ export const SignInPage: React.FC<SignInPageProps> = ({
             </button>
 
             <p className="animate-element animate-delay-900 text-center text-sm text-muted-foreground">
-              New to our platform? <a href="#" onClick={(e) => { e.preventDefault(); onCreateAccount?.(); }} className="text-violet-400 hover:underline transition-colors">Create Account</a>
+              {isSignUp ? (
+                <>Already have an account? <a href="#" onClick={(e) => { e.preventDefault(); onCreateAccount?.(); }} className="text-violet-400 hover:underline transition-colors">Sign In</a></>
+              ) : (
+                <>New to our platform? <a href="#" onClick={(e) => { e.preventDefault(); onCreateAccount?.(); }} className="text-violet-400 hover:underline transition-colors">Create Account</a></>
+              )}
             </p>
           </div>
         </div>

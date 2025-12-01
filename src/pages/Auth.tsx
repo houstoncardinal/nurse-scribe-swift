@@ -29,6 +29,8 @@ export function AuthPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [signUpData, setSignUpData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -75,6 +77,50 @@ export function AuthPage() {
     }
   };
 
+  const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    // Validate passwords match
+    if (signUpData.password !== signUpData.confirmPassword) {
+      setError('Passwords do not match');
+      toast.error('Sign up failed', { description: 'Passwords do not match' });
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate password strength
+    if (signUpData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      toast.error('Sign up failed', { description: 'Password must be at least 6 characters long' });
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { user, error } = await authService.signUp(signUpData.email, signUpData.password, signUpData.name);
+
+      if (error) {
+        setError(error);
+        toast.error('Sign up failed', { description: error });
+      } else if (user) {
+        toast.success('Account created successfully!', {
+          description: 'Please check your email to confirm your account, then sign in.'
+        });
+        // Switch back to sign-in mode
+        setIsSignUp(false);
+        setSignUpData({ name: '', email: '', password: '', confirmPassword: '' });
+      }
+    } catch (err: any) {
+      const errorMessage = err.message || 'An unexpected error occurred';
+      setError(errorMessage);
+      toast.error('Sign up failed', { description: errorMessage });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleGoogleSignIn = async () => {
     try {
       const { error } = await authService.signInWithGoogle();
@@ -92,9 +138,14 @@ export function AuthPage() {
     toast.info('Password reset', { description: 'Check your email for reset instructions' });
   };
 
-  const handleCreateAccount = async () => {
-    // For now, just show a message. In a real app, you'd show a sign-up form
-    toast.info('Create account', { description: 'Sign-up functionality coming soon!' });
+  const handleCreateAccount = () => {
+    // Toggle between sign-in and sign-up modes
+    setIsSignUp(!isSignUp);
+    setError(null);
+    if (!isSignUp) {
+      // Switching to sign-up, reset form
+      setSignUpData({ name: '', email: '', password: '', confirmPassword: '' });
+    }
   };
 
   return (
@@ -104,9 +155,13 @@ export function AuthPage() {
       heroImageSrc="https://images.unsplash.com/photo-1642615835477-d303d7dc9ee9?w=2160&q=80"
       testimonials={sampleTestimonials}
       onSignIn={handleSignIn}
+      onSignUp={handleSignUp}
       onGoogleSignIn={handleGoogleSignIn}
       onResetPassword={handleResetPassword}
       onCreateAccount={handleCreateAccount}
+      isSignUp={isSignUp}
+      signUpData={signUpData}
+      onSignUpDataChange={setSignUpData}
     />
   );
 }
