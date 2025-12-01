@@ -33,6 +33,7 @@ interface SignInPageProps {
   onResetPassword?: (email: string) => Promise<{ error: string | null }>;
   onUpdatePassword?: (password: string) => Promise<{ error: string | null }>;
   onCreateAccount?: () => void;
+  onStartFreeTrial?: () => void;
   isSignUp?: boolean;
   isPasswordReset?: boolean;
   newPassword?: string;
@@ -41,6 +42,7 @@ interface SignInPageProps {
   onConfirmNewPasswordChange?: (password: string) => void;
   signUpData?: { name: string; email: string; password: string; confirmPassword: string };
   onSignUpDataChange?: (data: { name: string; email: string; password: string; confirmPassword: string }) => void;
+  preSelectedPlan?: string | null;
 }
 
 // --- SUB-COMPONENTS ---
@@ -322,6 +324,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
   onResetPassword,
   onUpdatePassword,
   onCreateAccount,
+  onStartFreeTrial,
   isSignUp = false,
   isPasswordReset = false,
   newPassword = '',
@@ -330,6 +333,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
   onConfirmNewPasswordChange,
   signUpData,
   onSignUpDataChange,
+  preSelectedPlan,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -345,17 +349,58 @@ export const SignInPage: React.FC<SignInPageProps> = ({
   };
 
   return (
-    <div className="h-[100dvh] flex flex-col md:flex-row font-geist w-[100dvw]">
+    <div className="h-[100dvh] flex flex-col md:flex-row font-geist w-[100dvw] relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-accent/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+      </div>
+
       {/* Left column: auth form */}
-      <section className="flex-1 flex items-center justify-center p-8">
+      <section className="flex-1 flex items-center justify-center p-8 relative z-10">
         <div className="w-full max-w-md">
           <div className="flex flex-col gap-6">
-            <h1 className="animate-element animate-delay-100 text-4xl md:text-5xl font-semibold leading-tight">
+            {/* Logo/Brand */}
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-lg animate-bounce-slow">
+                <svg className="w-8 h-8 text-primary-foreground" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+              </div>
+            </div>
+
+            <h1 className="animate-element animate-delay-100 text-4xl md:text-5xl font-semibold leading-tight text-center">
               {isPasswordReset ? 'Reset Your Password' : title}
             </h1>
-            <p className="animate-element animate-delay-200 text-muted-foreground">
+            <p className="animate-element animate-delay-200 text-muted-foreground text-center">
               {isPasswordReset ? 'Enter your new password below' : description}
             </p>
+
+            {/* Pre-selected Plan Display */}
+            {preSelectedPlan && isSignUp && (
+              <div className="animate-element animate-delay-250 p-4 bg-primary/10 border border-primary/20 rounded-2xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+                    <svg className="h-5 w-5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-primary">
+                      {preSelectedPlan === 'individual' && 'Individual Plan Selected'}
+                      {preSelectedPlan === 'team' && 'Team Plan Selected'}
+                      {preSelectedPlan === 'enterprise' && 'Enterprise Plan Selected'}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {preSelectedPlan === 'individual' && '$29/month - Perfect for individual nurses'}
+                      {preSelectedPlan === 'team' && '$19/user/month - Ideal for departments'}
+                      {preSelectedPlan === 'enterprise' && 'Custom pricing - For large hospitals'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {isPasswordReset ? (
               <PasswordResetForm
@@ -486,17 +531,32 @@ export const SignInPage: React.FC<SignInPageProps> = ({
         </div>
       </section>
 
-      {/* Right column: hero image + testimonials */}
+      {/* Right column: hero image + headline */}
       {heroImageSrc && (
         <section className="hidden md:block flex-1 relative p-4">
           <div className="animate-slide-right animate-delay-300 absolute inset-4 rounded-3xl bg-cover bg-center" style={{ backgroundImage: `url(${heroImageSrc})` }}></div>
-          {testimonials.length > 0 && (
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 px-8 w-full justify-center">
-              <TestimonialCard testimonial={testimonials[0]} delay="animate-delay-1000" />
-              {testimonials[1] && <div className="hidden xl:flex"><TestimonialCard testimonial={testimonials[1]} delay="animate-delay-1200" /></div>}
-              {testimonials[2] && <div className="hidden 2xl:flex"><TestimonialCard testimonial={testimonials[2]} delay="animate-delay-1400" /></div>}
+          {/* Dark overlay for better text readability */}
+          <div className="absolute inset-4 rounded-3xl bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+          {/* Headline positioned at bottom left */}
+          <div className="absolute bottom-8 left-8 right-8 space-y-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-white drop-shadow-2xl leading-tight">
+              Transform Healthcare
+              <br />
+              <span className="text-primary drop-shadow-2xl">Documentation</span>
+            </h2>
+            <p className="text-xl text-white/90 drop-shadow-lg max-w-md">
+              Join thousands of healthcare professionals using AI-powered voice documentation
+            </p>
+            {/* Call-to-action button */}
+            <div className="pt-4">
+              <button
+                onClick={onStartFreeTrial}
+                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white px-8 py-3 rounded-xl font-semibold text-lg shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 hover:border-white/50"
+              >
+                Start Free Trial
+              </button>
             </div>
-          )}
+          </div>
         </section>
       )}
 

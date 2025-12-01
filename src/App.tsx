@@ -237,11 +237,10 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<AuthPage />} />
-          <Route path="/app" element={<Suspense fallback={null}><MVPAppLazy /></Suspense>} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/app" element={<Suspense fallback={null}><MVPAppLazy /></Suspense>} />
           <Route path="/full" element={<Index />} />
-          <Route path="/landing" element={<LandingPage />} />
           <Route path="/admin" element={<AdminDashboardPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

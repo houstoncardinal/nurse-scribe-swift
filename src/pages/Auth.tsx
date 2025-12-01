@@ -35,6 +35,7 @@ export function AuthPage() {
   const [signUpData, setSignUpData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [preSelectedPlan, setPreSelectedPlan] = useState<string | null>(null);
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -53,11 +54,12 @@ export function AuthPage() {
     return unsubscribe;
   }, [navigate]);
 
-  // Check for password reset URL parameters
+  // Check for password reset URL parameters and plan selection
   useEffect(() => {
     const accessToken = searchParams.get('access_token');
     const refreshToken = searchParams.get('refresh_token');
     const type = searchParams.get('type');
+    const plan = searchParams.get('plan');
 
     if (accessToken && refreshToken && type === 'recovery') {
       // User clicked reset link in email
@@ -73,6 +75,14 @@ export function AuthPage() {
 
       // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Check for pre-selected plan
+    if (plan) {
+      setPreSelectedPlan(plan);
+      // Automatically switch to sign-up mode for plan selection
+      setIsSignUp(true);
+      setSignUpData({ name: '', email: '', password: '', confirmPassword: '' });
     }
   }, [searchParams]);
 
@@ -198,18 +208,26 @@ export function AuthPage() {
     }
   };
 
+  const handleStartFreeTrial = () => {
+    // Start the free trial by switching to sign-up mode
+    setIsSignUp(true);
+    setError(null);
+    setSignUpData({ name: '', email: '', password: '', confirmPassword: '' });
+  };
+
   return (
     <SignInPage
       title={<span className="font-light text-foreground tracking-tighter">Welcome to Raha</span>}
       description="AI-Powered Clinical Documentation Platform"
-      heroImageSrc="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=2160&q=80"
-      testimonials={sampleTestimonials}
+      heroImageSrc="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=2160&q=80"
+      testimonials={[]}
       onSignIn={handleSignIn}
       onSignUp={handleSignUp}
       onGoogleSignIn={handleGoogleSignIn}
       onResetPassword={handleResetPassword}
       onUpdatePassword={handleUpdatePassword}
       onCreateAccount={handleCreateAccount}
+      onStartFreeTrial={handleStartFreeTrial}
       isSignUp={isSignUp}
       isPasswordReset={isPasswordReset}
       newPassword={newPassword}
@@ -218,6 +236,7 @@ export function AuthPage() {
       onConfirmNewPasswordChange={setConfirmNewPassword}
       signUpData={signUpData}
       onSignUpDataChange={setSignUpData}
+      preSelectedPlan={preSelectedPlan}
     />
   );
 }

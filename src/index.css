@@ -965,3 +965,133 @@
 .custom-checkbox:hover {
   border-color: hsl(var(--primary));
 }
+
+/* Advanced Workflow Showcase Animations */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes gradient-flow {
+  0%, 100% {
+    transform: translateX(0%) translateY(0%) scale(1);
+    opacity: 0.3;
+  }
+  33% {
+    transform: translateX(30%) translateY(-30%) scale(1.1);
+    opacity: 0.6;
+  }
+  66% {
+    transform: translateX(-20%) translateY(20%) scale(0.9);
+    opacity: 0.4;
+  }
+}
+
+@keyframes gradient-wave {
+  0%, 100% {
+    background-position: 0% 50%;
+    filter: hue-rotate(0deg);
+  }
+  25% {
+    background-position: 100% 50%;
+    filter: hue-rotate(90deg);
+  }
+  50% {
+    background-position: 50% 100%;
+    filter: hue-rotate(180deg);
+  }
+  75% {
+    background-position: 0% 100%;
+    filter: hue-rotate(270deg);
+  }
+}
+
+@keyframes progress-flow {
+  0%, 100% {
+    background-position: -200% 0;
+  }
+  50% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float-particle {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translateY(-10px) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-10px) rotate(270deg);
+    opacity: 0.8;
+  }
+}
+
+@keyframes waveform {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.5);
+  }
+}
+
+@keyframes progress-fill {
+  0% {
+    width: 0%;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    width: var(--progress-width, 87%);
+    opacity: 1;
+  }
+}
+
+.animate-gradient-shift {
+  background: linear-gradient(-45deg, #14b8a6, #0d9488, #0f766e, #14b8a6);
+  background-size: 400% 400%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+.animate-gradient-flow {
+  animation: gradient-flow 12s ease-in-out infinite;
+}
+
+.animate-gradient-wave {
+  background: linear-gradient(-45deg, #14b8a6, #8f6a58, #d9b8a0, #b88b74);
+  background-size: 400% 400%;
+  animation: gradient-wave 15s ease infinite;
+}
+
+.animate-progress-flow {
+  background: linear-gradient(90deg, transparent, #14b8a6, #0d9488, #0f766e, transparent);
+  background-size: 200% 100%;
+  animation: progress-flow 3s linear infinite;
+}
+
+.animate-float-particle {
+  animation: float-particle 6s ease-in-out infinite;
+}
+
+.animate-waveform {
+  animation: waveform 1.2s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
+.animate-progress-fill {
+  animation: progress-fill 2s ease-out forwards;
+}
