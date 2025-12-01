@@ -537,8 +537,8 @@ export function MVPApp() {
 
   // Subscribe to auth state changes
   useEffect(() => {
-    const unsubscribe = authService.subscribe((state) => {
-      if (state.user) {
+    const updateUserProfile = (state: any) => {
+      if (state.user && state.isAuthenticated) {
         // Update user profile with real auth data
         setUserProfile({
           name: state.user.name || 'User',
@@ -589,35 +589,13 @@ export function MVPApp() {
           achievements: []
         });
       }
-    });
+    };
 
-    // Check initial auth state
+    const unsubscribe = authService.subscribe(updateUserProfile);
+
+    // Check initial auth state immediately
     const currentState = authService.getAuthState();
-    if (currentState.user) {
-      setUserProfile({
-        name: currentState.user.name || 'User',
-        email: currentState.user.email,
-        role: currentState.user.role || 'nurse',
-        credentials: currentState.user.role || 'nurse',
-        joinDate: new Date(currentState.user.created_at).toLocaleDateString(),
-        isSignedIn: true,
-        preferences: {
-          notifications: true,
-          voiceSpeed: 50,
-          defaultTemplate: 'SOAP',
-          autoSave: true,
-          darkMode: false
-        },
-        stats: {
-          totalNotes: 0,
-          timeSaved: 0,
-          accuracy: 99.2,
-          weeklyGoal: 50,
-          notesThisWeek: 0
-        },
-        achievements: []
-      });
-    }
+    updateUserProfile(currentState);
 
     return unsubscribe;
   }, []);
@@ -656,63 +634,23 @@ export function MVPApp() {
     setCurrentScreen(screen as Screen);
   };
 
-  // Authentication functions
+  // Authentication functions - using real authService
   const handleSignIn = async (email: string, password: string) => {
     setIsSigningIn(true);
     setAuthError('');
-    
+
     try {
-      // Simulate API call - in real app, this would call your authentication service
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock successful sign in
-      const newUserProfile: UserProfileData = {
-        name: 'Dr. Sarah Johnson',
-        email: email,
-        role: 'Registered Nurse',
-        credentials: 'RN, BSN',
-        phone: '+1 (555) 123-4567',
-        location: 'General Hospital',
-        joinDate: new Date().toLocaleDateString(),
-        isSignedIn: true,
-        preferences: {
-          notifications: true,
-          voiceSpeed: 50,
-          defaultTemplate: 'SOAP',
-          autoSave: true,
-          darkMode: false
-        },
-        stats: {
-          totalNotes: 127,
-          timeSaved: 45.2,
-          accuracy: 99.2,
-          weeklyGoal: 50,
-          notesThisWeek: 42
-        },
-        achievements: [
-          {
-            id: 'speed-master',
-            title: 'Speed Master',
-            description: 'Created 10 notes in 1 hour',
-            icon: '🏃‍♀️',
-            unlockedAt: '2 days ago'
-          },
-          {
-            id: 'accuracy-champion',
-            title: 'Accuracy Champion',
-            description: 'Maintained 99%+ accuracy for a week',
-            icon: '🎯',
-            unlockedAt: '1 week ago'
-          }
-        ]
-      };
-      
-      setUserProfile(newUserProfile);
-      setIsSignInModalOpen(false);
-      toast.success('Welcome back!', { description: `Signed in as ${newUserProfile.name}` });
-    } catch (error) {
-      setAuthError('Invalid email or password. Please try again.');
-      toast.error('Sign in failed');
+      const result = await authService.signIn(email, password);
+      if (result.error) {
+        setAuthError(result.error);
+        toast.error('Sign in failed', { description: result.error });
+      } else {
+        setIsSignInModalOpen(false);
+        toast.success('Welcome back!', { description: `Signed in as ${result.user?.name || result.user?.email}` });
+      }
+    } catch (error: any) {
+      setAuthError(error.message || 'Sign in failed');
+      toast.error('Sign in failed', { description: error.message });
     } finally {
       setIsSigningIn(false);
     }
@@ -721,42 +659,19 @@ export function MVPApp() {
   const handleSignUp = async (email: string, password: string, name: string, role: string) => {
     setIsSigningIn(true);
     setAuthError('');
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock successful sign up
-      const newUserProfile: UserProfileData = {
-        name: name,
-        email: email,
-        role: role,
-        credentials: role,
-        joinDate: new Date().toLocaleDateString(),
-        isSignedIn: true,
-        preferences: {
-          notifications: true,
-          voiceSpeed: 50,
-          defaultTemplate: 'SOAP',
-          autoSave: true,
-          darkMode: false
-        },
-        stats: {
-          totalNotes: 0,
-          timeSaved: 0,
-          accuracy: 0,
-          weeklyGoal: 50,
-          notesThisWeek: 0
-        },
-        achievements: []
-      };
-      
-      setUserProfile(newUserProfile);
-      setIsSignInModalOpen(false);
-      toast.success('Account created!', { description: `Welcome to Raha, ${name}` });
-    } catch (error) {
-      setAuthError('Failed to create account. Please try again.');
-      toast.error('Sign up failed');
+      const result = await authService.signUp(email, password, name);
+      if (result.error) {
+        setAuthError(result.error);
+        toast.error('Sign up failed', { description: result.error });
+      } else {
+        setIsSignInModalOpen(false);
+        toast.success('Account created!', { description: `Welcome to Raha, ${name || email}` });
+      }
+    } catch (error: any) {
+      setAuthError(error.message || 'Sign up failed');
+      toast.error('Sign up failed', { description: error.message });
     } finally {
       setIsSigningIn(false);
     }
@@ -779,12 +694,30 @@ export function MVPApp() {
 
   const handleUpdateProfile = async (updatedProfile: Partial<UserProfileData>) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      // Get current auth state
+      const authState = authService.getAuthState();
+      if (!authState.user) {
+        toast.error('Not authenticated');
+        return;
+      }
+
+      // Update profile in Supabase
+      const result = await authService.updateProfile({
+        name: updatedProfile.name,
+        role: updatedProfile.role as 'admin' | 'nurse' | 'instructor' | 'student' | 'auditor',
+        // Add other fields as needed
+      });
+
+      if (result.error) {
+        toast.error('Failed to update profile', { description: result.error });
+        return;
+      }
+
+      // Update local state
       setUserProfile(prev => ({ ...prev, ...updatedProfile }));
       toast.success('Profile updated successfully');
     } catch (error) {
+      console.error('Profile update error:', error);
       toast.error('Failed to update profile');
     }
   };
@@ -1291,8 +1224,8 @@ export function MVPApp() {
       {/* Desktop Layout */}
       <div className="hidden lg:block overflow-x-hidden">
         <div className="flex h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-x-hidden">
-          {/* Desktop Sidebar - Ultra Compact */}
-          <aside className="w-48 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
+          {/* Desktop Sidebar - Professional Width */}
+          <aside className="w-56 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
               <div className="flex flex-col h-full">
                 {/* Logo Section - Modern & Professional */}
                 <div className="p-6 border-b border-slate-200/80 bg-gradient-to-br from-slate-50/50 to-white">

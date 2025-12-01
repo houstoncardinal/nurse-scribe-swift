@@ -88,12 +88,24 @@ export function MVPHomeScreen({
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-background">
-      {/* Main Content Area - Centered Vertical Layout */}
+      {/* Main Content Area - Full Width Layout */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="max-w-4xl mx-auto px-4 py-8 lg:px-6 lg:py-6">
+        <div className="w-full max-w-7xl mx-auto px-6 py-8 lg:px-8 lg:py-8">
 
           {/* Unified Vertical Stack Layout for All Screens */}
-          <div className="space-y-6 lg:space-y-4">
+          <div className="space-y-8 lg:space-y-6">
+
+            {/* Welcome Section */}
+            <div className="text-center space-y-4">
+              <div className="space-y-2">
+                <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent">
+                  Welcome to Raha
+                </h1>
+                <p className="text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto">
+                  Create professional nursing documentation with AI assistance. Start recording or type your notes below.
+                </p>
+              </div>
+            </div>
 
             {/* 1. Template Selector - Top Priority */}
             <Card className="p-6 lg:p-5 border-2 border-primary/20 bg-gradient-to-br from-card/95 via-card/90 to-background/50 backdrop-blur-xl shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-300">
