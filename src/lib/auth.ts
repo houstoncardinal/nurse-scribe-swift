@@ -207,10 +207,13 @@ class AuthService {
     try {
       this.setAuthState({ ...this.authState, isLoading: true });
 
+      // Use production domain for OAuth redirects
+      const redirectTo = 'https://rahanote.netlify.app/app';
+
       const { data, error } = await supabaseService.getSupabaseClient().auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/app`
+          redirectTo
         }
       });
 
@@ -244,8 +247,11 @@ class AuthService {
 
   async resetPassword(email: string): Promise<{ error: string | null }> {
     try {
+      // Use production domain for password reset emails
+      const redirectTo = 'https://rahanote.netlify.app/auth';
+
       const { error } = await supabaseService.getSupabaseClient().auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth`
+        redirectTo
       });
 
       if (error) {
