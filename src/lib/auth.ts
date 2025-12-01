@@ -286,6 +286,39 @@ class AuthService {
       return { user: null, error: error.message || 'Profile update failed' };
     }
   }
+
+  async updatePassword(newPassword: string): Promise<{ error: string | null }> {
+    try {
+      const { error } = await supabaseService.getSupabaseClient().auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) {
+        return { error: error.message };
+      }
+
+      return { error: null };
+    } catch (error: any) {
+      return { error: error.message || 'Password update failed' };
+    }
+  }
+
+  async handlePasswordReset(accessToken: string, refreshToken: string): Promise<{ error: string | null }> {
+    try {
+      const { error } = await supabaseService.getSupabaseClient().auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken
+      });
+
+      if (error) {
+        return { error: error.message };
+      }
+
+      return { error: null };
+    } catch (error: any) {
+      return { error: error.message || 'Failed to handle password reset' };
+    }
+  }
 }
 
 // Export singleton instance

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { SignInPage, Testimonial } from '@/components/ui/sign-in';
 import { authService } from '@/lib/auth';
 import { toast } from 'sonner';
@@ -27,10 +27,14 @@ const sampleTestimonials: Testimonial[] = [
 
 export function AuthPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isPasswordReset, setIsPasswordReset] = useState(false);
   const [signUpData, setSignUpData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -48,6 +52,29 @@ export function AuthPage() {
 
     return unsubscribe;
   }, [navigate]);
+
+  // Check for password reset URL parameters
+  useEffect(() => {
+    const accessToken = searchParams.get('access_token');
+    const refreshToken = searchParams.get('refresh_token');
+    const type = searchParams.get('type');
+
+    if (accessToken && refreshToken && type === 'recovery') {
+      // User clicked reset link in email
+      setIsPasswordReset(true);
+
+      // Set the session with the tokens
+      authService.handlePasswordReset(accessToken, refreshToken).then(({ error }) => {
+        if (error) {
+          toast.error('Password reset failed', { description: error });
+          setIsPasswordReset(false);
+        }
+      });
+
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [searchParams]);
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -133,9 +160,32 @@ export function AuthPage() {
     }
   };
 
-  const handleResetPassword = async () => {
-    // For now, just show a message. In a real app, you'd collect the email first
-    toast.info('Password reset', { description: 'Check your email for reset instructions' });
+  const handleResetPassword = async (email: string) => {
+    try {
+      const { error } = await authService.resetPassword(email);
+      if (error) {
+        return { error };
+      }
+      return { error: null };
+    } catch (err: any) {
+      return { error: err.message || 'Failed to send reset email' };
+    }
+  };
+
+  const handleUpdatePassword = async (password: string) => {
+    try {
+      const { error } = await authService.updatePassword(password);
+      if (error) {
+        return { error };
+      }
+      toast.success('Password updated successfully!', {
+        description: 'You can now sign in with your new password.'
+      });
+      setIsPasswordReset(false);
+      return { error: null };
+    } catch (err: any) {
+      return { error: err.message || 'Failed to update password' };
+    }
   };
 
   const handleCreateAccount = () => {
@@ -158,8 +208,14 @@ export function AuthPage() {
       onSignUp={handleSignUp}
       onGoogleSignIn={handleGoogleSignIn}
       onResetPassword={handleResetPassword}
+      onUpdatePassword={handleUpdatePassword}
       onCreateAccount={handleCreateAccount}
       isSignUp={isSignUp}
+      isPasswordReset={isPasswordReset}
+      newPassword={newPassword}
+      confirmNewPassword={confirmNewPassword}
+      onNewPasswordChange={setNewPassword}
+      onConfirmNewPasswordChange={setConfirmNewPassword}
       signUpData={signUpData}
       onSignUpDataChange={setSignUpData}
     />
