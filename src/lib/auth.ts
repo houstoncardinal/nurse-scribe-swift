@@ -113,23 +113,42 @@ class AuthService {
     try {
       this.setAuthState({ ...this.authState, isLoading: true });
 
+      console.log('🔐 Attempting sign in for:', email);
+
       const { data, error } = await supabaseService.getSupabaseClient().auth.signInWithPassword({
         email,
         password
       });
 
       if (error) {
+        console.error('❌ Supabase auth error:', error);
+        console.error('Error code:', error.status);
+        console.error('Error message:', error.message);
+
         this.setAuthState({ ...this.authState, isLoading: false });
+
+        // Provide more specific error messages
+        if (error.message?.includes('Invalid login credentials')) {
+          return { user: null, error: 'Invalid email or password. Please check your credentials and try again.' };
+        } else if (error.message?.includes('Email not confirmed')) {
+          return { user: null, error: 'Please check your email and click the confirmation link before signing in.' };
+        } else if (error.message?.includes('Too many requests')) {
+          return { user: null, error: 'Too many sign-in attempts. Please wait a few minutes and try again.' };
+        }
+
         return { user: null, error: error.message };
       }
 
       if (data.user) {
+        console.log('✅ Sign in successful for:', data.user.email);
         const user = await this.buildUserFromSession(data.user);
         return { user, error: null };
       }
 
-      return { user: null, error: 'Sign in failed' };
+      console.warn('⚠️ Sign in returned no user data');
+      return { user: null, error: 'Sign in failed - no user data returned' };
     } catch (error: any) {
+      console.error('💥 Sign in exception:', error);
       this.setAuthState({ ...this.authState, isLoading: false });
       return { user: null, error: error.message || 'Sign in failed' };
     }
