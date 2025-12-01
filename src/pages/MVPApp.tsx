@@ -1291,8 +1291,8 @@ export function MVPApp() {
       {/* Desktop Layout */}
       <div className="hidden lg:block overflow-x-hidden">
         <div className="flex h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-x-hidden">
-          {/* Desktop Sidebar - Compact */}
-          <aside className="w-64 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
+          {/* Desktop Sidebar - Ultra Compact */}
+          <aside className="w-48 bg-white/95 backdrop-blur-xl border-r border-slate-200 shadow-xl">
               <div className="flex flex-col h-full">
                 {/* Logo Section - Modern & Professional */}
                 <div className="p-6 border-b border-slate-200/80 bg-gradient-to-br from-slate-50/50 to-white">
@@ -1556,10 +1556,10 @@ export function MVPApp() {
           <div className="flex-1 flex flex-col overflow-x-hidden">
             {/* Desktop Header */}
             <header className="bg-white/95 backdrop-blur-xl border-b border-slate-200 shadow-sm">
-              <div className="px-8 py-6">
+              <div className="px-4 py-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-3xl font-bold text-slate-900">
+                    <h2 className="text-2xl font-bold text-slate-900">
                       {currentScreen === 'home' && 'Start New Note'}
                       {currentScreen === 'draft' && 'Draft Preview'}
                       {currentScreen === 'export' && 'Export Note'}
@@ -1571,7 +1571,7 @@ export function MVPApp() {
                       {currentScreen === 'team' && 'Team Collaboration'}
                       {currentScreen === 'raha-ai' && 'Raha AI'}
                     </h2>
-                    <p className="text-slate-600 mt-1">
+                    <p className="text-slate-600 text-sm">
                       {currentScreen === 'home' && 'Create professional nursing documentation with AI assistance'}
                       {currentScreen === 'draft' && 'Review and edit your AI-generated note'}
                       {currentScreen === 'export' && 'Save and share your completed note'}
@@ -1608,8 +1608,8 @@ export function MVPApp() {
             </header>
 
             {/* Desktop Content */}
-            <main className="flex-1 overflow-x-hidden overflow-y-hidden">
-              <div className="h-full overflow-x-hidden">
+            <main className="flex-1 overflow-x-hidden overflow-y-auto">
+              <div className="min-h-full overflow-x-hidden">
                 {renderCurrentScreen()}
               </div>
             </main>
