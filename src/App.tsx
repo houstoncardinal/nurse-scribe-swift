@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 // import { MVPApp } from "./pages/MVPApp";
 import { LandingPage } from "./pages/LandingPage";
 import { AuthPage } from "./pages/Auth";
+import { PasswordResetPage } from "./pages/PasswordReset";
 import NotFound from "./pages/NotFound";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
 import { EducationMode } from "@/components/EducationMode";
@@ -239,6 +240,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/reset-password" element={<PasswordResetPage />} />
           <Route path="/app" element={<Suspense fallback={null}><MVPAppLazy /></Suspense>} />
           <Route path="/full" element={<Index />} />
           <Route path="/admin" element={<AdminDashboardPage />} />

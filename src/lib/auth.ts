@@ -247,8 +247,8 @@ class AuthService {
 
   async resetPassword(email: string): Promise<{ error: string | null }> {
     try {
-      // Use production domain for password reset emails
-      const redirectTo = 'https://rahanote.netlify.app/auth';
+      // Use production domain for password reset emails - redirect to dedicated password reset page
+      const redirectTo = 'https://rahanote.netlify.app/reset-password';
 
       const { error } = await supabaseService.getSupabaseClient().auth.resetPasswordForEmail(email, {
         redirectTo
