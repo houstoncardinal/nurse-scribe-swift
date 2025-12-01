@@ -1311,27 +1311,55 @@ export function MVPApp() {
                   </div>
                 </div>
 
-                {/* User Profile Section - Compact */}
-                <div className="p-3 border-b border-slate-200">
-                  <div className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
-                    <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-semibold text-xs">
-                        {userProfile.name.split(' ').map(n => n[0]).join('')}
-                      </span>
+                {/* User Profile Section - Professional */}
+                <div className="p-4 border-b border-slate-200/60 bg-gradient-to-r from-slate-50/30 to-white/50">
+                  {userProfile.isSignedIn ? (
+                    <div className="space-y-3">
+                      {/* Signed In User Info */}
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-teal-500 via-teal-600 to-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-teal-500/30 ring-2 ring-white/50">
+                          <span className="text-white font-bold text-sm">
+                            {userProfile.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-slate-900 truncate">{userProfile.name}</p>
+                          <p className="text-xs text-slate-600 truncate capitalize">{userProfile.role}</p>
+                          <p className="text-xs text-teal-600 font-medium">✓ Signed In</p>
+                        </div>
+                      </div>
+
+                      {/* Quick Actions */}
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleNavigate('profile')}
+                          className="flex-1 h-8 text-xs border-slate-300 hover:border-teal-300 hover:bg-teal-50"
+                        >
+                          <User className="h-3 w-3 mr-1" />
+                          Profile
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleNavigate('settings')}
+                          className="flex-1 h-8 text-xs border-slate-300 hover:border-teal-300 hover:bg-teal-50"
+                        >
+                          <Settings className="h-3 w-3 mr-1" />
+                          Settings
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-slate-900 truncate">{userProfile.name}</p>
-                      <p className="text-xs text-slate-600 truncate">{userProfile.role}</p>
+                  ) : (
+                    <div className="text-center space-y-2">
+                      <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center mx-auto">
+                        <User className="h-5 w-5 text-slate-500" />
+                      </div>
+                      <p className="text-sm font-medium text-slate-700">Not Signed In</p>
+                      <p className="text-xs text-slate-500">Sign in to access all features</p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleNavigate('profile')}
-                      className="h-6 w-6 p-0"
-                    >
-                      <Settings className="h-3 w-3" />
-                    </Button>
-                  </div>
+                  )}
                 </div>
 
                 {/* Main Navigation - Modern & Professional */}
@@ -1539,7 +1567,16 @@ export function MVPApp() {
                     <Mic className="h-4 w-4 mr-2" />
                     Start New Note
                   </Button>
-                  {!userProfile.isSignedIn && (
+                  {userProfile.isSignedIn ? (
+                    <Button
+                      onClick={handleSignOut}
+                      variant="outline"
+                      className="w-full mt-2 h-8 text-sm text-red-600 border-red-300 hover:bg-red-50 hover:border-red-400"
+                    >
+                      <LogOut className="h-3 w-3 mr-1" />
+                      Sign Out
+                    </Button>
+                  ) : (
                     <Button
                       onClick={() => navigate('/auth')}
                       variant="outline"
