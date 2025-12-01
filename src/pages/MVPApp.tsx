@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mic, FileText, Download, Settings, Stethoscope, Menu, User, BarChart3, BookOpen, Users, Shield, Brain, MessageSquare, Sparkles } from 'lucide-react';
+import { Mic, FileText, Download, Settings, Stethoscope, Menu, User, BarChart3, BookOpen, Users, Shield, Brain, MessageSquare, Sparkles, LogOut } from 'lucide-react';
 import { SimpleThemeToggle } from '@/components/ThemeToggle';
 import { SyntheticAI } from '@/components/SyntheticAI';
 import { MobileHeader } from '@/components/MobileHeader';
@@ -29,6 +29,7 @@ import { knowledgeBaseService } from '@/lib/knowledgeBase';
 import { enhancedAIService } from '@/lib/enhancedAIService';
 import { performanceService } from '@/lib/performanceService';
 import { intelligentNoteDetectionService } from '@/lib/intelligentNoteDetection';
+import { authService } from '@/lib/auth';
 import { toast } from 'sonner';
 
 type Screen = 'home' | 'draft' | 'export' | 'settings' | 'profile' | 'analytics' | 'education' | 'team' | 'raha-ai' | 'history' | 'admin' | 'instructions';
@@ -205,17 +206,17 @@ export function MVPApp() {
 
   // Screen navigation
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
-  
+
   // Authentication state
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [authError, setAuthError] = useState('');
-  
+
   // AI Assistant state
   const [showAI, setShowAI] = useState(false); // Start hidden - only show when clicked
   const [aiMinimized, setAiMinimized] = useState(true); // Start minimized when shown
-  
-  // User profile state
+
+  // User profile state - now using real auth
   const [userProfile, setUserProfile] = useState<UserProfileData>({
     name: 'Guest User',
     email: '',
@@ -294,9 +295,9 @@ export function MVPApp() {
     // Initialize performance monitoring
     const performanceMetrics = performanceService.getMetrics();
     console.log('Performance metrics initialized:', performanceMetrics);
-    
+
     // Prefetch knowledge base data
-    performanceService.prefetch('knowledge-base-stats', () => 
+    performanceService.prefetch('knowledge-base-stats', () =>
       Promise.resolve(knowledgeBaseService.getKnowledgeStats())
     );
 
@@ -327,11 +328,11 @@ export function MVPApp() {
                 setTranscript(result.text);
                 setInterimTranscript('');
                 setIsProcessing(false);
-                
+
                 // Analyze the enhanced transcript
                 const analysis = enhancedAIService.analyzeInput(result.text);
                 const medicalTermsCount = analysis.medicalTerms.length;
-                
+
                 toast.success('🎯 Advanced Transcription Complete!', {
                   description: `Confidence: ${Math.round(result.confidence * 100)}% | Medical terms: ${medicalTermsCount} | ${result.words.length} words`
                 });
@@ -354,13 +355,13 @@ export function MVPApp() {
               setInterimTranscript('');
               setFinalTranscript('');
               setTranscript('');
-              
+
               // Start recording timer
               const interval = setInterval(() => {
                 setRecordingTime(prev => prev + 1);
               }, 1000);
               setRecordingInterval(interval);
-              
+
               toast.success('🎤 Listening with Medical AI...', {
                 description: 'Speak naturally - Auto-processes after 5 seconds of silence or when you tap stop'
               });
@@ -424,7 +425,7 @@ export function MVPApp() {
                 });
 
                 setIsProcessing(true);
-                
+
                 try {
                   // Generate AI note automatically using the current transcript
                   const aiPrompt = {
@@ -438,10 +439,10 @@ export function MVPApp() {
                   console.log('🤖 Calling AI service with prompt:', aiPrompt);
                   const generatedNote = await enhancedAIService.generateNote(aiPrompt);
                   console.log('🤖 AI service returned:', generatedNote);
-                  
+
                   // Store AI-generated note content
                   const noteContent: NoteContent = {};
-                  
+
                   // Check if we have sections
                   if (generatedNote && generatedNote.sections && Object.keys(generatedNote.sections).length > 0) {
                     Object.entries(generatedNote.sections).forEach(([section, data]) => {
@@ -455,41 +456,41 @@ export function MVPApp() {
                     console.warn('⚠️ No sections in generated note, using template fallback');
                     Object.assign(noteContent, createTemplateFallback(selectedTemplate, currentTranscript));
                   }
-                  
+
                   console.log('✅ Final note content to store:', noteContent);
                   console.log('✅ Number of sections:', Object.keys(noteContent).length);
-                  
+
                   if (Object.keys(noteContent).length === 0) {
                     throw new Error('No content generated - empty note');
                   }
-                  
+
                   setNoteContent(noteContent);
                   setEditedNoteContent(noteContent);
-                  
+
                   toast.success('🎯 Note Generated!', {
                     description: `${selectedTemplate} note with ${Object.keys(noteContent).length} sections`
                   });
-                  
+
                   // Auto-navigate to draft
                   setTimeout(() => {
                     console.log('🤖 Navigating to draft with content:', noteContent);
                     handleNavigate('draft');
                   }, 500);
-                  
+
                 } catch (error: any) {
                   console.error('❌ AI generation failed:', error);
                   console.error('❌ Error details:', error.message, error.stack);
-                  
+
                   // Create fallback content even on error using currentTranscript
                   const fallbackContent = createTemplateFallback(selectedTemplate, currentTranscript);
-                  
+
                   setNoteContent(fallbackContent);
                   setEditedNoteContent(fallbackContent);
-                  
+
                   toast.warning('Note generated in basic mode', {
                     description: 'AI enhancement unavailable - please review and edit'
                   });
-                  
+
                   // Still navigate to draft
                   setTimeout(() => {
                     handleNavigate('draft');
@@ -507,7 +508,7 @@ export function MVPApp() {
               }
             }
           });
-          
+
           console.log('✅ Advanced Transcription Service initialized successfully');
           console.log('🔬 Features enabled: Medical terminology, Auto-correct, Smart punctuation');
         } else {
@@ -526,12 +527,99 @@ export function MVPApp() {
       if (recordingInterval) {
         clearInterval(recordingInterval);
       }
-      
+
       // Stop any ongoing transcription
       if (advancedTranscriptionService.getIsListening()) {
         advancedTranscriptionService.stopListening();
       }
     };
+  }, []);
+
+  // Subscribe to auth state changes
+  useEffect(() => {
+    const unsubscribe = authService.subscribe((state) => {
+      if (state.user) {
+        // Update user profile with real auth data
+        setUserProfile({
+          name: state.user.name || 'User',
+          email: state.user.email,
+          role: state.user.role || 'nurse',
+          credentials: state.user.role || 'nurse',
+          joinDate: new Date(state.user.created_at).toLocaleDateString(),
+          isSignedIn: true,
+          preferences: {
+            notifications: true,
+            voiceSpeed: 50,
+            defaultTemplate: 'SOAP',
+            autoSave: true,
+            darkMode: false
+          },
+          stats: {
+            totalNotes: 0,
+            timeSaved: 0,
+            accuracy: 99.2,
+            weeklyGoal: 50,
+            notesThisWeek: 0
+          },
+          achievements: []
+        });
+      } else {
+        // Reset to guest user
+        setUserProfile({
+          name: 'Guest User',
+          email: '',
+          role: 'Not Signed In',
+          credentials: '',
+          joinDate: new Date().toLocaleDateString(),
+          isSignedIn: false,
+          preferences: {
+            notifications: true,
+            voiceSpeed: 50,
+            defaultTemplate: 'SOAP',
+            autoSave: true,
+            darkMode: false
+          },
+          stats: {
+            totalNotes: 0,
+            timeSaved: 0,
+            accuracy: 99.2,
+            weeklyGoal: 50,
+            notesThisWeek: 0
+          },
+          achievements: []
+        });
+      }
+    });
+
+    // Check initial auth state
+    const currentState = authService.getAuthState();
+    if (currentState.user) {
+      setUserProfile({
+        name: currentState.user.name || 'User',
+        email: currentState.user.email,
+        role: currentState.user.role || 'nurse',
+        credentials: currentState.user.role || 'nurse',
+        joinDate: new Date(currentState.user.created_at).toLocaleDateString(),
+        isSignedIn: true,
+        preferences: {
+          notifications: true,
+          voiceSpeed: 50,
+          defaultTemplate: 'SOAP',
+          autoSave: true,
+          darkMode: false
+        },
+        stats: {
+          totalNotes: 0,
+          timeSaved: 0,
+          accuracy: 99.2,
+          weeklyGoal: 50,
+          notesThisWeek: 0
+        },
+        achievements: []
+      });
+    }
+
+    return unsubscribe;
   }, []);
 
   // Handle screen navigation
@@ -674,34 +762,19 @@ export function MVPApp() {
     }
   };
 
-  const handleSignOut = () => {
-    setUserProfile({
-      name: 'Guest User',
-      email: '',
-      role: 'Not Signed In',
-      credentials: '',
-      joinDate: new Date().toLocaleDateString(),
-      isSignedIn: false,
-      preferences: {
-        notifications: true,
-        voiceSpeed: 50,
-        defaultTemplate: 'SOAP',
-        autoSave: true,
-        darkMode: false
-      },
-      stats: {
-        totalNotes: 0,
-        timeSaved: 0,
-        accuracy: 99.2,
-        weeklyGoal: 50,
-        notesThisWeek: 0
-      },
-      achievements: []
-    });
-    
-    // Return to home screen
-    setCurrentScreen('home');
-    toast.info('Signed out successfully');
+  const handleSignOut = async () => {
+    try {
+      const { error } = await authService.signOut();
+      if (error) {
+        toast.error('Sign out failed', { description: error });
+      } else {
+        // Navigate to auth page
+        navigate('/auth');
+        toast.info('Signed out successfully');
+      }
+    } catch (err: any) {
+      toast.error('Sign out failed', { description: err.message });
+    }
   };
 
   const handleUpdateProfile = async (updatedProfile: Partial<UserProfileData>) => {
@@ -1442,6 +1515,16 @@ export function MVPApp() {
                             <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full" />
                           )}
                         </Button>
+                        {userProfile.isSignedIn && (
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start h-11 text-sm font-medium transition-all duration-200 text-red-600 hover:text-red-700 hover:bg-red-50 border border-transparent hover:border-red-200/50"
+                            onClick={handleSignOut}
+                          >
+                            <LogOut className="h-4 w-4 mr-3" />
+                            <span className="relative z-10">Sign Out</span>
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </nav>

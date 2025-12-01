@@ -237,8 +237,9 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Suspense fallback={null}><MVPAppLazy /></Suspense>} />
-          <Route path="/auth" element={<AuthPage onSignIn={handleSignIn} onSignUp={handleSignUp} isLoading={isSigningIn} error={authError} />} />
+          <Route path="/" element={<AuthPage />} />
+          <Route path="/app" element={<Suspense fallback={null}><MVPAppLazy /></Suspense>} />
+          <Route path="/auth" element={<AuthPage />} />
           <Route path="/full" element={<Index />} />
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/admin" element={<AdminDashboardPage />} />

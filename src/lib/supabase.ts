@@ -967,6 +967,16 @@ class SupabaseService {
   }
 
   /**
+   * Get Supabase client instance
+   */
+  getSupabaseClient(): any {
+    if (!this.supabase) {
+      throw new Error('Supabase not initialized');
+    }
+    return this.supabase;
+  }
+
+  /**
    * Configuration
    */
 
