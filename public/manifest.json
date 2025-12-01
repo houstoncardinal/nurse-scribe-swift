@@ -136,13 +136,13 @@
   "related_applications": [
     {
       "platform": "webapp",
-      "url": "https://nursescribe.ai/manifest.json"
+      "url": "https://raha.ai/manifest.json"
     }
   ],
   "prefer_related_applications": false,
   "protocol_handlers": [
     {
-      "protocol": "web+nursescribe",
+      "protocol": "web+raha",
       "url": "/?action=%s"
     }
   ],

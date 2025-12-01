@@ -362,7 +362,7 @@ class TeamManagementService {
    */
   private loadTeams(): void {
     try {
-      const stored = localStorage.getItem('nursescribe_teams');
+      const stored = localStorage.getItem('raha_teams');
       if (stored) {
         const data = JSON.parse(stored);
         Object.entries(data).forEach(([key, value]) => {
@@ -383,7 +383,7 @@ class TeamManagementService {
       this.teams.forEach((value, key) => {
         data[key] = value;
       });
-      localStorage.setItem('nursescribe_teams', JSON.stringify(data));
+      localStorage.setItem('raha_teams', JSON.stringify(data));
     } catch (error) {
       console.warn('Failed to save teams:', error);
     }
@@ -398,7 +398,7 @@ class TeamManagementService {
       this.invites.forEach((value, key) => {
         data[key] = value;
       });
-      localStorage.setItem('nursescribe_team_invites', JSON.stringify(data));
+      localStorage.setItem('raha_team_invites', JSON.stringify(data));
     } catch (error) {
       console.warn('Failed to save invites:', error);
     }

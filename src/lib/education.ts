@@ -74,7 +74,7 @@ export interface CompetencyTracker {
 }
 
 class EducationService {
-  private storageKey = 'nursescribe_education';
+  private storageKey = 'raha_education';
   private clinicalCases: ClinicalCase[] = [];
 
   constructor() {

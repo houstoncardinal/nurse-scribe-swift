@@ -9,9 +9,9 @@ const TIMESTAMP = Date.now();
 
 // Environment detection
 const ENVIRONMENT = 'production'; // Always production in service worker
-const CACHE_NAME = `nursescribe-v${VERSION}-${TIMESTAMP}`;
-const STATIC_CACHE = `nursescribe-static-v${VERSION}-${TIMESTAMP}`;
-const DYNAMIC_CACHE = `nursescribe-dynamic-v${VERSION}-${TIMESTAMP}`;
+const CACHE_NAME = `raha-v${VERSION}-${TIMESTAMP}`;
+const STATIC_CACHE = `raha-static-v${VERSION}-${TIMESTAMP}`;
+const DYNAMIC_CACHE = `raha-dynamic-v${VERSION}-${TIMESTAMP}`;
 
 // Force cache invalidation on every update
 const FORCE_CACHE_CLEAR = true;

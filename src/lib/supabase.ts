@@ -132,7 +132,7 @@ class SupabaseService {
         },
         global: {
           headers: {
-            'X-Client-Info': 'nursescribe-ai-v1.4.0'
+            'X-Client-Info': 'raha-ai-v1.4.0'
           }
         }
       });

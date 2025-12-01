@@ -54,8 +54,8 @@ export interface ProductivityMetrics {
 }
 
 class AnalyticsService {
-  private storageKey = 'nursescribe_analytics';
-  private sessionKey = 'nursescribe_session';
+  private storageKey = 'raha_analytics';
+  private sessionKey = 'raha_session';
 
   /**
    * Initialize analytics data

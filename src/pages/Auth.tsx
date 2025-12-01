@@ -152,7 +152,7 @@ export function AuthPage() {
     <SignInPage
       title={<span className="font-light text-foreground tracking-tighter">Welcome to Raha</span>}
       description="AI-Powered Clinical Documentation Platform"
-      heroImageSrc="https://images.unsplash.com/photo-1642615835477-d303d7dc9ee9?w=2160&q=80"
+      heroImageSrc="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=2160&q=80"
       testimonials={sampleTestimonials}
       onSignIn={handleSignIn}
       onSignUp={handleSignUp}

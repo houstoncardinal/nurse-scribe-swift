@@ -339,7 +339,7 @@ class AuditLoggingService {
    */
   private loadEvents(): void {
     try {
-      const stored = localStorage.getItem('nursescribe_audit_log');
+      const stored = localStorage.getItem('raha_audit_log');
       if (stored) {
         this.events = JSON.parse(stored, (key, value) => {
           // Convert timestamp strings back to Date objects
@@ -361,7 +361,7 @@ class AuditLoggingService {
     try {
       // Only save recent events to localStorage
       const recentEvents = this.events.slice(0, 1000);
-      localStorage.setItem('nursescribe_audit_log', JSON.stringify(recentEvents));
+      localStorage.setItem('raha_audit_log', JSON.stringify(recentEvents));
     } catch (error) {
       console.warn('Failed to save audit log:', error);
     }

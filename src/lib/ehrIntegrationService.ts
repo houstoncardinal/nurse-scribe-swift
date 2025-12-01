@@ -302,7 +302,7 @@ class EHRIntegrationService {
    */
   private loadConnections(): void {
     try {
-      const stored = localStorage.getItem('nursescribe_ehr_connections');
+      const stored = localStorage.getItem('raha_ehr_connections');
       if (stored) {
         const data = JSON.parse(stored);
         Object.entries(data).forEach(([key, value]) => {
@@ -323,7 +323,7 @@ class EHRIntegrationService {
       this.connections.forEach((value, key) => {
         data[key] = value;
       });
-      localStorage.setItem('nursescribe_ehr_connections', JSON.stringify(data));
+      localStorage.setItem('raha_ehr_connections', JSON.stringify(data));
     } catch (error) {
       console.warn('Failed to save EHR connections:', error);
     }

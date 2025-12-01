@@ -104,8 +104,8 @@ export interface ComplianceReport {
 }
 
 class AdminService {
-  private storageKey = 'nursescribe_admin';
-  private auditKey = 'nursescribe_audit';
+  private storageKey = 'raha_admin';
+  private auditKey = 'raha_audit';
 
   /**
    * Initialize organization settings
@@ -122,7 +122,7 @@ class AdminService {
 
     return {
       id: 'org_001',
-      name: 'NurseScribe Organization',
+      name: 'Raha Organization',
       type: 'hospital',
       hipaaCompliant: true,
       dataRetentionDays: 2555, // 7 years
@@ -212,7 +212,7 @@ class AdminService {
     return [
       {
         id: 'user_001',
-        email: 'admin@nursescribe.com',
+        email: 'admin@raha.ai',
         name: 'Admin User',
         role: 'admin',
         department: 'Administration',

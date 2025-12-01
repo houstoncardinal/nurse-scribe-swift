@@ -435,7 +435,7 @@ class ClinicalDecisionSupportService {
    */
   private loadSettings(): void {
     try {
-      const stored = localStorage.getItem('nursescribe_cds_enabled');
+      const stored = localStorage.getItem('raha_cds_enabled');
       if (stored !== null) {
         this.enabled = JSON.parse(stored);
       }
@@ -449,7 +449,7 @@ class ClinicalDecisionSupportService {
    */
   public saveSettings(): void {
     try {
-      localStorage.setItem('nursescribe_cds_enabled', JSON.stringify(this.enabled));
+      localStorage.setItem('raha_cds_enabled', JSON.stringify(this.enabled));
     } catch (error) {
       console.warn('Failed to save CDS settings:', error);
     }
