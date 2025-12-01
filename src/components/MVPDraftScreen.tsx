@@ -355,7 +355,7 @@ export function MVPDraftScreen({
 
   const renderSection = (title: string, content: string, icon: React.ReactNode) => {
     const isEditing = editingSection === title.toLowerCase().replace(/\s+/g, '');
-    
+
     return (
       <Card className="p-3 shadow-sm">
         <div className="flex items-center gap-2 mb-2">
@@ -364,7 +364,7 @@ export function MVPDraftScreen({
           </div>
           <h3 className="text-sm lg:text-base font-semibold text-slate-900">{title}</h3>
         </div>
-        
+
         {isEditing ? (
           <div className="space-y-2">
             <Textarea
@@ -438,132 +438,6 @@ export function MVPDraftScreen({
           </div>
         </div>
       </div>
-
-      {/* AI Insights Display - Compact */}
-      {aiInsights && (
-        <div className="lg:hidden flex-shrink-0 p-2 bg-gradient-to-r from-blue-50 to-teal-50 border-b border-blue-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Brain className="h-3 w-3 text-blue-600" />
-              <span className="text-xs font-semibold text-blue-900">AI Enhanced</span>
-              {isGenerating && (
-                <div className="h-2 w-2 animate-spin rounded-full border border-blue-600 border-t-transparent" />
-              )}
-            </div>
-            <div className="flex items-center gap-3 text-xs">
-              <div className="flex items-center gap-1">
-                <TrendingUp className="h-3 w-3 text-green-600" />
-                <span className="text-slate-700">{Math.round(aiInsights.confidence * 100)}%</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Target className="h-3 w-3 text-orange-600" />
-                <span className="text-slate-700">{aiInsights.icd10Suggestions?.length || 0}</span>
-              </div>
-              {aiInsights.riskFlags?.length > 0 && (
-                <div className="flex items-center gap-1 text-red-600 font-semibold">
-                  <AlertTriangle className="h-3 w-3" />
-                  <span>{aiInsights.riskFlags.length}</span>
-                </div>
-              )}
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setShowICD10Panel(!showICD10Panel)}
-                className="h-6 text-xs bg-white/80 border-blue-200 text-blue-700 hover:bg-blue-50 px-2"
-              >
-                <Target className="h-3 w-3 mr-1" />
-                {showICD10Panel ? 'Hide' : 'ICD-10'}
-              </Button>
-              {selectedICD10Codes.length > 0 && (
-                <Badge className="h-6 px-2 bg-green-100 text-green-800 border-green-200 text-xs">
-                  {selectedICD10Codes.length}
-                </Badge>
-              )}
-            </div>
-          </div>
-          {(aiInsights.summary || aiInsights.priorityActions?.length > 0) && (
-            <div className="mt-2 space-y-1">
-              {aiInsights.summary && (
-                <p className="text-[11px] text-slate-600 leading-snug">{aiInsights.summary}</p>
-              )}
-              {aiInsights.priorityActions?.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {aiInsights.priorityActions.slice(0, 2).map((action: string, index: number) => (
-                    <Badge key={index} className="bg-amber-100 text-amber-800 border-amber-200 text-[10px] px-2 py-1">
-                      {action}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Mobile ICD-10 Panel */}
-      {showICD10Panel && aiInsights && (
-        <div className="lg:hidden flex-shrink-0 p-3 bg-white border-b border-slate-200 max-h-64 overflow-y-auto">
-          <div className="mb-3">
-            <h3 className="text-sm font-semibold text-slate-900 mb-2">AI-Suggested ICD-10 Codes</h3>
-            <p className="text-xs text-slate-600 mb-3">Tap to select codes for your note</p>
-          </div>
-          
-          {/* Selected Codes */}
-          {selectedICD10Codes.length > 0 && (
-            <div className="mb-3">
-              <h4 className="text-xs font-medium text-green-700 mb-2">Selected Codes:</h4>
-              <div className="flex flex-wrap gap-1">
-                {selectedICD10Codes.map((code) => (
-                  <Badge
-                    key={code.code}
-                    className="bg-green-100 text-green-800 border-green-200 text-xs px-2 py-1"
-                  >
-                    {code.code} - {code.description.substring(0, 30)}...
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {/* Suggested Codes */}
-          <div className="space-y-2">
-            {aiInsights.icd10Suggestions?.slice(0, 5).map((suggestion: any, index: number) => (
-              <div
-                key={index}
-                className={`p-2 rounded-lg border cursor-pointer transition-all ${
-                  selectedICD10Codes.find(c => c.code === suggestion.code)
-                    ? 'bg-green-50 border-green-200 ring-1 ring-green-300'
-                    : 'bg-slate-50 border-slate-200 hover:bg-blue-50 hover:border-blue-200'
-                }`}
-                onClick={() => handleICD10CodeSelect(suggestion.code, suggestion.description)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-mono font-semibold text-blue-600">
-                        {suggestion.code}
-                      </span>
-                      {selectedICD10Codes.find(c => c.code === suggestion.code) && (
-                        <CheckCircle className="h-3 w-3 text-green-600" />
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-700 mt-1 line-clamp-2">
-                      {suggestion.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          {aiInsights.icd10Suggestions?.length === 0 && (
-            <div className="text-center py-4">
-              <Target className="h-8 w-8 text-slate-400 mx-auto mb-2" />
-              <p className="text-xs text-slate-500">No ICD-10 suggestions available</p>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Desktop Header */}
       <div className="hidden lg:block flex-shrink-0 px-6 py-3 bg-white/90 backdrop-blur-sm border-b border-slate-200">
@@ -835,7 +709,7 @@ export function MVPDraftScreen({
             <RotateCcw className="h-4 w-4 mr-1" />
             Regenerate
           </Button>
-          
+
           <Button
             variant="outline"
             size="sm"
