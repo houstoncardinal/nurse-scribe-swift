@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Eye, EyeOff, Key, Shield, AlertTriangle, CheckCircle2, Settings, Save } from 'lucide-react';
+import { Eye, EyeOff, Key, Shield, AlertTriangle, CheckCircle2, Settings, Save, Info, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,7 +17,6 @@ interface ApiKeyManagerProps {
 }
 
 interface ApiKeys {
-  openai: string;
   elevenlabs: string;
   elevenlabsVoiceId: string;
   useSupabase: boolean;
@@ -26,7 +25,6 @@ interface ApiKeys {
 
 export function ApiKeyManager({ isOpen, onClose, onApiKeysUpdated }: ApiKeyManagerProps) {
   const [apiKeys, setApiKeys] = useState<ApiKeys>({
-    openai: '',
     elevenlabs: '',
     elevenlabsVoiceId: 'EXAVITQu4vr4xnSDxMaL', // Default professional voice
     useSupabase: false,
@@ -34,16 +32,13 @@ export function ApiKeyManager({ isOpen, onClose, onApiKeysUpdated }: ApiKeyManag
   });
   
   const [showKeys, setShowKeys] = useState({
-    openai: false,
     elevenlabs: false,
   });
   
   const [isValidating, setIsValidating] = useState(false);
   const [validationStatus, setValidationStatus] = useState<{
-    openai: 'idle' | 'validating' | 'valid' | 'invalid';
     elevenlabs: 'idle' | 'validating' | 'valid' | 'invalid';
   }>({
-    openai: 'idle',
     elevenlabs: 'idle',
   });
 
@@ -53,29 +48,18 @@ export function ApiKeyManager({ isOpen, onClose, onApiKeysUpdated }: ApiKeyManag
     if (storedKeys) {
       try {
         const parsed = JSON.parse(storedKeys);
-        setApiKeys(parsed);
+        // Only load non-sensitive keys
+        setApiKeys({
+          elevenlabs: parsed.elevenlabs || '',
+          elevenlabsVoiceId: parsed.elevenlabsVoiceId || 'EXAVITQu4vr4xnSDxMaL',
+          useSupabase: parsed.useSupabase || false,
+          hipaaMode: parsed.hipaaMode || false,
+        });
       } catch (error) {
         console.error('Failed to parse stored API keys:', error);
       }
     }
   }, []);
-
-  // Validate OpenAI API key
-  const validateOpenAI = async (key: string): Promise<boolean> => {
-    if (!key) return false;
-    
-    try {
-      const response = await fetch('https://api.openai.com/v1/models', {
-        headers: {
-          'Authorization': `Bearer ${key}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      return response.ok;
-    } catch (error) {
-      return false;
-    }
-  };
 
   // Validate ElevenLabs API key
   const validateElevenLabs = async (key: string): Promise<boolean> => {
@@ -93,17 +77,12 @@ export function ApiKeyManager({ isOpen, onClose, onApiKeysUpdated }: ApiKeyManag
     }
   };
 
-  const handleValidateKey = async (type: 'openai' | 'elevenlabs') => {
+  const handleValidateKey = async (type: 'elevenlabs') => {
     setIsValidating(true);
     setValidationStatus(prev => ({ ...prev, [type]: 'validating' }));
 
     try {
-      let isValid = false;
-      if (type === 'openai') {
-        isValid = await validateOpenAI(apiKeys.openai);
-      } else if (type === 'elevenlabs') {
-        isValid = await validateElevenLabs(apiKeys.elevenlabs);
-      }
+      const isValid = await validateElevenLabs(apiKeys.elevenlabs);
 
       setValidationStatus(prev => ({ 
         ...prev, 
@@ -111,30 +90,30 @@ export function ApiKeyManager({ isOpen, onClose, onApiKeysUpdated }: ApiKeyManag
       }));
 
       if (isValid) {
-        toast.success(`${type === 'openai' ? 'OpenAI' : 'ElevenLabs'} API key validated successfully`);
+        toast.success('ElevenLabs API key validated successfully');
       } else {
-        toast.error(`Invalid ${type === 'openai' ? 'OpenAI' : 'ElevenLabs'} API key`);
+        toast.error('Invalid ElevenLabs API key');
       }
     } catch (error) {
       setValidationStatus(prev => ({ ...prev, [type]: 'invalid' }));
-      toast.error(`Failed to validate ${type === 'openai' ? 'OpenAI' : 'ElevenLabs'} API key`);
+      toast.error('Failed to validate ElevenLabs API key');
     } finally {
       setIsValidating(false);
     }
   };
 
   const handleSave = () => {
-    // Save to localStorage
+    // Save to localStorage (only non-sensitive settings)
     localStorage.setItem('nursescribe_api_keys', JSON.stringify(apiKeys));
     
     // Update parent component
-    onApiKeysUpdated(apiKeys);
+    onApiKeysUpdated(apiKeys as any);
     
-    toast.success('API keys saved successfully');
+    toast.success('Settings saved successfully');
     onClose();
   };
 
-  const getValidationIcon = (type: 'openai' | 'elevenlabs') => {
+  const getValidationIcon = (type: 'elevenlabs') => {
     const status = validationStatus[type];
     switch (status) {
       case 'valid':
@@ -162,7 +141,7 @@ export function ApiKeyManager({ isOpen, onClose, onApiKeysUpdated }: ApiKeyManag
               </div>
               <div>
                 <h2 className="text-xl font-bold">API Configuration</h2>
-                <p className="text-sm text-muted-foreground">Configure your AI service API keys</p>
+                <p className="text-sm text-muted-foreground">Configure optional AI services</p>
               </div>
             </div>
             <Button variant="ghost" size="sm" onClick={onClose}>
@@ -170,66 +149,24 @@ export function ApiKeyManager({ isOpen, onClose, onApiKeysUpdated }: ApiKeyManag
             </Button>
           </div>
 
-          {/* Security Notice */}
+          {/* Security Notice - OpenAI */}
           <Alert className="bg-primary/10 border-primary/20">
-            <Shield className="h-4 w-4 text-primary" />
+            <Lock className="h-4 w-4 text-primary" />
             <AlertDescription className="text-sm">
-              <strong className="text-primary">Secure Storage:</strong> API keys are stored locally in your browser and never transmitted to our servers.
+              <strong className="text-primary">OpenAI API Key:</strong> For security, the OpenAI API key is configured server-side via Netlify environment variables. This ensures your key is never exposed in the browser.
             </AlertDescription>
           </Alert>
 
-          {/* OpenAI Configuration */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="openai-key" className="text-base font-semibold">
-                OpenAI API Key
-              </Label>
-              <Badge variant="outline" className="text-xs">
-                Required for AI Composition
-              </Badge>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="relative">
-                <Input
-                  id="openai-key"
-                  type={showKeys.openai ? 'text' : 'password'}
-                  placeholder="sk-..."
-                  value={apiKeys.openai}
-                  onChange={(e) => setApiKeys(prev => ({ ...prev, openai: e.target.value }))}
-                  className="pr-20"
-                />
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowKeys(prev => ({ ...prev, openai: !prev.openai }))}
-                    className="h-8 w-8 p-0"
-                  >
-                    {showKeys.openai ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleValidateKey('openai')}
-                    disabled={isValidating || !apiKeys.openai}
-                    className="h-8 w-8 p-0"
-                  >
-                    {getValidationIcon('openai')}
-                  </Button>
-                </div>
+          {/* AI Status */}
+          <div className="p-4 bg-muted/50 rounded-lg border border-border/50">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="h-5 w-5 text-success" />
+              <div>
+                <p className="font-medium">AI Note Generation</p>
+                <p className="text-sm text-muted-foreground">
+                  Powered by secure serverless function • No client-side API keys required
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Get your API key from{' '}
-                <a 
-                  href="https://platform.openai.com/api-keys" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  OpenAI Platform
-                </a>
-              </p>
             </div>
           </div>
 
@@ -242,7 +179,7 @@ export function ApiKeyManager({ isOpen, onClose, onApiKeysUpdated }: ApiKeyManag
                 ElevenLabs API Key
               </Label>
               <Badge variant="outline" className="text-xs">
-                Required for Voice Readback
+                Optional • Voice Readback
               </Badge>
             </div>
             
@@ -318,7 +255,7 @@ export function ApiKeyManager({ isOpen, onClose, onApiKeysUpdated }: ApiKeyManag
                     HIPAA Mode
                   </Label>
                   <p className="text-xs text-muted-foreground">
-                    Enable encrypted storage and audit logging (requires Supabase)
+                    Enable encrypted storage and audit logging
                   </p>
                 </div>
                 <Switch
@@ -331,10 +268,10 @@ export function ApiKeyManager({ isOpen, onClose, onApiKeysUpdated }: ApiKeyManag
               <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                 <div className="space-y-1">
                   <Label htmlFor="use-supabase" className="text-sm font-medium">
-                    Enable Supabase (Metadata Only)
+                    Enable Cloud Storage
                   </Label>
                   <p className="text-xs text-muted-foreground">
-                    Store usage analytics and audit logs (no PHI)
+                    Store usage analytics and audit logs (metadata only, no PHI)
                   </p>
                 </div>
                 <Switch
