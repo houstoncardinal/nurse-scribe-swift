@@ -1,124 +1,92 @@
 /**
  * OpenAI Service
- * Production-ready AI service using OpenAI API
+ * Production-ready AI service using secure serverless functions
+ * 
+ * SECURITY: All API calls go through Netlify serverless functions
+ * to keep the OpenAI API key secure on the server side.
+ * 
+ * The API key is stored as an environment variable in Netlify,
+ * NOT in localStorage or client-side code.
  */
 
 import { toast } from 'sonner';
-
-interface OpenAIConfig {
-  apiKey: string;
-  model: string;
-  temperature: number;
-  maxTokens: number;
-}
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
 }
 
-interface CompletionResponse {
-  choices: Array<{
-    message: {
-      content: string;
-    };
-    finish_reason: string;
-  }>;
-  usage: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
+interface OpenAIConfig {
+  model: string;
+  temperature: number;
+  maxTokens: number;
 }
 
 class OpenAIService {
   private config: OpenAIConfig = {
-    apiKey: '',
-    model: 'gpt-4-turbo-preview',
+    model: 'gpt-4o-mini',
     temperature: 0.7,
     maxTokens: 2000
   };
 
-  private baseURL = 'https://api.openai.com/v1';
+  private readonly API_ENDPOINT = '/.netlify/functions/generate-note';
 
-  /**
-   * Initialize OpenAI service with API key
-   */
-  public initialize(apiKey: string): void {
-    this.config.apiKey = apiKey;
-    console.log('✅ OpenAI service initialized');
+  constructor() {
+    console.log('✅ OpenAI Service initialized - using secure serverless function');
   }
 
   /**
-   * Check if service is configured
+   * Check if service is available (always true since we use serverless)
    */
   public isConfigured(): boolean {
-    return !!this.config.apiKey;
+    // Service is available through Netlify function
+    return true;
   }
 
   /**
-   * Get API key from localStorage, environment, or import.meta.env
-   */
-  private getApiKey(): string {
-    // Try localStorage first (user-configured)
-    const storedKey = localStorage.getItem('openai_api_key');
-    if (storedKey) {
-      return storedKey;
-    }
-
-    // Try Vite environment variable (for Netlify deployment)
-    if (import.meta.env.VITE_OPENAI_API_KEY) {
-      return import.meta.env.VITE_OPENAI_API_KEY;
-    }
-
-    // Try config
-    if (this.config.apiKey) {
-      return this.config.apiKey;
-    }
-
-    // Return empty if not found (will use templates)
-    return '';
-  }
-
-  /**
-   * Chat completion with OpenAI
+   * Chat completion via secure serverless function
    */
   public async chatCompletion(
     messages: ChatMessage[],
     options?: Partial<OpenAIConfig>
   ): Promise<string> {
-    const apiKey = this.getApiKey();
-    
-    if (!apiKey) {
-      console.log('ℹ️ OpenAI API key not found - using template fallback');
-      throw new Error('AI_NOT_CONFIGURED');
-    }
-
     try {
-      const response = await fetch(`${this.baseURL}/chat/completions`, {
+      // Build prompt from messages
+      const systemMessage = messages.find(m => m.role === 'system')?.content || '';
+      const userMessage = messages.find(m => m.role === 'user')?.content || '';
+      
+      const prompt = systemMessage 
+        ? `${systemMessage}\n\n${userMessage}`
+        : userMessage;
+
+      const response = await fetch(this.API_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
         },
-        body: JSON.stringify({
-          model: options?.model || this.config.model,
-          messages,
-          temperature: options?.temperature || this.config.temperature,
-          max_tokens: options?.maxTokens || this.config.maxTokens
-        })
+        body: JSON.stringify({ prompt }),
       });
 
       if (!response.ok) {
-        const error = await response.json();
+        const error = await response.json().catch(() => ({}));
+        
+        if (response.status === 500 && error.error?.includes('API key not configured')) {
+          console.log('ℹ️ OpenAI API key not configured on server - using fallback');
+          throw new Error('AI_NOT_CONFIGURED');
+        }
+        
         throw new Error(error.error?.message || 'OpenAI API request failed');
       }
 
-      const data: CompletionResponse = await response.json();
-      return data.choices[0].message.content;
+      const data = await response.json();
+      return data.content;
       
     } catch (error: any) {
       console.error('OpenAI API error:', error);
+      
+      if (error.message === 'AI_NOT_CONFIGURED') {
+        throw error;
+      }
       
       // Check if it's a network error
       if (error.message?.includes('Failed to fetch') || error.name === 'TypeError') {
@@ -365,21 +333,26 @@ Return only the enhanced text.`;
   }
 
   /**
-   * Set API key
+   * Initialize (no-op for serverless)
+   * @deprecated API keys are now managed server-side only
    */
-  public setApiKey(apiKey: string): void {
-    this.config.apiKey = apiKey;
-    localStorage.setItem('openai_api_key', apiKey);
-    toast.success('OpenAI API key saved');
+  public initialize(apiKey: string): void {
+    console.warn('⚠️ initialize() is deprecated. API keys are now managed server-side via Netlify environment variables.');
   }
 
   /**
-   * Clear API key
+   * @deprecated API keys should not be stored client-side
+   */
+  public setApiKey(apiKey: string): void {
+    console.warn('⚠️ setApiKey() is deprecated. API keys must be set as environment variables in Netlify.');
+    toast.info('API keys are now managed securely on the server. Please set OPENAI_API_KEY in Netlify environment variables.');
+  }
+
+  /**
+   * @deprecated API keys are managed server-side
    */
   public clearApiKey(): void {
-    this.config.apiKey = '';
-    localStorage.removeItem('openai_api_key');
-    toast.info('OpenAI API key cleared');
+    console.warn('⚠️ clearApiKey() is deprecated. API keys are managed server-side.');
   }
 
   /**
