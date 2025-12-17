@@ -27,16 +27,24 @@ class PWAService {
   private serviceWorker: ServiceWorker | null = null;
   private installPrompt: PWAInstallPrompt | null = null;
   private updateAvailable = false;
-  private isOnline = navigator.onLine;
+  private isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+  private initialized = false;
 
   constructor() {
-    this.initialize();
+    // Don't initialize in constructor - wait for explicit call
   }
 
   /**
-   * Initialize PWA service
+   * Initialize PWA service (call this after React is ready)
    */
   async initialize(): Promise<void> {
+    // Prevent double initialization
+    if (this.initialized) return;
+    this.initialized = true;
+    
+    // Only run in browser environment
+    if (typeof window === 'undefined') return;
+    
     // Register service worker
     await this.registerServiceWorker();
     
